@@ -34,7 +34,17 @@ export default function About() {
         </p>
 
         <p className="mt-2">
-          Om du har haft nytta av mitt projekt får du gärna Swisha några kronor på 0737600282 :)
+          Om du har haft nytta av mitt projekt får du gärna Swisha några kronor till 0737600282 :)
+        </p>
+
+        <h1 className="text-2xl mt-6">
+          Hjälpa till
+        </h1>
+
+        <p className="mt-2">
+          Vill du hjälpa till att förbättra tjänsten,
+          antingen som utvecklare eller genom att lägga till fler områden, även utanför Bergshamra?
+          Tveka inte att kontakta mig på johanehrenfors@hotmail.com!
         </p>
       </div>
     </main>
