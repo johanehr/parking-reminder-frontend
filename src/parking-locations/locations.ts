@@ -1,15 +1,25 @@
 import { DateTime } from "luxon";
 
+enum DayOfWeek {
+  MONDAY = 1,
+  TUESDAY = 2,
+  WEDNESDAY = 3,
+  THURSDAY = 4,
+  FRIDAY = 5,
+  SATURDAY = 6,
+  SUNDAY = 7
+}
+
 type ParkingLocationData = {
   name: string;
-  allowedParking: {
+  parkingRules: {
     cleaningTimes: CleaningTime[],
     maximum: { days: number }},
   path: { lat: number, lng: number }[];
 }
 
 type CleaningTime = {
-  day: string, // TODO: Consider enum?
+  day: DayOfWeek
   startHour: number,
   endHour: number,
   appliesToEvenWeeks: boolean,
@@ -22,9 +32,11 @@ export function getParkingLocationData() {
   const rawData: ParkingLocationData[] = [
     {
       name: "Gamla vägen (kort)",
-      allowedParking: {
+      parkingRules: {
         cleaningTimes: [
-          { day: 'Thursday', startHour: 10, endHour: 14, appliesToEvenWeeks: false, appliesToOddWeeks: true  }, // TODO: Specific parts of the year, e.g. not summer
+          { day: DayOfWeek.THURSDAY, startHour: 10, endHour: 14, appliesToEvenWeeks: false, appliesToOddWeeks: true  },
+          // TODO: Specific parts of the year, e.g. not summer
+          // TODO: Deal with e.g. sundays
         ],
         maximum: { days: 14 }
       },
@@ -37,9 +49,9 @@ export function getParkingLocationData() {
     },
     {
       name: "Gamla vägen (utanför gul villa)",
-      allowedParking: {
+      parkingRules: {
         cleaningTimes: [
-          { day: 'Tuesday', startHour: 10, endHour: 14, appliesToEvenWeeks: false, appliesToOddWeeks: true  },
+          { day: DayOfWeek.TUESDAY, startHour: 10, endHour: 14, appliesToEvenWeeks: false, appliesToOddWeeks: true  },
         ],
         maximum: { days: 14 }
       },
@@ -52,9 +64,9 @@ export function getParkingLocationData() {
     },
     {
       name: "Björnstigen vid äldreboendet",
-      allowedParking: {
+      parkingRules: {
         cleaningTimes: [
-          { day: 'Wednesday', startHour: 10, endHour: 14, appliesToEvenWeeks: true, appliesToOddWeeks: false  },
+          { day: DayOfWeek.WEDNESDAY, startHour: 10, endHour: 14, appliesToEvenWeeks: true, appliesToOddWeeks: false  },
         ],
         maximum: { days: 14 }
       },
@@ -75,17 +87,42 @@ export function getParkingLocationData() {
 }
 
 function getNextCleaningTime(cleaningTimes: CleaningTime[]): DateTime {
-  return DateTime.now().plus({ days: 1 })
+  const now = DateTime.now()
+  const currentDay = now.weekday
+
+  const allMoveDays = cleaningTimes.map((cleaningTime) => {
+    const cleaningDay = cleaningTime.day
+  
+    // Only considering day of the week (not odd/even)
+    let dayOffset = cleaningDay - currentDay
+    if (dayOffset < 0) {
+      dayOffset = 7 + dayOffset // Already passed, see next week
+    }
+    let nextCleaningWeekday = now.plus({ days: dayOffset }).set({ hour: cleaningTime.startHour })
+
+    // Consider odd/even weeks
+    if (nextCleaningWeekday.weekNumber % 2 === 0 && !cleaningTime.appliesToEvenWeeks) { // TODO: Handle case where if doesn't apply to any week (e.g. during summers)
+      nextCleaningWeekday = nextCleaningWeekday.plus({ days: 7 }) // One week extra!
+    }
+
+    // TODO: Consider time of day has already passed as well!
+
+    return nextCleaningWeekday
+  })
+
+  return allMoveDays.sort(compareLuxonDates)[0]
+  
 }
 
-function getAppropriateDisplayColor(parkingLocation: any): string {
-  const now = DateTime.now()
-  const nextCleaningTime = getNextCleaningTime(parkingLocation.cleaningTimes)
-  const maximumTime = DateTime.now().plus({ days: parkingLocation.allowedParking.maximum.days })
+function compareLuxonDates(a: DateTime, b: DateTime) {
+  return a.toMillis() - b.toMillis()
+}
 
-  function compareLuxonDates(a: DateTime, b: DateTime) {
-    return a.toMillis() - b.toMillis()
-  }
+function getAppropriateDisplayColor(parkingLocation: ParkingLocationData): string {
+  const now = DateTime.now()
+  const nextCleaningTime = getNextCleaningTime(parkingLocation.parkingRules.cleaningTimes)
+  const maximumTime = DateTime.now().plus({ days: parkingLocation.parkingRules.maximum.days })
+
   const lastTimeToMove = [nextCleaningTime, maximumTime].sort(compareLuxonDates)[0]
   const hoursUntilMove = lastTimeToMove.diffNow(['hours']).hours
   console.log('Hours until move: ', hoursUntilMove)

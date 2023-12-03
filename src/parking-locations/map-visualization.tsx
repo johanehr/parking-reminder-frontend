@@ -10,6 +10,7 @@ export default function ParkingMapPolygons() {
       {
         parkingLocations.map((location) => (
           <Polygon
+            key={location.name}
             path={location.path}
             options={{
               strokeColor: location.color,
