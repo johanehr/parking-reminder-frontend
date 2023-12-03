@@ -1,14 +1,30 @@
+import { DateTime } from "luxon";
+
+type ParkingLocationData = {
+  name: string;
+  allowedParking: {
+    cleaningTimes: CleaningTime[],
+    maximum: { days: number }},
+  path: { lat: number, lng: number }[];
+}
+
+type CleaningTime = {
+  day: string, // TODO: Consider enum?
+  startHour: number,
+  endHour: number,
+  appliesToEvenWeeks: boolean,
+  appliesToOddWeeks: boolean
+}
+
 export function getParkingLocationData() {
 
   // TODO: This should probably come from a database in the future, for crowd-sourced data
-
-  return [
+  const rawData: ParkingLocationData[] = [
     {
       name: "Gamla vägen (kort)",
-      color: "green", // TODO: Augment based on allowed parking times
       allowedParking: {
         cleaningTimes: [
-          { day: 'Thursday', start: 10, end: 14, evenWeeks: false, oddWeeks: true  }, // TODO: Specific parts of the year, e.g. not summer
+          { day: 'Thursday', startHour: 10, endHour: 14, appliesToEvenWeeks: false, appliesToOddWeeks: true  }, // TODO: Specific parts of the year, e.g. not summer
         ],
         maximum: { days: 14 }
       },
@@ -21,10 +37,9 @@ export function getParkingLocationData() {
     },
     {
       name: "Gamla vägen (utanför gul villa)",
-      color: "red",
       allowedParking: {
         cleaningTimes: [
-          { day: 'Tuesday', start: 10, end: 14, evenWeeks: false, oddWeeks: true  },
+          { day: 'Tuesday', startHour: 10, endHour: 14, appliesToEvenWeeks: false, appliesToOddWeeks: true  },
         ],
         maximum: { days: 14 }
       },
@@ -37,10 +52,9 @@ export function getParkingLocationData() {
     },
     {
       name: "Björnstigen vid äldreboendet",
-      color: "orange",
       allowedParking: {
         cleaningTimes: [
-          { day: 'Wednesday', start: 10, end: 14, evenWeeks: true, oddWeeks: false  },
+          { day: 'Wednesday', startHour: 10, endHour: 14, appliesToEvenWeeks: true, appliesToOddWeeks: false  },
         ],
         maximum: { days: 14 }
       },
@@ -56,4 +70,29 @@ export function getParkingLocationData() {
       ]
     }
   ]
+
+  return rawData.map( (parkingLocation) => { return { ...parkingLocation, color: getAppropriateDisplayColor(parkingLocation)} })
+}
+
+function getNextCleaningTime(cleaningTimes: CleaningTime[]): DateTime {
+  return DateTime.now().plus({ days: 1 })
+}
+
+function getAppropriateDisplayColor(parkingLocation: any): string {
+  const now = DateTime.now()
+  const nextCleaningTime = getNextCleaningTime(parkingLocation.cleaningTimes)
+  const maximumTime = DateTime.now().plus({ days: parkingLocation.allowedParking.maximum.days })
+
+  function compareLuxonDates(a: DateTime, b: DateTime) {
+    return a.toMillis() - b.toMillis()
+  }
+  const lastTimeToMove = [nextCleaningTime, maximumTime].sort(compareLuxonDates)[0]
+  const hoursUntilMove = lastTimeToMove.diffNow(['hours']).hours
+  console.log('Hours until move: ', hoursUntilMove)
+
+  if (hoursUntilMove > 7 * 24 ) { return 'green' }
+  if (hoursUntilMove > 3 * 24 ) { return 'yellow' }
+  if (hoursUntilMove > 12 ) { return 'orange' }
+
+  return 'red'
 }
