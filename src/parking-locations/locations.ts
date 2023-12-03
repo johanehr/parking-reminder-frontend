@@ -1,35 +1,10 @@
 import { DateTime } from "luxon";
+import { AugmentedParkingLocationData, CleaningTime, DayOfWeek, ParkingLocationData } from "./types";
 
-enum DayOfWeek {
-  MONDAY = 1,
-  TUESDAY = 2,
-  WEDNESDAY = 3,
-  THURSDAY = 4,
-  FRIDAY = 5,
-  SATURDAY = 6,
-  SUNDAY = 7
-}
-
-type ParkingLocationData = {
-  name: string;
-  parkingRules: {
-    cleaningTimes: CleaningTime[],
-    maximum: { days: number }},
-  path: { lat: number, lng: number }[];
-}
-
-type CleaningTime = {
-  day: DayOfWeek
-  startHour: number,
-  endHour: number,
-  appliesToEvenWeeks: boolean,
-  appliesToOddWeeks: boolean
-}
-
-export function getParkingLocationData() {
-
+function getRawParkingLocationData(): ParkingLocationData[] {
   // TODO: This should probably come from a database in the future, for crowd-sourced data
-  const rawData: ParkingLocationData[] = [
+
+  return [
     {
       name: "Gamla vägen (kort)",
       parkingRules: {
@@ -82,13 +57,15 @@ export function getParkingLocationData() {
       ]
     }
   ]
-
-  return rawData.map( (parkingLocation) => { return { ...parkingLocation, color: getAppropriateDisplayColor(parkingLocation)} })
 }
 
-function getNextCleaningTime(cleaningTimes: CleaningTime[]): DateTime {
-  const now = DateTime.now()
-  const currentDay = now.weekday
+export function augmentParkingLocationData(): AugmentedParkingLocationData[] {
+  const rawData = getRawParkingLocationData()
+  return rawData.map( (parkingLocation) => { return { ...parkingLocation, color: getAppropriateDisplayColor(parkingLocation, DateTime.now())} }) // TODO: Ensure right TZ is used
+}
+
+export function calculateNextCleaningTime(cleaningTimes: CleaningTime[], currentTime: DateTime): DateTime {
+  const currentDay = currentTime.weekday
 
   const allMoveDays = cleaningTimes.map((cleaningTime) => {
     const cleaningDay = cleaningTime.day
@@ -96,16 +73,17 @@ function getNextCleaningTime(cleaningTimes: CleaningTime[]): DateTime {
     // Only considering day of the week (not odd/even)
     let dayOffset = cleaningDay - currentDay
     if (dayOffset < 0) {
+      console.log('Already passed, move next week')
       dayOffset = 7 + dayOffset // Already passed, see next week
     }
-    let nextCleaningWeekday = now.plus({ days: dayOffset }).set({ hour: cleaningTime.startHour, minute: 0, second: 0, millisecond: 0 })
+    let nextCleaningWeekday = currentTime.plus({ days: dayOffset }).set({ hour: cleaningTime.startHour, minute: 0, second: 0, millisecond: 0 })
 
     // Consider odd/even weeks
     if (nextCleaningWeekday.weekNumber % 2 === 0 && !cleaningTime.appliesToEvenWeeks) { // TODO: Handle case where if doesn't apply to any week (e.g. during summers)
       nextCleaningWeekday = nextCleaningWeekday.plus({ days: 7 }) // One week extra!
     }
 
-    // TODO: Consider time of day has already passed as well!
+    // TODO: Consider time of day has already passed as well! (endHour)
 
     return nextCleaningWeekday
   })
@@ -114,16 +92,20 @@ function getNextCleaningTime(cleaningTimes: CleaningTime[]): DateTime {
   
 }
 
+export function calculateMaximumTime(maximumDays: number, currentTime: DateTime): DateTime {
+  return currentTime.plus({ days: maximumDays })
+}
+
 function compareLuxonDates(a: DateTime, b: DateTime) {
   return a.toMillis() - b.toMillis()
 }
 
-function getAppropriateDisplayColor(parkingLocation: ParkingLocationData): string {
-  const now = DateTime.now()
-  const nextCleaningTime = getNextCleaningTime(parkingLocation.parkingRules.cleaningTimes)
-  const maximumTime = DateTime.now().plus({ days: parkingLocation.parkingRules.maximum.days })
+export function getAppropriateDisplayColor(parkingLocation: ParkingLocationData, currentTime: DateTime): string {
+  const nextCleaningTime = calculateNextCleaningTime(parkingLocation.parkingRules.cleaningTimes, currentTime)
+  const maximumTime = calculateMaximumTime(parkingLocation.parkingRules.maximum.days, currentTime)
 
   const lastTimeToMove = [nextCleaningTime, maximumTime].sort(compareLuxonDates)[0]
+  console.log(`Move before: ${lastTimeToMove.toISO()}`)
   const hoursUntilMove = lastTimeToMove.diffNow(['hours']).hours
   console.log(`${hoursUntilMove.toFixed(2)}h until need to move from ${parkingLocation.name}`)
 

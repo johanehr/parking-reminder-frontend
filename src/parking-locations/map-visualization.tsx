@@ -1,9 +1,9 @@
-import { getParkingLocationData } from '@/parking-locations/locations';
+import { augmentParkingLocationData } from '@/parking-locations/locations';
 import { Polygon } from '@react-google-maps/api';
 import { Fragment } from 'react';
 
 export default function ParkingMapPolygons() {
-  const parkingLocations = getParkingLocationData()
+  const parkingLocations = augmentParkingLocationData()
 
   return (
     <Fragment>

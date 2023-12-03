@@ -1,6 +1,6 @@
 "use client"; // Necessary due to using src/app instead of legacy pages structure?
 
-import { getParkingLocationData } from '@/parking-locations/locations';
+import { augmentParkingLocationData } from '@/parking-locations/locations';
 import ParkingMapPolygons from '@/parking-locations/map-visualization';
 import { useLoadScript, GoogleMap, Polyline, Marker, Polygon } from '@react-google-maps/api';
 import { Fragment, useMemo } from 'react';
