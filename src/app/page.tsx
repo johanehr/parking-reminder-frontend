@@ -1,7 +1,8 @@
 "use client"; // Necessary due to using src/app instead of legacy pages structure?
 
-import { useLoadScript, GoogleMap } from '@react-google-maps/api';
-import { useMemo } from 'react';
+import { getParkingLocationData } from '@/parking-locations/locations';
+import { useLoadScript, GoogleMap, Polyline, Marker, Polygon } from '@react-google-maps/api';
+import { Fragment, useMemo } from 'react';
 
 export default function Home() {
 
@@ -92,6 +93,8 @@ function ParkingMap() {
     []
   );
 
+
+
   return (
     <GoogleMap
       options={mapOptions}
@@ -99,6 +102,33 @@ function ParkingMap() {
       center={mapCenter}
       mapContainerStyle={{ width: '100%', height: '80vh' }} // TODO: Match this with tailwind styling
       onLoad={() => console.log('Map Component Loaded...')}
-    />
+    >
+      <Marker position={mapCenter} />
+      <ParkingMapPolygons />
+      
+    </GoogleMap>
+  )
+}
+
+function ParkingMapPolygons() {
+  const parkingLocations = getParkingLocationData()
+
+  return (
+    <Fragment>
+      {
+        parkingLocations.map((location) => (
+          <Polygon
+            path={location.path}
+            options={{
+              strokeColor: location.color,
+              strokeOpacity: 0.8,
+              strokeWeight: 1,
+              fillColor: location.color,
+              fillOpacity: 0.35,
+            }}
+          />
+        ))
+      }
+    </Fragment>
   )
 }
