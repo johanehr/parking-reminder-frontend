@@ -1,4 +1,21 @@
+"use client"; // Necessary due to using src/app instead of legacy pages structure?
+
+import { useLoadScript, GoogleMap } from '@react-google-maps/api';
+import { useMemo } from 'react';
+
 export default function Home() {
+
+  const libraries = useMemo(() => ['places'], []);
+
+  const { isLoaded } = useLoadScript({
+    googleMapsApiKey: process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY as string,
+    libraries: libraries as any,
+  });
+
+  if (!isLoaded) {
+    return <p>Loading...</p>;
+  }
+
   return (
     <main className="min-h-screen p-12">
       <div className="my-header m-auto max-w-5xl flex flex-col sm:flex-row items-center justify-around">
@@ -16,7 +33,7 @@ export default function Home() {
       </div>
 
       <div className="m-auto max-w-5xl w-full mt-12 mb-12">
-        <p>This is where my map will go</p>
+        <ParkingMap />
       </div>
 
       <div className="m-auto max-w-5xl w-full grid text-center lg:grid-cols-4 lg:text-left">
@@ -55,5 +72,33 @@ export default function Home() {
         </a>
       </div>
     </main>
+  )
+}
+
+function ParkingMap() {
+
+  const mapCenter = useMemo(
+    () => ({ lat: 59.380065, lng: 18.035959 }), // Hardcoded to Bergshamra
+    []
+  );
+
+  const mapOptions = useMemo<google.maps.MapOptions>(
+    () => ({
+      disableDefaultUI: true,
+      clickableIcons: false,
+      scrollwheel: true,
+      mapId: process.env.NEXT_PUBLIC_GOOGLE_MAPS_MAP_ID as string
+    }),
+    []
+  );
+
+  return (
+    <GoogleMap
+      options={mapOptions}
+      zoom={16}
+      center={mapCenter}
+      mapContainerStyle={{ width: '100%', height: '80vh' }} // TODO: Match this with tailwind styling
+      onLoad={() => console.log('Map Component Loaded...')}
+    />
   )
 }

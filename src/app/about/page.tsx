@@ -38,12 +38,12 @@ export default function About() {
         </p>
 
         <h1 className="text-2xl mt-6">
-          Hjälpa till
+          Hjälp till
         </h1>
 
         <p className="mt-2">
           Vill du hjälpa till att förbättra tjänsten,
-          antingen som utvecklare eller genom att lägga till fler områden, även utanför Bergshamra?
+          antingen som utvecklare eller genom att lägga till fler områden, kanske även utanför Bergshamra?
           Tveka inte att kontakta mig på johanehrenfors@hotmail.com!
         </p>
       </div>
