@@ -98,7 +98,7 @@ function getNextCleaningTime(cleaningTimes: CleaningTime[]): DateTime {
     if (dayOffset < 0) {
       dayOffset = 7 + dayOffset // Already passed, see next week
     }
-    let nextCleaningWeekday = now.plus({ days: dayOffset }).set({ hour: cleaningTime.startHour })
+    let nextCleaningWeekday = now.plus({ days: dayOffset }).set({ hour: cleaningTime.startHour, minute: 0, second: 0, millisecond: 0 })
 
     // Consider odd/even weeks
     if (nextCleaningWeekday.weekNumber % 2 === 0 && !cleaningTime.appliesToEvenWeeks) { // TODO: Handle case where if doesn't apply to any week (e.g. during summers)
@@ -125,7 +125,7 @@ function getAppropriateDisplayColor(parkingLocation: ParkingLocationData): strin
 
   const lastTimeToMove = [nextCleaningTime, maximumTime].sort(compareLuxonDates)[0]
   const hoursUntilMove = lastTimeToMove.diffNow(['hours']).hours
-  console.log('Hours until move: ', hoursUntilMove)
+  console.log(`${hoursUntilMove.toFixed(2)}h until need to move from ${parkingLocation.name}`)
 
   if (hoursUntilMove > 7 * 24 ) { return 'green' }
   if (hoursUntilMove > 3 * 24 ) { return 'yellow' }
