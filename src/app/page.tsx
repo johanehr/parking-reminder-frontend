@@ -1,6 +1,7 @@
 "use client"; // Necessary due to using src/app instead of legacy pages structure?
 
 import { getParkingLocationData } from '@/parking-locations/locations';
+import ParkingMapPolygons from '@/parking-locations/map-visualization';
 import { useLoadScript, GoogleMap, Polyline, Marker, Polygon } from '@react-google-maps/api';
 import { Fragment, useMemo } from 'react';
 
@@ -76,7 +77,7 @@ export default function Home() {
   )
 }
 
-function ParkingMap() {
+export function ParkingMap() {
 
   const mapCenter = useMemo(
     () => ({ lat: 59.380065, lng: 18.035959 }), // Hardcoded to Bergshamra
@@ -105,30 +106,6 @@ function ParkingMap() {
     >
       <Marker position={mapCenter} />
       <ParkingMapPolygons />
-      
     </GoogleMap>
-  )
-}
-
-function ParkingMapPolygons() {
-  const parkingLocations = getParkingLocationData()
-
-  return (
-    <Fragment>
-      {
-        parkingLocations.map((location) => (
-          <Polygon
-            path={location.path}
-            options={{
-              strokeColor: location.color,
-              strokeOpacity: 0.8,
-              strokeWeight: 1,
-              fillColor: location.color,
-              fillOpacity: 0.35,
-            }}
-          />
-        ))
-      }
-    </Fragment>
   )
 }
