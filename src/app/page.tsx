@@ -15,11 +15,11 @@ export default function Home() {
   });
 
   if (!isLoaded) {
-    return <p>Loading...</p>;
+    return <p>Laddar...</p>;
   }
 
   return (
-    <main className="min-h-screen p-12">
+    <main className="min-h-screen p-4 md:p-12">
       <div className="my-header m-auto max-w-5xl flex flex-col sm:flex-row items-center justify-around">
         <p className="border-b lg:static border p-4">
           Städdagar för boendeparkering i Bergshamra
@@ -34,11 +34,11 @@ export default function Home() {
         </a>
       </div>
 
-      <div className="m-auto max-w-5xl w-full mt-12 mb-12">
+      <div className="m-auto max-w-5xl w-full mt-4 md:mt-12 mb-4 md:mb-12">
         <ParkingMap />
       </div>
 
-      <div className="m-auto max-w-5xl w-full grid text-center lg:grid-cols-4 lg:text-left">
+      <div className="m-auto max-w-5xl w-full grid text-center md:grid-cols-2 lg:grid-cols-3 lg:text-left">
         <a
           href="./about"
           className="group rounded-lg border border-transparent px-5 py-4 transition-colors hover:border-gray-300 hover:bg-gray-100 hover:dark:border-neutral-700 hover:dark:bg-neutral-800/30"
@@ -101,7 +101,7 @@ export function ParkingMap() {
       options={mapOptions}
       zoom={16}
       center={mapCenter}
-      mapContainerStyle={{ width: '100%', height: '80vh' }} // TODO: Match this with tailwind styling
+      mapContainerStyle={{ width: '100%', height: '75vh' }}
       onLoad={() => console.log('Map Component Loaded...')}
     >
       <Marker position={mapCenter} />

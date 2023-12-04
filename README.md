@@ -48,3 +48,4 @@ Check out our [Next.js deployment documentation](https://nextjs.org/docs/deploym
 - Improve styling
 - Tests
 - CI/CD
+- Add real data for Bergshamra, see: https://karta.solna.se/spatialmap?mapheight=891&mapwidth=1925&label=&ignorefavorite=true&profile=csm_standard_profile&selectorgroups=stadsbyggnad_och_trafik+boende_och_miljo+allm_n_parkering&layers=theme-gwc-topowebb_kom_yta+theme-servicedagar_jamna+csp-point+csp-line+csp-polygon+userpoint+userline+userpolygon+bufferzone+smalluserpointsearch+smalluserlinesearch+smalluserpolygonsearch+smalluserpointfound+smalluserlinefound+smalluserpolygonfound+selectorpoint+selectorline+selectorpolygon+selectorbufferzone+redline-line+redline-point+redline-polygon+redline-circle&opacities=1+1+1+1+1+1+1+1+1+1+1+1+1+1+1+1+1+1+1+1+1+1+1&mapext=137671.1896139016+6578032.11979316+163071.29881358158+6589753.211850928&maprotation= 
