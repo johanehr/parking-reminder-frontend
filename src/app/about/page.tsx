@@ -1,22 +1,11 @@
 import 'tailwindcss/tailwind.css'
+import Header from '../elements/header'
 
 export default function About() {
   return (
     <main className="min-h-screen p-12">
-      <div className="my-header m-auto max-w-5xl flex flex-col sm:flex-row items-center justify-around">
-        <p className="border-b lg:static border p-4">
-          Städdagar för boendeparkering i Bergshamra
-        </p>
-        <a
-          className="sm:ml-auto lg:pointer-events-auto pointer-events-none"
-          href="https://www.johanehrenfors.se"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Skapad av Johan Ehrenfors
-        </a>
-      </div>
-
+      <Header/>
+      
       <div className="m-auto max-w-5xl w-full mt-12">
         <h1 className="text-2xl">
           Om projektet
