@@ -1,9 +1,13 @@
 import { DateTime } from "luxon";
-import * as locations from "./locations";
+import ParkingLocationHelpers from "./locations";
 import { DayOfWeek, ParkingLocationData } from "./types";
 
 beforeEach(() => {
-  jest.resetAllMocks()
+  jest.clearAllMocks()
+})
+
+afterAll(() => {
+  jest.clearAllMocks()
 })
 
 const fakeParkingData: ParkingLocationData = {
@@ -18,33 +22,63 @@ const fakeParkingData: ParkingLocationData = {
 }
 
 describe('getAppropriateDisplayColor', () => {
-
-  // TODO: Mock isn't used in call
-  it('getAppropriateDisplayColor - short time', () => {
-    jest.spyOn(locations, 'calculateNextCleaningTime').mockReturnValue(DateTime.fromISO('2023-12-05T10:00:00.000Z'))
-    const time = DateTime.fromISO('2023-12-04T23:00:00.000Z'); // Monday evening of odd week
-
-    expect(locations.getAppropriateDisplayColor(fakeParkingData, time)).toBe('red')
+  it.each([
+    [1, "red"],
+    [24, "orange"],
+    [100, "yellow"],
+    [1337, "green"],
+  ])('When %i hours left, use display color %s', (hours, color) => {
+    expect(ParkingLocationHelpers.getAppropriateDisplayColor(hours)).toBe(color)
   })
+})
 
-  // TODO: Mock isn't used in call
-  it.skip('getAppropriateDisplayColor - long time', () => {
-    jest.spyOn(locations, 'calculateNextCleaningTime').mockReturnValue(DateTime.fromISO('2024-12-04T23:00:00.000Z'))
-    const time = DateTime.fromISO('2023-12-04T23:00:00.000Z'); // Monday evening of odd week
-
-    expect(locations.getAppropriateDisplayColor(fakeParkingData, time)).toBe('green')
+describe('calculateMaximumTime', () => {
+  it('Returns correct maximum time', () => {
+    expect(ParkingLocationHelpers.calculateMaximumTime(7, DateTime.fromISO('2024-01-01T12:34:56.000Z'))).toEqual(DateTime.fromISO('2024-01-08T12:34:56.000Z'))
   })
 })
 
 describe('calculateNextCleaningTime', () => {
 
-  it('Next day', () => {
-    const time = DateTime.fromISO('2023-12-04T23:00:00.000Z'); // Monday evening of odd week
-    expect(locations.calculateNextCleaningTime(fakeParkingData.parkingRules.cleaningTimes, time)).toBe(DateTime.fromISO('2023-12-05T10:00:00.000Z'))
+  it('Currently on-going', () => {
+    const currentTime = DateTime.local(2023, 12, 4, 12) // Monday noon of odd week
+    const cleaningTimes = [{ day: DayOfWeek.MONDAY, startHour: 0, endHour: 23, appliesToEvenWeeks: true, appliesToOddWeeks: true }]
+    expect(ParkingLocationHelpers.calculateNextCleaningTime(cleaningTimes, currentTime)?.toISO()).toBe(DateTime.local(2023, 12, 4, 12).toISO())
   })
 
-  it.todo('Next week')
-  it.todo('Earlier this week')
-  it.todo('Later today')
-  it.todo('Earlier today')
+  it('Later today', () => {
+    const currentTime = DateTime.local(2023, 12, 4, 8) // Monday morning of odd week
+    const cleaningTimes = [{ day: DayOfWeek.MONDAY, startHour: 15, endHour: 18, appliesToEvenWeeks: true, appliesToOddWeeks: true }]
+    expect(ParkingLocationHelpers.calculateNextCleaningTime(cleaningTimes, currentTime)?.toISO()).toBe(DateTime.local(2023, 12, 4, 15).toISO())
+  })
+
+  it('This week', () => {
+    const currentTime = DateTime.local(2023, 12, 4, 23) // Monday evening of odd week
+    const cleaningTimes = [{ day: DayOfWeek.WEDNESDAY, startHour: 8, endHour: 14, appliesToEvenWeeks: false, appliesToOddWeeks: true }]
+    expect(ParkingLocationHelpers.calculateNextCleaningTime(cleaningTimes, currentTime)?.toISO()).toEqual(DateTime.local(2023, 12, 6, 8).toISO())
+  })
+
+  it('Next week (due to passed weekday)', () => {
+    const currentTime = DateTime.local(2023, 12, 5, 23) // Tuesday evening of odd week
+    const cleaningTimes = [{ day: DayOfWeek.MONDAY, startHour: 10, endHour: 12, appliesToEvenWeeks: true, appliesToOddWeeks: true }]
+    expect(ParkingLocationHelpers.calculateNextCleaningTime(cleaningTimes, currentTime)?.toISO()).toEqual(DateTime.local(2023, 12, 11, 10).toISO())
+  })
+
+  it('Next week (due to passed time earlier today)', () => {
+    const currentTime = DateTime.local(2023, 12, 4, 15) // Monday afternoon of odd week
+    const cleaningTimes = [{ day: DayOfWeek.MONDAY, startHour: 10, endHour: 12, appliesToEvenWeeks: true, appliesToOddWeeks: true }]
+    expect(ParkingLocationHelpers.calculateNextCleaningTime(cleaningTimes, currentTime)?.toISO()).toEqual(DateTime.local(2023, 12, 11, 10).toISO())
+  })
+
+  it('Next week (due to odd week number)', () => {
+    const currentTime = DateTime.local(2023, 12, 4, 23) // Monday evening of odd week
+    const cleaningTimes = [{ day: DayOfWeek.WEDNESDAY, startHour: 8, endHour: 14, appliesToEvenWeeks: true, appliesToOddWeeks: false }]
+    expect(ParkingLocationHelpers.calculateNextCleaningTime(cleaningTimes, currentTime)?.toISO()).toEqual(DateTime.local(2023, 12, 13, 8).toISO())
+  })
+
+  it('No match', () => {
+    const currentTime = DateTime.local(2023, 12, 4, 23) // Monday evening of odd week
+    const cleaningTimes = [{ day: DayOfWeek.WEDNESDAY, startHour: 8, endHour: 14, appliesToEvenWeeks: false, appliesToOddWeeks: false }]
+    expect(ParkingLocationHelpers.calculateNextCleaningTime(cleaningTimes, currentTime)).toEqual(null)
+  })
 })

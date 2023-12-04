@@ -1,9 +1,11 @@
-import { augmentParkingLocationData } from '@/parking-locations/locations';
 import { Polygon } from '@react-google-maps/api';
 import { Fragment } from 'react';
+import ParkingLocationHelpers from './locations';
+import { DateTime } from 'luxon';
 
 export default function ParkingMapPolygons() {
-  const parkingLocations = augmentParkingLocationData()
+  const rawData = ParkingLocationHelpers.getRawParkingLocationData()
+  const parkingLocations = ParkingLocationHelpers.augmentParkingLocationData(rawData, DateTime.now())
 
   return (
     <Fragment>
