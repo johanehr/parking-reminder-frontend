@@ -27,12 +27,11 @@ export function ParkingMap() {
   return (
     <GoogleMap
       options={mapOptions}
-      zoom={16}
+      zoom={15}
       center={mapCenter}
       mapContainerStyle={{ width: '100%', height: '75vh' }}
       onLoad={() => console.log('Map Component Loaded...')}
     >
-      <Marker position={mapCenter} />
       <ParkingMapPolygons />
     </GoogleMap>
   )

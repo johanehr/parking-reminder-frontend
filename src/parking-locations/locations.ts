@@ -8,12 +8,11 @@ export default class ParkingLocationHelpers {
   
     return [
       {
-        name: "Gamla vägen (kort)",
+        name: "Gamla vägen (kort, södra sidan)",
         parkingRules: {
           cleaningTimes: [
             { day: DayOfWeek.THURSDAY, startHour: 10, endHour: 14, appliesToEvenWeeks: false, appliesToOddWeeks: true  },
             // TODO: Specific parts of the year, e.g. not summer
-            // TODO: Deal with e.g. sundays
           ],
           maximum: { days: 14 }
         },
@@ -25,7 +24,23 @@ export default class ParkingLocationHelpers {
         ]
       },
       {
-        name: "Gamla vägen (utanför gul villa)",
+        name: "Gamla vägen (lång, norra sidan)",
+        parkingRules: {
+          cleaningTimes: [
+            { day: DayOfWeek.THURSDAY, startHour: 10, endHour: 14, appliesToEvenWeeks: false, appliesToOddWeeks: true  },
+            // TODO: Specific parts of the year, e.g. not summer
+          ],
+          maximum: { days: 14 }
+        },
+        path: [
+          { "lat": 59.377966, "lng": 18.041108 },
+          { "lat": 59.377978, "lng": 18.041221 },
+          { "lat": 59.377575, "lng": 18.041462 },
+          { "lat": 59.377554, "lng": 18.041365 },
+        ]
+      },
+      {
+        name: "Gamla vägen (södra sidan, utanför gul villa)",
         parkingRules: {
           cleaningTimes: [
             { day: DayOfWeek.TUESDAY, startHour: 10, endHour: 14, appliesToEvenWeeks: false, appliesToOddWeeks: true  },
@@ -33,17 +48,17 @@ export default class ParkingLocationHelpers {
           maximum: { days: 14 }
         },
         path: [
-          { "lat": 59.377177, "lng": 18.041602 },
-          { "lat": 59.377065, "lng": 18.042051 },
-          { "lat": 59.377122, "lng": 18.042130 },
-          { "lat": 59.377232, "lng": 18.041778 },
+          { "lat": 59.377206, "lng": 18.041788 },
+          { "lat": 59.376925, "lng": 18.043562 },
+          { "lat": 59.376879, "lng": 18.043547 },
+          { "lat": 59.377159, "lng": 18.041738 },
         ]
       },
       {
         name: "Björnstigen vid äldreboendet",
         parkingRules: {
           cleaningTimes: [
-            { day: DayOfWeek.WEDNESDAY, startHour: 10, endHour: 14, appliesToEvenWeeks: true, appliesToOddWeeks: false  },
+            { day: DayOfWeek.TUESDAY, startHour: 10, endHour: 14, appliesToEvenWeeks: true, appliesToOddWeeks: false  },
           ],
           maximum: { days: 14 }
         },
@@ -57,7 +72,113 @@ export default class ParkingLocationHelpers {
           { "lat": 59.381339, "lng": 18.039921 },
           { "lat": 59.381162, "lng": 18.040013 },
         ]
-      }
+      },
+      {
+        name: "Ripstigen (vid bron)",
+        parkingRules: {
+          cleaningTimes: [
+            { day: DayOfWeek.TUESDAY, startHour: 10, endHour: 14, appliesToEvenWeeks: false, appliesToOddWeeks: true },
+          ],
+          maximum: { days: 14 }
+        },
+        path: [
+          { "lat": 59.378461, "lng": 18.041792 },
+          { "lat": 59.378692, "lng": 18.042349 },
+          { "lat": 59.378630, "lng": 18.042451 },
+          { "lat": 59.378410, "lng": 18.041877 },
+        ]
+      },
+      {
+        name: "Bockholmsvägen (västra)",
+        parkingRules: {
+          cleaningTimes: [
+            { day: DayOfWeek.WEDNESDAY, startHour: 7, endHour: 10, appliesToEvenWeeks: true, appliesToOddWeeks: false },
+          ],
+          maximum: { days: 14 }
+        },
+        path: [
+          { "lat": 59.376407, "lng": 18.049888 },
+          { "lat": 59.376416, "lng": 18.049750 },
+          { "lat": 59.377539, "lng": 18.049959 },
+          { "lat": 59.377386, "lng": 18.050336 },
+        ]
+      },
+      {
+        name: "Bockholmsvägen (vid bron)",
+        parkingRules: {
+          cleaningTimes: [
+            { day: DayOfWeek.THURSDAY, startHour: 7, endHour: 10, appliesToEvenWeeks: true, appliesToOddWeeks: false },
+          ],
+          maximum: { days: 14 }
+        },
+        path: [
+          { "lat": 59.377367, "lng": 18.050386 },
+          { "lat": 59.377018, "lng": 18.050181 },
+          { "lat": 59.377195, "lng": 18.050621 },
+        ]
+      },
+      {
+        name: "Stocksundstorpsvägen (mot Bockholmen)",
+        parkingRules: {
+          cleaningTimes: [
+            { day: DayOfWeek.THURSDAY, startHour: 7, endHour: 10, appliesToEvenWeeks: true, appliesToOddWeeks: false },
+          ],
+          maximum: { days: 14 }
+        },
+        path: [
+          { "lat": 59.377525, "lng": 18.050377 },
+          { "lat": 59.377487, "lng": 18.050110 },
+          { "lat": 59.378043, "lng": 18.049440 },
+          { "lat": 59.378097, "lng": 18.049707 },
+        ]
+      },
+      {
+        name: "Stocksundstorpsvägen (villaområdet)",
+        parkingRules: {
+          cleaningTimes: [
+            { day: DayOfWeek.THURSDAY, startHour: 10, endHour: 14, appliesToEvenWeeks: true, appliesToOddWeeks: false },
+          ],
+          maximum: { days: 14 }
+        },
+        path: [
+          { "lat": 59.379509, "lng": 18.046031 },
+          { "lat": 59.379464, "lng": 18.045999 },
+          { "lat": 59.379330, "lng": 18.046605 },
+          { "lat": 59.379392, "lng": 18.046632 },
+        ]
+      },
+      {
+        name: "Pipersväg (östra)",
+        parkingRules: {
+          cleaningTimes: [
+            { day: DayOfWeek.WEDNESDAY, startHour: 10, endHour: 14, appliesToEvenWeeks: false, appliesToOddWeeks: true },
+          ],
+          maximum: { days: 14 }
+        },
+        path: [
+          { "lat": 59.377517, "lng": 18.030680 },
+          { "lat": 59.377581, "lng": 18.030698 },
+          { "lat": 59.377660, "lng": 18.029811 },
+          { "lat": 59.377747, "lng": 18.029400 },
+          { "lat": 59.377682, "lng": 18.029361 },
+          { "lat": 59.377598, "lng": 18.029790 },
+        ]
+      },
+      {
+        name: "Pipersväg (västra)",
+        parkingRules: {
+          cleaningTimes: [
+            { day: DayOfWeek.THURSDAY, startHour: 10, endHour: 14, appliesToEvenWeeks: false, appliesToOddWeeks: true },
+          ],
+          maximum: { days: 14 }
+        },
+        path: [
+          { "lat": 59.377956, "lng": 18.028728 },
+          { "lat": 59.377904, "lng": 18.028642 },
+          { "lat": 59.378283, "lng": 18.027840 },
+          { "lat": 59.378326, "lng": 18.027958 },
+        ]
+      },
     ]
   }
   
@@ -138,7 +259,7 @@ export default class ParkingLocationHelpers {
   }
   
   static getAppropriateDisplayColor(hoursUntilMove: number): string {
-    if (hoursUntilMove > 7 * 24 ) { return 'green' }
+    if (hoursUntilMove > 5 * 24 ) { return 'green' }
     if (hoursUntilMove > 3 * 24 ) { return 'yellow' }
     if (hoursUntilMove > 12 ) { return 'orange' }
   
