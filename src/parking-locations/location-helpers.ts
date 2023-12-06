@@ -11,7 +11,7 @@ export function getRawParkingLocationData(): ParkingLocationData[] {
       parkingRules: {
         cleaningTimes: [
           { day: DayOfWeek.THURSDAY, startHour: 10, endHour: 14, appliesToEvenWeeks: false, appliesToOddWeeks: true  },
-          // TODO: Specific parts of the year, e.g. not summer
+          // TODO: Specific parts of the year, e.g. not July
         ],
         maximum: { days: 14 }
       },
@@ -27,7 +27,6 @@ export function getRawParkingLocationData(): ParkingLocationData[] {
       parkingRules: {
         cleaningTimes: [
           { day: DayOfWeek.THURSDAY, startHour: 10, endHour: 14, appliesToEvenWeeks: false, appliesToOddWeeks: true  },
-          // TODO: Specific parts of the year, e.g. not summer
         ],
         maximum: { days: 14 }
       },

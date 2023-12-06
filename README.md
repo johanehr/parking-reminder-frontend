@@ -43,8 +43,5 @@ Check out our [Next.js deployment documentation](https://nextjs.org/docs/deploym
 ## TODOs
 - Add API restriction for Google Maps Platform!
 - Ensure Google Maps key isn't leaked, due to NEXT_PUBLIC_ prefix?
-- Rectangle header title should link back to main page
 - CI/CD
 - Make public, e.g. AWS Amplify?
-- Add legend to map
-- Add disclaimer (always verify yourself)

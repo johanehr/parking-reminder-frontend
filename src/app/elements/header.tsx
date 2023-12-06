@@ -6,7 +6,7 @@ export default function Header() {
       className="border-b lg:static border p-4"
       href="./"
     >
-      Städdagar för boendeparkering i Bergshamra
+      Boendeparkering i Bergshamra
     </a>
     <a
       className="sm:ml-auto lg:pointer-events-auto pointer-events-none"

@@ -11,7 +11,18 @@ export default function Home() {
       <Header />
 
       <div className="m-auto max-w-5xl w-full mt-4 md:mt-12 mb-4 md:mb-12">
+        <p>Kartan visar hur lång tid du kan stå kvar om du parkerar nu. Dubbelkolla alltid skyltarna!</p>
         <ParkingMap />
+
+        <div className="flex flex-col sm:flex-row items-center justify-around p-2 text-contrast">
+          <p style={{color:"red"}}>&lt;3h</p>
+          <p style={{color:"orange"}}>&gt;12 h</p>
+          <p style={{color:"yellow"}}>&gt;24 h</p>
+          <p style={{color:"yellowgreen"}}>&gt;3 dagar</p>
+          <p style={{color:"limegreen"}}>&gt;5 dagar</p>
+          <p style={{color:"green"}}>&gt;7 dagar</p>
+        </div>
+
       </div>
 
       <div className="m-auto max-w-5xl w-full grid text-center md:grid-cols-2 lg:grid-cols-3 lg:text-left">
