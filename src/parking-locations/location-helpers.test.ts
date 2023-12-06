@@ -16,8 +16,11 @@ const fakeParkingData: ParkingLocationData = {
 describe('getAppropriateDisplayColor', () => {
   it.each([
     [1, "red"],
-    [24, "orange"],
-    [100, "yellow"],
+    [6, "orangered"],
+    [18, "orange"],
+    [36, "yellow"],
+    [80, "yellowgreen"],
+    [150, "limegreen"],
     [1337, "green"],
   ])('When %i hours left, use display color %s', (hours, color) => {
     expect(getAppropriateDisplayColor(hours)).toBe(color)
