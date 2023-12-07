@@ -5,7 +5,7 @@ export default function About() {
   return (
     <main className="min-h-screen p-12">
       <Header/>
-      
+
       <div className="m-auto max-w-5xl w-full mt-12">
         <h1 className="text-2xl">
           Om projektet
@@ -24,6 +24,7 @@ export default function About() {
 
         <p className="mt-2">
           Om du har haft nytta av mitt projekt får du gärna Swisha några kronor till 0737600282 :)
+          Användningen av Google Maps kostar mer ju fler sidladdningar som görs.
         </p>
 
         <h1 className="text-2xl mt-6">

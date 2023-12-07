@@ -39,9 +39,6 @@ The easiest way to deploy your Next.js app is to use the [Vercel Platform](https
 
 Check out our [Next.js deployment documentation](https://nextjs.org/docs/deployment) for more details.
 
-
 ## TODOs
-- Add API restriction for Google Maps Platform!
-- Ensure Google Maps key isn't leaked, due to NEXT_PUBLIC_ prefix?
 - CI/CD
 - Make public, e.g. AWS Amplify?
