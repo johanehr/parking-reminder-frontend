@@ -1,6 +1,6 @@
 import ParkingMapPolygons from '@/parking-locations/map-visualization';
-import { GoogleMap, Marker, useLoadScript } from '@react-google-maps/api';
-import { useMemo } from 'react';
+import { GoogleMap, useLoadScript } from '@react-google-maps/api';
+import { useMemo, useRef } from 'react';
 
 export function ParkingMap() {
 
