@@ -33,7 +33,7 @@ const generateDescriptionText = (rules: ParkingRules) => {
       <p>Städdagar:</p>
       <ul>
       {
-        rules.cleaningTimes.map((cleaning) => { return (<li> - { getCleaningDayDescription(cleaning) }</li>) })
+        rules.cleaningTimes.map((cleaning) => { return (<li key={`${cleaning.day}${cleaning.appliesToEvenWeeks}`}> - { getCleaningDayDescription(cleaning) }</li>) })
       }
       </ul>
       <p>Max {rules.maximum.days} dagar.</p>
