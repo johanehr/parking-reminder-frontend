@@ -1,6 +1,8 @@
+import { augmentParkingLocationData, getRawParkingLocationData } from '@/parking-locations/location-helpers';
 import ParkingMapPolygons from '@/parking-locations/map-visualization';
-import { GoogleMap, Marker, useLoadScript } from '@react-google-maps/api';
-import { useMemo } from 'react';
+import { GoogleMap, useLoadScript } from '@react-google-maps/api';
+import { DateTime } from 'luxon';
+import { useMemo, useRef } from 'react';
 
 export function ParkingMap() {
 
@@ -23,6 +25,9 @@ export function ParkingMap() {
     scrollwheel: true,
     mapId: process.env.NEXT_PUBLIC_GOOGLE_MAPS_MAP_ID as string
   }
+  
+  const rawData = getRawParkingLocationData()
+  const parkingLocations = augmentParkingLocationData(rawData, DateTime.now())
 
   return (
     <GoogleMap
@@ -32,7 +37,7 @@ export function ParkingMap() {
       mapContainerStyle={{ width: '100%', height: '75vh' }}
       onLoad={() => console.log('Map Component Loaded...')}
     >
-      <ParkingMapPolygons />
+      <ParkingMapPolygons parkingLocations={parkingLocations} />
     </GoogleMap>
   )
 }
