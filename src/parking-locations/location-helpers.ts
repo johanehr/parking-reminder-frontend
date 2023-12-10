@@ -414,3 +414,25 @@ export function getAppropriateDisplayColor(hoursUntilMove: number): string {
   if (hoursUntilMove > 3 ) { return 'orangered' }
   return 'red'
 }
+
+export function getParkingRulesDescription(location: AugmentedParkingLocationData): string {
+  
+  const oddEvenAll = (even: boolean, odd: boolean) => (even && odd) ? 'Alla' : (even ? 'Jämna' : 'Udda')
+  const weekday = (day: DayOfWeek) => {
+    return (day === DayOfWeek.MONDAY) ? 'måndag' :
+      (day === DayOfWeek.TUESDAY) ? 'tisdag' :
+      (day === DayOfWeek.WEDNESDAY) ? 'onsdag' :
+      (day === DayOfWeek.THURSDAY) ? 'torsdag' :
+      (day === DayOfWeek.FRIDAY) ? 'fredag' :
+      (day === DayOfWeek.SATURDAY) ? 'lördag' :
+      'Söndag'
+  }
+
+  return `Städdagar:\n${
+    location.parkingRules.cleaningTimes.map(cleaningTime => {
+      const oddEven = oddEvenAll(cleaningTime.appliesToEvenWeeks, cleaningTime.appliesToOddWeeks)
+      const dayName = weekday(cleaningTime.day)
+      return ` - ${oddEven} ${dayName}ar ${cleaningTime.startHour}:00-${cleaningTime.endHour}:00`
+    }).join('\n')
+  }\nMax ${location.parkingRules.maximum.days} dagar.`
+}
