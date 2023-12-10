@@ -21,12 +21,3 @@ body {
 .text-contrast > p {
   text-shadow: -1px 0 #444, 0 1px #444, 1px 0 #444, 0 -1px #444;
 }
-
-.mapInfoWindow > h1, p {
-  color: black;
-}
-
-.mapInfoWindow > h1 {
-  font-weight: bold;
-  font-size: medium;
-}

@@ -10,10 +10,13 @@ export enum DayOfWeek {
 
 export type ParkingLocationData = {
   name: string;
-  parkingRules: {
-    cleaningTimes: CleaningTime[],
-    maximum: { days: number }},
+  parkingRules: ParkingRules
   path: { lat: number, lng: number }[];
+}
+
+export type ParkingRules = {
+  cleaningTimes: CleaningTime[],
+  maximum: { days: number }
 }
 
 export type AugmentedParkingLocationData = ParkingLocationData & { color: string }
