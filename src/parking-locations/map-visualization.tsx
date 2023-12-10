@@ -50,8 +50,16 @@ export default function ParkingMapPolygons({ parkingLocations }: { parkingLocati
     <>
       {
         parkingLocations.map((location) => {
-            // TODO: Use polygon extremities to find rough center
-            const center = new google.maps.LatLng(location.path[0])
+            // Use polygon extremities to find rough center
+            const maxLat = Math.max(...location.path.map((point) => point.lat))
+            const minLat = Math.min(...location.path.map((point) => point.lat))
+            const midLat = (maxLat + minLat) / 2
+
+            const maxLng = Math.max(...location.path.map((point) => point.lng))
+            const minLng = Math.min(...location.path.map((point) => point.lng))
+            const midLng = (maxLng + minLng) / 2
+
+            const center = new google.maps.LatLng({ lat: midLat, lng: midLng })
 
             return (
               <React.Fragment key={`${location.name}-fragment`}>
