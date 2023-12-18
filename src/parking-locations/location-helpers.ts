@@ -372,6 +372,11 @@ export function calculateNextCleaningTime(cleaningTimes: CleaningTime[], current
 
     const nextCleaningWeekday = currentTime.plus({ days: dayOffset }).set({ hour: cleaningTime.startHour, minute: 0, second: 0, millisecond: 0 })
 
+    if (nextCleaningWeekday.month === 7) {
+      console.log('Cleaning time in July, continue checking next week')
+      return nextCleaningWeekday = nextCleaningWeekday.plus({ days: 7 })
+      }
+
     // Consider odd/even weeks
     const isEvenWeek = nextCleaningWeekday.weekNumber % 2 === 0
     if ( isEvenWeek && cleaningTime.appliesToEvenWeeks) {
