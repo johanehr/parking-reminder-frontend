@@ -1,6 +1,22 @@
-import { DateTime } from "luxon"
-import { DayOfWeek } from "./types"
-import { calculateMaximumTime, calculateNextCleaningTime, getAppropriateDisplayColor } from "./location-helpers"
+import { DateTime } from "luxon";
+import { DayOfWeek, ParkingLocationData } from "./types";
+import { calculateNextCleaningTime } from "./location-helpers";
+import { calculateMaximumTime } from "./helper-functions/calculateMaximumTime";
+import { getAppropriateDisplayColor } from "./helper-functions/getAppropriateDisplayColor";
+
+
+const fakeParkingData: ParkingLocationData = {
+  name: "Name",
+  parkingRules: {
+    cleaningTimes: [{ day: DayOfWeek.TUESDAY, startHour: 8, endHour: 14, appliesToEvenWeeks: false, appliesToOddWeeks: true }],
+    maximum: {
+      days: 14
+    },
+    noCleaningMonths: [7],
+  },
+  path: []
+}
+
 
 describe('getAppropriateDisplayColor', () => {
   it.each([
@@ -106,27 +122,33 @@ describe('calculateNextCleaningTime', () => {
     expect(calculateNextCleaningTime(cleaningTimes, currentTime)?.toISO()).toEqual(DateTime.local(2023, 12, 13, 10).toISO())
   })
 
-  it('Adds a week if next cleaning time lands in July, currently in end of June', () => {
-    const currentTime = DateTime.local(2023, 6, 30, 21) // Friday evening, end of June
+  it('Finds next cleaning time after month of cleaning-break, currently in month before cleaning break', () => {
+    const currentTime = DateTime.local(2023, 6, 30, 21) // Friday evening, end of June. Cleaning break example July. 
     const cleaningTimes = [{ day: DayOfWeek.WEDNESDAY, startHour: 8, endHour: 14, appliesToEvenWeeks: false, appliesToOddWeeks: true }]
+    const noCleaningMonths = [7]
     expect(calculateNextCleaningTime(cleaningTimes, currentTime)?.toISO()).toEqual(DateTime.local(2023, 7, 12, 8).toISO())
+
   })
 
-  it('Adds a week if next cleaning time lands in July, currently in July', () => {
-    const currentTime = DateTime.local(2023, 7, 10, 21) // monday lunch, middle of July
+  it('Finds next cleaning time after cleaning break, currently in cleaning break', () => {
+    const currentTime = DateTime.local(2023, 7, 10, 21) // Monday lunch, middle of July. Cleaning break example July.
     const cleaningTimes = [{ day: DayOfWeek.WEDNESDAY, startHour: 8, endHour: 14, appliesToEvenWeeks: false, appliesToOddWeeks: true }]
+    const noCleaningMonths = [7]
     expect(calculateNextCleaningTime(cleaningTimes, currentTime)?.toISO()).toEqual(DateTime.local(2023, 7, 19, 8).toISO())
   })
 
-  it('Returns to normal checks, when next cleaning day lands in beginning of August even week', () => {
-    const currentTime = DateTime.local(2023, 7, 26, 21) // Wednesday evening, end of July
+  it('Returns to normal checks after cleaning-break', () => {
+    const currentTime = DateTime.local(2023, 7, 26, 21) // Wednesday evening, end of July. Cleaning break example July.
     const cleaningTimes = [{ day: DayOfWeek.TUESDAY, startHour: 8, endHour: 14, appliesToEvenWeeks: true, appliesToOddWeeks: false }]
+    const noCleaningMonths = [7]
     expect(calculateNextCleaningTime(cleaningTimes, currentTime)?.toISO()).toEqual(DateTime.local(2023, 8, 8, 8).toISO())
   })
   
-  it('Returns to normal checks, when next cleaning day lands in beginning of August odd week', () => {
-    const currentTime = DateTime.local(2023, 7, 28, 8) // Friday morning, end of July
+  it('Finds next cleaning time, with cleaning break different month', () => {
+    const currentTime = DateTime.local(2023, 7, 28, 8) // Friday morning, end of July. Cleaning break example August.
     const cleaningTimes = [{ day: DayOfWeek.TUESDAY, startHour: 8, endHour: 14, appliesToEvenWeeks: false, appliesToOddWeeks: true }]
+    const noCleaningMonths = [8]
+  
     expect(calculateNextCleaningTime(cleaningTimes, currentTime)?.toISO()).toEqual(DateTime.local(2023, 8, 1, 8).toISO())
   })
 
