@@ -12,7 +12,7 @@ getRawParkingLocationData()
 export function augmentParkingLocationData(rawData: ParkingLocationData[], currentTime: DateTime): AugmentedParkingLocationData[] {
   return rawData.map( (parkingLocation) => {
     
-    const nextCleaningTime = calculateNextCleaningTime(parkingLocation.parkingRules.cleaningTimes, currentTime/* , parkingLocation.parkingRules.noCleaningMonths*/)
+    const nextCleaningTime = calculateNextCleaningTime(parkingLocation.parkingRules.cleaningTimes, currentTime, parkingLocation.parkingRules.noCleaningMonths)
     const maximumTime = calculateMaximumTime(parkingLocation.parkingRules.maximum.days, currentTime)
 
     const possibleTimes = [maximumTime]
@@ -26,43 +26,51 @@ export function augmentParkingLocationData(rawData: ParkingLocationData[], curre
   })
 }
 
-export function calculateNextCleaningTime(cleaningTimes: CleaningTime[], currentTime: DateTime, /* noCleaningMonths: Number[] */): DateTime | null {
+export function calculateNextCleaningTime(cleaningTimes: CleaningTime[], currentTime: DateTime, noCleaningMonths: Number[]): DateTime | null {
   const currentDay = currentTime.weekday
   const currentHour = currentTime.hour
   const currentlyEvenWeek = currentTime.weekNumber % 2 === 0
-  const currentMonth = currentTime.month
 
 
   
   const allMoveDays = cleaningTimes.map((cleaningTime) => {
 
-   /*  if (noCleaningMonths.includes(currentMonth)) {
-    
-    }
-   */
 
     assert(cleaningTime.startHour >= 0 && cleaningTime.startHour <= 23, 'Start hour out of range')
     assert(cleaningTime.endHour >= 0 && cleaningTime.endHour <= 23, 'End hour out of range')
     assert(cleaningTime.startHour < cleaningTime.endHour, 'Start hour after end hour')
 
+
     // Only considering day of the week (not odd/even weeks)
     let dayOffset = cleaningTime.day - currentDay
-    const hourOffsetStart = cleaningTime.startHour - currentHour
-    const hourOffsetEnd = cleaningTime.endHour - currentHour
 
+    let hourOffsetStart = cleaningTime.startHour - currentHour
+    let hourOffsetEnd = cleaningTime.endHour - currentHour
 
     const cleaningThisWeek = (currentlyEvenWeek && cleaningTime.appliesToEvenWeeks) || (!currentlyEvenWeek && cleaningTime.appliesToOddWeeks)
-    if (dayOffset === 0 && hourOffsetStart <= 0 && hourOffsetEnd > 0 && cleaningThisWeek) {
-      console.log('Cleaning currently in progress')
-      return currentTime
+
+
+    if (!noCleaningMonths.includes(currentTime.month)) {
+      if (dayOffset === 0 && hourOffsetStart <= 0 && hourOffsetEnd > 0 && cleaningThisWeek) {
+        console.log('Cleaning currently in progress')
+        return currentTime
+      }
+      if (dayOffset < 0 || (dayOffset === 0 && hourOffsetEnd <= 0)) {
+        console.log('Cleaning time already passed this week, continue checking next week')
+        dayOffset = 7 + dayOffset // Already passed, see next week
+      }
     }
 
-    if (dayOffset < 0 || (dayOffset === 0 && hourOffsetEnd <= 0)) {
-      console.log('Cleaning time already passed this week, continue checking next week')
-      dayOffset = 7 + dayOffset // Already passed, see next week
-    }
+    let nextCleaningWeekday = currentTime.plus({ days: dayOffset }).set({ hour: cleaningTime.startHour, minute: 0, second: 0, millisecond: 0 })
 
-    const nextCleaningWeekday = currentTime.plus({ days: dayOffset }).set({ hour: cleaningTime.startHour, minute: 0, second: 0, millisecond: 0 })
+    if (noCleaningMonths.includes(nextCleaningWeekday.month)) {
+      for (let i = 0; i < 10; i++) {
+        nextCleaningWeekday = nextCleaningWeekday.plus({ days: 7 })
+        if (!noCleaningMonths.includes(nextCleaningWeekday.month)) {
+          break
+        }
+      }
+    }
 
     // Consider odd/even weeks
     const isEvenWeek = nextCleaningWeekday.weekNumber % 2 === 0
