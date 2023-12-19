@@ -15,7 +15,8 @@ export default function Home() {
         <ParkingMap />
 
         <div className="flex flex-col sm:flex-row items-center justify-around p-2 text-contrast">
-          <p style={{color:"red"}}>&lt;3h</p>
+          <p style={{color:"red"}}>&lt;3 h</p>
+          <p style={{color:"orangered"}}>&gt;3 h</p>
           <p style={{color:"orange"}}>&gt;12 h</p>
           <p style={{color:"yellow"}}>&gt;24 h</p>
           <p style={{color:"yellowgreen"}}>&gt;3 dagar</p>
