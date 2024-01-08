@@ -8,10 +8,9 @@ export function getRawParkingLocationData(): ParkingLocationData[] {
         name: "Gamla vägen (kort, södra sidan)",
         parkingRules: {
           cleaningTimes: [
-            { day: DayOfWeek.THURSDAY, startHour: 10, endHour: 14, appliesToEvenWeeks: false, appliesToOddWeeks: true},
-            // TODO: Specific parts of the year, e.g. not July
+            { day: DayOfWeek.THURSDAY, startHour: 10, endHour: 14, appliesToEvenWeeks: false, appliesToOddWeeks: true, noCleaningMonths: [7]},
+            // IN PROG: Specific parts of the year, e.g. not July
           ],
-          noCleaningMonths: [7],  // July
           maximum: { days: 14 }
         },
         path: [
@@ -25,9 +24,8 @@ export function getRawParkingLocationData(): ParkingLocationData[] {
         name: "Gamla vägen (lång, norra sidan)",
         parkingRules: {
           cleaningTimes: [
-            { day: DayOfWeek.THURSDAY, startHour: 10, endHour: 14, appliesToEvenWeeks: false, appliesToOddWeeks: true  },
+            { day: DayOfWeek.THURSDAY, startHour: 10, endHour: 14, appliesToEvenWeeks: false, appliesToOddWeeks: true, noCleaningMonths: [7]  },
           ],
-          noCleaningMonths: [7],
           maximum: { days: 14 }
         },
         path: [
@@ -41,9 +39,8 @@ export function getRawParkingLocationData(): ParkingLocationData[] {
         name: "Gamla vägen (södra sidan, utanför gul villa)",
         parkingRules: {
           cleaningTimes: [
-            { day: DayOfWeek.TUESDAY, startHour: 10, endHour: 14, appliesToEvenWeeks: false, appliesToOddWeeks: true  },
+            { day: DayOfWeek.TUESDAY, startHour: 10, endHour: 14, appliesToEvenWeeks: false, appliesToOddWeeks: true, noCleaningMonths: [7]  },
           ],
-          noCleaningMonths: [7],
           maximum: { days: 14 }
         },
         path: [
@@ -57,9 +54,8 @@ export function getRawParkingLocationData(): ParkingLocationData[] {
         name: "Björnstigen (svängen)",
         parkingRules: {
           cleaningTimes: [
-            { day: DayOfWeek.TUESDAY, startHour: 10, endHour: 14, appliesToEvenWeeks: true, appliesToOddWeeks: false  },
+            { day: DayOfWeek.TUESDAY, startHour: 10, endHour: 14, appliesToEvenWeeks: true, appliesToOddWeeks: false, noCleaningMonths: [7]  },
           ],
-          noCleaningMonths: [7],
           maximum: { days: 14 }
         },
         path: [
@@ -77,9 +73,8 @@ export function getRawParkingLocationData(): ParkingLocationData[] {
         name: "Ripstigen (vid bron)",
         parkingRules: {
           cleaningTimes: [
-            { day: DayOfWeek.TUESDAY, startHour: 10, endHour: 14, appliesToEvenWeeks: false, appliesToOddWeeks: true },
+            { day: DayOfWeek.TUESDAY, startHour: 10, endHour: 14, appliesToEvenWeeks: false, appliesToOddWeeks: true, noCleaningMonths: [7] },
           ],
-          noCleaningMonths: [7],
           maximum: { days: 14 }
         },
         path: [
@@ -93,9 +88,8 @@ export function getRawParkingLocationData(): ParkingLocationData[] {
         name: "Bockholmsvägen (västra)",
         parkingRules: {
           cleaningTimes: [
-            { day: DayOfWeek.WEDNESDAY, startHour: 7, endHour: 10, appliesToEvenWeeks: true, appliesToOddWeeks: false },
+            { day: DayOfWeek.WEDNESDAY, startHour: 7, endHour: 10, appliesToEvenWeeks: true, appliesToOddWeeks: false, noCleaningMonths: [7] },
           ],
-          noCleaningMonths: [7],
           maximum: { days: 14 }
         },
         path: [
@@ -109,9 +103,8 @@ export function getRawParkingLocationData(): ParkingLocationData[] {
         name: "Bockholmsvägen (vid bron)",
         parkingRules: {
           cleaningTimes: [
-            { day: DayOfWeek.THURSDAY, startHour: 7, endHour: 10, appliesToEvenWeeks: true, appliesToOddWeeks: false },
+            { day: DayOfWeek.THURSDAY, startHour: 7, endHour: 10, appliesToEvenWeeks: true, appliesToOddWeeks: false, noCleaningMonths: [7] },
           ],
-          noCleaningMonths: [7],
           maximum: { days: 14 }
         },
         path: [
@@ -124,9 +117,8 @@ export function getRawParkingLocationData(): ParkingLocationData[] {
         name: "Stocksundstorpsvägen (mot Bockholmen)",
         parkingRules: {
           cleaningTimes: [
-            { day: DayOfWeek.THURSDAY, startHour: 7, endHour: 10, appliesToEvenWeeks: true, appliesToOddWeeks: false },
+            { day: DayOfWeek.THURSDAY, startHour: 7, endHour: 10, appliesToEvenWeeks: true, appliesToOddWeeks: false, noCleaningMonths: [7] },
           ],
-          noCleaningMonths: [7],
           maximum: { days: 14 }
         },
         path: [
@@ -140,9 +132,8 @@ export function getRawParkingLocationData(): ParkingLocationData[] {
         name: "Stocksundstorpsvägen (villaområdet)",
         parkingRules: {
           cleaningTimes: [
-            { day: DayOfWeek.THURSDAY, startHour: 10, endHour: 14, appliesToEvenWeeks: true, appliesToOddWeeks: false },
+            { day: DayOfWeek.THURSDAY, startHour: 10, endHour: 14, appliesToEvenWeeks: true, appliesToOddWeeks: false, noCleaningMonths: [7] },
           ],
-          noCleaningMonths: [7],
           maximum: { days: 14 }
         },
         path: [
@@ -156,9 +147,8 @@ export function getRawParkingLocationData(): ParkingLocationData[] {
         name: "Pipers väg (östra)",
         parkingRules: {
           cleaningTimes: [
-            { day: DayOfWeek.WEDNESDAY, startHour: 10, endHour: 14, appliesToEvenWeeks: false, appliesToOddWeeks: true },
+            { day: DayOfWeek.WEDNESDAY, startHour: 10, endHour: 14, appliesToEvenWeeks: false, appliesToOddWeeks: true, noCleaningMonths: [7] },
           ],
-          noCleaningMonths: [7],
           maximum: { days: 14 }
         },
         path: [
@@ -174,9 +164,8 @@ export function getRawParkingLocationData(): ParkingLocationData[] {
         name: "Pipers väg (västra)",
         parkingRules: {
           cleaningTimes: [
-            { day: DayOfWeek.THURSDAY, startHour: 10, endHour: 14, appliesToEvenWeeks: false, appliesToOddWeeks: true },
+            { day: DayOfWeek.THURSDAY, startHour: 10, endHour: 14, appliesToEvenWeeks: false, appliesToOddWeeks: true, noCleaningMonths: [7] },
           ],
-          noCleaningMonths: [7],
           maximum: { days: 14 }
         },
         path: [
@@ -190,9 +179,8 @@ export function getRawParkingLocationData(): ParkingLocationData[] {
         name: "Barks väg (IF)",
         parkingRules: {
           cleaningTimes: [
-            { day: DayOfWeek.TUESDAY, startHour: 10, endHour: 14, appliesToEvenWeeks: true, appliesToOddWeeks: false },
+            { day: DayOfWeek.TUESDAY, startHour: 10, endHour: 14, appliesToEvenWeeks: true, appliesToOddWeeks: false, noCleaningMonths: [7] },
           ],
-          noCleaningMonths: [7],
           maximum: { days: 14 }
         },
         path: [
@@ -206,9 +194,8 @@ export function getRawParkingLocationData(): ParkingLocationData[] {
         name: "Björnstigen (kring äldreboendet)",
         parkingRules: {
           cleaningTimes: [
-            { day: DayOfWeek.FRIDAY, startHour: 10, endHour: 14, appliesToEvenWeeks: true, appliesToOddWeeks: false },
+            { day: DayOfWeek.FRIDAY, startHour: 10, endHour: 14, appliesToEvenWeeks: true, appliesToOddWeeks: false, noCleaningMonths: [7] },
           ],
-          noCleaningMonths: [7],
           maximum: { days: 14 }
         },
         path: [
@@ -222,9 +209,8 @@ export function getRawParkingLocationData(): ParkingLocationData[] {
         name: "Hjortstigens parkering",
         parkingRules: {
           cleaningTimes: [
-            { day: DayOfWeek.WEDNESDAY, startHour: 18, endHour: 22, appliesToEvenWeeks: true, appliesToOddWeeks: false },
+            { day: DayOfWeek.WEDNESDAY, startHour: 18, endHour: 22, appliesToEvenWeeks: true, appliesToOddWeeks: false, noCleaningMonths: [7] },
           ],
-          noCleaningMonths: [7],
           maximum: { days: 14 }
         },
         path: [
@@ -238,9 +224,8 @@ export function getRawParkingLocationData(): ParkingLocationData[] {
         name: "Hjortstigen (gatuparkering)",
         parkingRules: {
           cleaningTimes: [
-            { day: DayOfWeek.THURSDAY, startHour: 18, endHour: 22, appliesToEvenWeeks: true, appliesToOddWeeks: false },
+            { day: DayOfWeek.THURSDAY, startHour: 18, endHour: 22, appliesToEvenWeeks: true, appliesToOddWeeks: false, noCleaningMonths: [7] },
           ],
-          noCleaningMonths: [7],
           maximum: { days: 14 }
         },
         path: [
@@ -254,15 +239,14 @@ export function getRawParkingLocationData(): ParkingLocationData[] {
         name: "Hjortstigen (skolparkering)",
         parkingRules: {
           cleaningTimes: [
-            { day: DayOfWeek.THURSDAY, startHour: 18, endHour: 22, appliesToEvenWeeks: true, appliesToOddWeeks: false },
+            { day: DayOfWeek.THURSDAY, startHour: 18, endHour: 22, appliesToEvenWeeks: true, appliesToOddWeeks: false, noCleaningMonths: [7], },
             // 15 minutes during school hours
-            { day: DayOfWeek.MONDAY, startHour: 7, endHour: 17, appliesToEvenWeeks: true, appliesToOddWeeks: true },
-            { day: DayOfWeek.TUESDAY, startHour: 7, endHour: 17, appliesToEvenWeeks: true, appliesToOddWeeks: true },
-            { day: DayOfWeek.WEDNESDAY, startHour: 7, endHour: 17, appliesToEvenWeeks: true, appliesToOddWeeks: true },
-            { day: DayOfWeek.THURSDAY, startHour: 7, endHour: 17, appliesToEvenWeeks: true, appliesToOddWeeks: true },
-            { day: DayOfWeek.FRIDAY, startHour: 7, endHour: 17, appliesToEvenWeeks: true, appliesToOddWeeks: true },
+            { day: DayOfWeek.MONDAY, startHour: 7, endHour: 17, appliesToEvenWeeks: true, appliesToOddWeeks: true, noCleaningMonths: [7], },
+            { day: DayOfWeek.TUESDAY, startHour: 7, endHour: 17, appliesToEvenWeeks: true, appliesToOddWeeks: true, noCleaningMonths: [7] },
+            { day: DayOfWeek.WEDNESDAY, startHour: 7, endHour: 17, appliesToEvenWeeks: true, appliesToOddWeeks: true, noCleaningMonths: [7] },
+            { day: DayOfWeek.THURSDAY, startHour: 7, endHour: 17, appliesToEvenWeeks: true, appliesToOddWeeks: true, noCleaningMonths: [7] },
+            { day: DayOfWeek.FRIDAY, startHour: 7, endHour: 17, appliesToEvenWeeks: true, appliesToOddWeeks: true, noCleaningMonths: [7] },
           ],
-          noCleaningMonths: [7],
           maximum: { days: 14 }
         },
         path: [
@@ -276,9 +260,8 @@ export function getRawParkingLocationData(): ParkingLocationData[] {
         name: "Hjortstigen (norra)",
         parkingRules: {
           cleaningTimes: [
-            { day: DayOfWeek.THURSDAY, startHour: 18, endHour: 22, appliesToEvenWeeks: true, appliesToOddWeeks: false },
+            { day: DayOfWeek.THURSDAY, startHour: 18, endHour: 22, appliesToEvenWeeks: true, appliesToOddWeeks: false,  noCleaningMonths: [7] },
           ],
-          noCleaningMonths: [7],
           maximum: { days: 14 }
         },
         path: [
@@ -292,9 +275,8 @@ export function getRawParkingLocationData(): ParkingLocationData[] {
         name: "Illerstigen (inre/västra)",
         parkingRules: {
           cleaningTimes: [
-            { day: DayOfWeek.MONDAY, startHour: 14, endHour: 18, appliesToEvenWeeks: true, appliesToOddWeeks: false },
+            { day: DayOfWeek.MONDAY, startHour: 14, endHour: 18, appliesToEvenWeeks: true, appliesToOddWeeks: false, noCleaningMonths: [7] },
           ],
-          noCleaningMonths: [7],
           maximum: { days: 14 }
         },
         path: [
@@ -308,9 +290,8 @@ export function getRawParkingLocationData(): ParkingLocationData[] {
         name: "Illerstigen (yttre/östra)",
         parkingRules: {
           cleaningTimes: [
-            { day: DayOfWeek.TUESDAY, startHour: 14, endHour: 18, appliesToEvenWeeks: true, appliesToOddWeeks: false },
+            { day: DayOfWeek.TUESDAY, startHour: 14, endHour: 18, appliesToEvenWeeks: true, appliesToOddWeeks: false, noCleaningMonths: [7] },
           ],
-          noCleaningMonths: [7],
           maximum: { days: 14 }
         },
         path: [
@@ -326,9 +307,8 @@ export function getRawParkingLocationData(): ParkingLocationData[] {
         name: "Björnstigen (utanför Kungshamra)",
         parkingRules: {
           cleaningTimes: [
-            { day: DayOfWeek.TUESDAY, startHour: 10, endHour: 14, appliesToEvenWeeks: true, appliesToOddWeeks: false },
+            { day: DayOfWeek.TUESDAY, startHour: 10, endHour: 14, appliesToEvenWeeks: true, appliesToOddWeeks: false, noCleaningMonths: [7] },
           ],
-          noCleaningMonths: [7],
           maximum: { days: 14 }
         },
         path: [

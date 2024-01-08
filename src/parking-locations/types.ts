@@ -31,8 +31,7 @@ export type ParkingLocationData = {
 
 export type ParkingRules = {
   cleaningTimes: CleaningTime[],
-  noCleaningMonths: number[],
-  maximum: { days: number },
+  maximum: { days: number }
 }
 
 export type AugmentedParkingLocationData = ParkingLocationData & { color: string }
@@ -43,4 +42,5 @@ export type CleaningTime = {
   endHour: number,
   appliesToEvenWeeks: boolean,
   appliesToOddWeeks: boolean,
+  noCleaningMonths: number[],
 }

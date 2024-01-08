@@ -1,18 +1,16 @@
 
 import { DateTime } from "luxon";
-import { AugmentedParkingLocationData, CleaningTime, DayOfWeek, ParkingLocationData } from "./types";
+import { AugmentedParkingLocationData, CleaningTime, DayOfWeek, ParkingLocationData, ParkingRules } from "./types";
 import assert from "assert";
 import { getAppropriateDisplayColor } from "./helper-functions/getAppropriateDisplayColor";
-import { getRawParkingLocationData } from "./data/getRawParkingLocationData";
 import { calculateMaximumTime } from "./helper-functions/calculateMaximumTime";
 import { compareLuxonDates } from "./helper-functions/compareLuxonDates";
 
-getRawParkingLocationData() 
 
 export function augmentParkingLocationData(rawData: ParkingLocationData[], currentTime: DateTime): AugmentedParkingLocationData[] {
   return rawData.map( (parkingLocation) => {
     
-    const nextCleaningTime = calculateNextCleaningTime(parkingLocation.parkingRules.cleaningTimes, currentTime, parkingLocation.parkingRules.noCleaningMonths)
+    const nextCleaningTime = calculateNextCleaningTime(parkingLocation.parkingRules, currentTime)
     const maximumTime = calculateMaximumTime(parkingLocation.parkingRules.maximum.days, currentTime)
 
     const possibleTimes = [maximumTime]
@@ -26,10 +24,13 @@ export function augmentParkingLocationData(rawData: ParkingLocationData[], curre
   })
 }
 
-export function calculateNextCleaningTime(cleaningTimes: CleaningTime[], currentTime: DateTime, noCleaningMonths: Number[]): DateTime | null {
+export function calculateNextCleaningTime(parkingRules: ParkingRules, currentTime: DateTime): DateTime | null {
   const currentDay = currentTime.weekday
   const currentHour = currentTime.hour
   const currentlyEvenWeek = currentTime.weekNumber % 2 === 0
+  const weeksOfYear = 52
+  const cleaningTimes: CleaningTime[] = parkingRules.cleaningTimes
+  const noCleaningMonths = cleaningTimes.flatMap((cleaningTime) => cleaningTime.noCleaningMonths)
 
 
   
@@ -52,7 +53,6 @@ export function calculateNextCleaningTime(cleaningTimes: CleaningTime[], current
 
     if (!noCleaningMonths.includes(currentTime.month)) {
       if (dayOffset === 0 && hourOffsetStart <= 0 && hourOffsetEnd > 0 && cleaningThisWeek) {
-        console.log('Cleaning currently in progress')
         return currentTime
       }
       if (dayOffset < 0 || (dayOffset === 0 && hourOffsetEnd <= 0)) {
@@ -63,14 +63,20 @@ export function calculateNextCleaningTime(cleaningTimes: CleaningTime[], current
 
     let nextCleaningWeekday = currentTime.plus({ days: dayOffset }).set({ hour: cleaningTime.startHour, minute: 0, second: 0, millisecond: 0 })
 
-    if (noCleaningMonths.includes(nextCleaningWeekday.month)) {
-      for (let i = 0; i < 10; i++) {
-        nextCleaningWeekday = nextCleaningWeekday.plus({ days: 7 })
-        if (!noCleaningMonths.includes(nextCleaningWeekday.month)) {
-          break
+  
+      if (noCleaningMonths.includes(nextCleaningWeekday.month)) {
+        for (let i = 0; i < weeksOfYear; i++) {
+          nextCleaningWeekday = nextCleaningWeekday.plus({ days: 7 })
+          if (!noCleaningMonths.includes(nextCleaningWeekday.month)) {
+            break
+          }
+          //Default for special cases that have no cleaning 
+         if (i === weeksOfYear-1) {
+           return null
+         }
         }
       }
-    }
+    
 
     // Consider odd/even weeks
     const isEvenWeek = nextCleaningWeekday.weekNumber % 2 === 0

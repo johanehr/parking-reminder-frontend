@@ -1,4 +1,4 @@
-"use client" // Necessary due to using src/app instead of legacy pages structure?
+"use client"; // From what I can understand after research its due to google-maps-react (specifically them using create-context) not being SSR compatible (unfortunately)
 
 import Header from './elements/header'
 import { ParkingMap } from './elements/parking-map'
