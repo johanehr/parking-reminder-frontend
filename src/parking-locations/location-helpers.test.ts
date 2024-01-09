@@ -3,6 +3,7 @@ import { DayOfWeek, ParkingLocationData } from "./types";
 import { calculateNextCleaningTime } from "./location-helpers";
 import { calculateMaximumTime } from "./helper-functions/calculateMaximumTime";
 import { getAppropriateDisplayColor } from "./helper-functions/getAppropriateDisplayColor";
+import { augmentParkingLocationData } from "./location-helpers";
 
 
 const fakeParkingData: ParkingLocationData = {
@@ -15,6 +16,7 @@ const fakeParkingData: ParkingLocationData = {
   },
   path: []
 }
+
 
 
 describe('getAppropriateDisplayColor', () => {
@@ -37,7 +39,7 @@ describe('calculateMaximumTime', () => {
   })
 })
 
-
+//Edge cases, handling of null
 describe('No match', () => {
   it('returns no match, and null', () => {
     const currentTime = DateTime.local(2023, 12, 4, 23) // Monday evening of odd week
@@ -49,31 +51,51 @@ describe('No match', () => {
   })
 })
 
-describe('all months have no cleaning', () => {
+describe('all months have no cleaning and returns null', () => {
   it('tests special case with endless cleaning break', () => {
     const currentTime = DateTime.local(2023, 12, 4, 23) // Monday evening of odd week
     const parkingRules = {
-      cleaningTimes:[{ day: DayOfWeek.WEDNESDAY, startHour: 8, endHour: 14, appliesToEvenWeeks: false, appliesToOddWeeks: false, noCleaningMonths: [1,2,3,4,5,6,7,8,9,10,11,12] }],
+      cleaningTimes:[{ day: DayOfWeek.WEDNESDAY, startHour: 8, endHour: 14, appliesToEvenWeeks: true, appliesToOddWeeks: false, noCleaningMonths: [1,2,3,4,5,6,7,8,9,10,11,12] }],
       maximum: { days: 14 }
     }
     expect(calculateNextCleaningTime(parkingRules, currentTime)).toEqual(null)
   })
 })
 
-
-describe('Should provoke second if block to be hit', () => {
-  it('should apply both adjustments', () => {
-    const currentTime = DateTime.local(2023, 12, 4, 14); // Monday afternoon of odd week, BEFORE cleaning time, AND in a no cleaning month
+describe('all months have no cleaning and calculatedNextCleaningTime returns null, thereby updating color to green', () => {
+  it('should set color to green when calculateNextCleaningTime returns null', () => {
+    const currentTime = DateTime.local(2023, 12, 4, 23); // Monday evening of odd week
     const parkingRules = {
-      cleaningTimes: [{ day: DayOfWeek.MONDAY, startHour: 12, endHour: 16, appliesToEvenWeeks: false, appliesToOddWeeks: true, noCleaningMonths: [12] }],
+      cleaningTimes: [
+        { day: DayOfWeek.WEDNESDAY, startHour: 8, endHour: 14, appliesToEvenWeeks: true, appliesToOddWeeks: false, noCleaningMonths: [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12] }
+      ],
       maximum: { days: 14 }
     };
-    // Set up the function call
-    expect(calculateNextCleaningTime(parkingRules, currentTime)).toEqual((DateTime.local(2023, 8, 1, 8).toISO()))
+    const rawData: ParkingLocationData[] = [{ name: 'Test Parking Location', path: [], parkingRules: { cleaningTimes: [
+      { day: DayOfWeek.WEDNESDAY, startHour: 8, endHour: 14, appliesToEvenWeeks: true, appliesToOddWeeks: false, noCleaningMonths: [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12] }
+    ],
+    maximum: { days: 14 }
+  } }];
+    const augmentedParkingData = augmentParkingLocationData(rawData, currentTime)[0];
+    expect(calculateNextCleaningTime(parkingRules, currentTime)).toEqual(null)
+    expect(augmentedParkingData.color).toEqual('green');
   });
 });
 
-describe('calculateNextCleaningTime', () => {
+
+describe('provokes second if block to be hit, (scenario: cleaning time has passed and one week on, is cleaning holiday', () => {
+  it('should apply both adjustments', () => {
+    const currentTime = DateTime.local(2023, 6, 28, 14); // Wednesday afternoon, end of June
+    const parkingRules = {
+      cleaningTimes: [{ day: DayOfWeek.WEDNESDAY, startHour: 8, endHour: 13, appliesToEvenWeeks: true, appliesToOddWeeks: false, noCleaningMonths: [7] }], //cleaning time earlier same day, (dayoffset + 7)
+      maximum: { days: 14 }
+    };
+    expect(calculateNextCleaningTime(parkingRules, currentTime)?.toISO()).toBe(DateTime.local(2023, 8, 9, 8).toISO())  
+  });
+});
+
+
+describe('calculateNextCleaningTime function tests', () => {
   const testCases = [
     {
       description: 'Currently on-going',

@@ -14,7 +14,13 @@ export function augmentParkingLocationData(rawData: ParkingLocationData[], curre
     const maximumTime = calculateMaximumTime(parkingLocation.parkingRules.maximum.days, currentTime)
 
     const possibleTimes = [maximumTime]
-    if (nextCleaningTime) { possibleTimes.push(nextCleaningTime) }
+    if (nextCleaningTime) { 
+      possibleTimes.push(nextCleaningTime)
+    } else {
+      return { ...parkingLocation, color: 'green'}
+    }
+    console.log('raw Parking Data:', rawData);
+
   
     const lastTimeToMove = possibleTimes.sort(compareLuxonDates)[0]
     const hoursUntilMove = lastTimeToMove.diffNow(['hours']).hours
@@ -50,20 +56,20 @@ export function calculateNextCleaningTime(parkingRules: ParkingRules, currentTim
 
     const cleaningThisWeek = (currentlyEvenWeek && cleaningTime.appliesToEvenWeeks) || (!currentlyEvenWeek && cleaningTime.appliesToOddWeeks)
 
-
+    // if location currently does not have a cleaning holiday
     if (!noCleaningMonths.includes(currentTime.month)) {
+      //cleaning currently ongoing
       if (dayOffset === 0 && hourOffsetStart <= 0 && hourOffsetEnd > 0 && cleaningThisWeek) {
         return currentTime
       }
       if (dayOffset < 0 || (dayOffset === 0 && hourOffsetEnd <= 0)) {
         console.log('Cleaning time already passed this week, continue checking next week')
-        dayOffset = 7 + dayOffset // Already passed, see next week
+        dayOffset = 7 + dayOffset 
       }
     }
 
     let nextCleaningWeekday = currentTime.plus({ days: dayOffset }).set({ hour: cleaningTime.startHour, minute: 0, second: 0, millisecond: 0 })
-
-  
+    // checking if location currently has a cleaning holiday, and if so, adds a week to the cleaning time, thereby trying to find next time the location is being cleaned
       if (noCleaningMonths.includes(nextCleaningWeekday.month)) {
         for (let i = 0; i < weeksOfYear; i++) {
           nextCleaningWeekday = nextCleaningWeekday.plus({ days: 7 })
