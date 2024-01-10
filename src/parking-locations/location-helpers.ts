@@ -19,8 +19,6 @@ export function augmentParkingLocationData(rawData: ParkingLocationData[], curre
     } else {
       return { ...parkingLocation, color: 'green'}
     }
-    console.log('raw Parking Data:', rawData);
-
   
     const lastTimeToMove = possibleTimes.sort(compareLuxonDates)[0]
     const hoursUntilMove = lastTimeToMove.diffNow(['hours']).hours
