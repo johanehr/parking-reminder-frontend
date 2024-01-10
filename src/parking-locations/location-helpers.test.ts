@@ -39,6 +39,8 @@ describe('calculateMaximumTime', () => {
   })
 })
 
+
+
 //Edge cases, handling of null
 describe('No match', () => {
   it('returns no match, and null', () => {
@@ -82,9 +84,8 @@ describe('all months have no cleaning and calculatedNextCleaningTime returns nul
   });
 });
 
-
-describe('provokes second if block to be hit, (scenario: cleaning time has passed and one week on, is cleaning holiday', () => {
-  it('should apply both adjustments', () => {
+describe('provokes second if block to be hit, (scenario: cleaning time has passed day offset applied which lands in is cleaning holiday if block', () => {
+  it('should apply both adjustments, and not break when returning out of cleaning holiday', () => {
     const currentTime = DateTime.local(2023, 6, 28, 14); // Wednesday afternoon, end of June
     const parkingRules = {
       cleaningTimes: [{ day: DayOfWeek.WEDNESDAY, startHour: 8, endHour: 13, appliesToEvenWeeks: true, appliesToOddWeeks: false, noCleaningMonths: [7] }], //cleaning time earlier same day, (dayoffset + 7)
@@ -95,6 +96,8 @@ describe('provokes second if block to be hit, (scenario: cleaning time has passe
 });
 
 
+
+//standard testing of calculateNextCleaningTime
 describe('calculateNextCleaningTime function tests', () => {
   const testCases = [
     {
@@ -221,7 +224,7 @@ describe('calculateNextCleaningTime function tests', () => {
 
 
 
-
+//testing of calculateNextCleaningTime with cleaning holiday
 describe('calculateCleaning function tests with July as no cleaning month', () => {
   const testCases = [
     {
@@ -279,7 +282,7 @@ describe('calculateCleaning function tests with July as no cleaning month', () =
 
 
 
-
+//testing of calculateNextCleaningTime with different/multiple/consecutive cleaning holidays 
 describe('calculateCleaning function tests with different months as no cleaning month', () => {
   const testCases = [
 {
