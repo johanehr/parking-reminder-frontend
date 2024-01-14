@@ -5,6 +5,7 @@ import assert from "assert";
 import { getAppropriateDisplayColor } from "./helper-functions/getAppropriateDisplayColor";
 import { calculateMaximumTime } from "./helper-functions/calculateMaximumTime";
 import { compareLuxonDates } from "./helper-functions/compareLuxonDates";
+import { WEEKS_PER_YEAR } from "../app/constants";
 
 
 export function augmentParkingLocationData(rawData: ParkingLocationData[], currentTime: DateTime): AugmentedParkingLocationData[] {
@@ -14,15 +15,8 @@ export function augmentParkingLocationData(rawData: ParkingLocationData[], curre
     const maximumTime = calculateMaximumTime(parkingLocation.parkingRules.maximum.days, currentTime)
 
     const possibleTimes = [maximumTime]
-    if (nextCleaningTime) { 
-      possibleTimes.push(nextCleaningTime)
-    } else {
-      return { ...parkingLocation, color: 'green'}
-    }
-  
-    const lastTimeToMove = possibleTimes.sort(compareLuxonDates)[0]
+    const lastTimeToMove = nextCleaningTime ? [...possibleTimes, nextCleaningTime].sort(compareLuxonDates)[0] : maximumTime
     const hoursUntilMove = lastTimeToMove.diffNow(['hours']).hours
-    console.log(`${hoursUntilMove.toFixed(2)}h until need to move from ${parkingLocation.name}`)
 
     return { ...parkingLocation, color: getAppropriateDisplayColor(hoursUntilMove)}
   })
@@ -32,7 +26,6 @@ export function calculateNextCleaningTime(parkingRules: ParkingRules, currentTim
   const currentDay = currentTime.weekday
   const currentHour = currentTime.hour
   const currentlyEvenWeek = currentTime.weekNumber % 2 === 0
-  const weeksOfYear = 52
   const cleaningTimes: CleaningTime[] = parkingRules.cleaningTimes
   const noCleaningMonths = cleaningTimes.flatMap((cleaningTime) => cleaningTime.noCleaningMonths)
 
@@ -61,7 +54,6 @@ export function calculateNextCleaningTime(parkingRules: ParkingRules, currentTim
         return currentTime
       }
       if (dayOffset < 0 || (dayOffset === 0 && hourOffsetEnd <= 0)) {
-        console.log('Cleaning time already passed this week, continue checking next week')
         dayOffset = 7 + dayOffset 
       }
     }
@@ -69,13 +61,13 @@ export function calculateNextCleaningTime(parkingRules: ParkingRules, currentTim
     let nextCleaningWeekday = currentTime.plus({ days: dayOffset }).set({ hour: cleaningTime.startHour, minute: 0, second: 0, millisecond: 0 })
     // checking if location currently has a cleaning holiday, and if so, adds a week to the cleaning time, thereby trying to find next time the location is being cleaned
       if (noCleaningMonths.includes(nextCleaningWeekday.month)) {
-        for (let i = 0; i < weeksOfYear; i++) {
+        for (let weekOffset = 1; weekOffset <= WEEKS_PER_YEAR ; weekOffset++) {
           nextCleaningWeekday = nextCleaningWeekday.plus({ days: 7 })
           if (!noCleaningMonths.includes(nextCleaningWeekday.month)) {
             break
           }
           //Default for special cases that have no cleaning 
-         if (i === weeksOfYear-1) {
+         if (weekOffset === WEEKS_PER_YEAR) {
            return null
          }
         }

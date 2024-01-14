@@ -42,5 +42,5 @@ export type CleaningTime = {
   endHour: number,
   appliesToEvenWeeks: boolean,
   appliesToOddWeeks: boolean,
-  noCleaningMonths: number[],
+  noCleaningMonths: MonthOfYear | MonthOfYear[] | number,
 }
