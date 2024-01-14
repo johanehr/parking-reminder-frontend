@@ -16,8 +16,6 @@ const fakeParkingData: ParkingLocationData = {
   path: []
 }
 
-
-
 describe('getAppropriateDisplayColor', () => {
   it.each([
     [1, "red"],
@@ -37,8 +35,6 @@ describe('calculateMaximumTime', () => {
     expect(calculateMaximumTime(7, DateTime.fromISO('2024-01-01T12:34:56.000Z'))).toEqual(DateTime.fromISO('2024-01-08T12:34:56.000Z'))
   })
 })
-
-
 
 //Edge cases, handling of null
 describe('handling of edge cases that return null', () => {
@@ -69,14 +65,13 @@ test.each(testCases)('(%s)', ({ currentTime, parkingRules, expected }) => {
 
 });
 
-
-describe('all months have no cleaning and calculatedNextCleaningTime returns null, thereby updating color to green', () => {
+describe('handling of edge cases that return null', () => {
   it('should set color to green when calculateNextCleaningTime returns null', () => {
-    const currentTime = DateTime.local(2023, 12, 4, 23); // Monday evening of odd week
-
+    //Monday evening of an odd week
+    const currentTime = DateTime.local(2023, 12, 4, 23);
     const parkingRules = {
       cleaningTimes: [
-        { day: DayOfWeek.WEDNESDAY, startHour: 8, endHour: 14, appliesToEvenWeeks: true, appliesToOddWeeks: false, noCleaningMonths: [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12] }
+        { day: DayOfWeek.WEDNESDAY, startHour: 8, endHour: 14, appliesToEvenWeeks: true, appliesToOddWeeks: false, noCleaningMonths: [1,2,3,4,5,6,7,8,9,10,11,12] }
       ],
       maximum: { days: 14 }
     };
@@ -84,9 +79,9 @@ describe('all months have no cleaning and calculatedNextCleaningTime returns nul
       name: 'Test Parking Location',
       path: [],
       parkingRules: parkingRules
-  }];
+    }];
     const augmentedParkingData = augmentParkingLocationData(rawData, currentTime)[0];
-    expect(calculateNextCleaningTime(parkingRules, currentTime)).toEqual(null)
+    expect(calculateNextCleaningTime(parkingRules, currentTime)).toEqual(null);
     expect(augmentedParkingData.color).toEqual('green');
   });
 });

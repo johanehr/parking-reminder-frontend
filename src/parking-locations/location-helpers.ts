@@ -13,11 +13,13 @@ export function augmentParkingLocationData(rawData: ParkingLocationData[], curre
     
     const nextCleaningTime = calculateNextCleaningTime(parkingLocation.parkingRules, currentTime)
     const maximumTime = calculateMaximumTime(parkingLocation.parkingRules.maximum.days, currentTime)
-
-    const possibleTimes = [maximumTime]
-    const lastTimeToMove = nextCleaningTime ? [...possibleTimes, nextCleaningTime].sort(compareLuxonDates)[0] : maximumTime
-    const hoursUntilMove = lastTimeToMove.diffNow(['hours']).hours
-
+    const possibleTimes = [maximumTime];
+    let lastTimeToMove = maximumTime;
+    if (nextCleaningTime) { 
+      possibleTimes.push(nextCleaningTime);
+      lastTimeToMove = possibleTimes.sort(compareLuxonDates)[0];
+    }
+    const hoursUntilMove = lastTimeToMove.diffNow(['hours']).hours;
     return { ...parkingLocation, color: getAppropriateDisplayColor(hoursUntilMove)}
   })
 }
