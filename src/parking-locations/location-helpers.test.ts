@@ -1,17 +1,6 @@
-import { DateTime } from "luxon";
-import { DayOfWeek, ParkingLocationData } from "./types";
-import { calculateMaximumTime, calculateNextCleaningTime, getAppropriateDisplayColor } from "./location-helpers";
-
-const fakeParkingData: ParkingLocationData = {
-  name: "Name",
-  parkingRules: {
-    cleaningTimes: [{ day: DayOfWeek.TUESDAY, startHour: 8, endHour: 14, appliesToEvenWeeks: false, appliesToOddWeeks: true }],
-    maximum: {
-      days: 14
-    }
-  },
-  path: []
-}
+import { DateTime } from "luxon"
+import { DayOfWeek } from "./types"
+import { calculateMaximumTime, calculateNextCleaningTime, getAppropriateDisplayColor } from "./location-helpers"
 
 describe('getAppropriateDisplayColor', () => {
   it.each([

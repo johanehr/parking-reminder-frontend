@@ -1,7 +1,7 @@
-"use client"; // Necessary due to using src/app instead of legacy pages structure?
+"use client" // Necessary due to using src/app instead of legacy pages structure?
 
-import Header from './elements/header';
-import { ParkingMap } from './elements/parking-map';
+import Header from './elements/header'
+import { ParkingMap } from './elements/parking-map'
 
 export default function Home() {
 
