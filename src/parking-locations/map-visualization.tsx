@@ -18,7 +18,7 @@ export function getCleaningDayDescription(cleaningTime: CleaningTime): string {
           (day === DayOfWeek.THURSDAY) ? 'torsdag' :
             (day === DayOfWeek.FRIDAY) ? 'fredag' :
               (day === DayOfWeek.SATURDAY) ? 'lördag' :
-                'söndag'
+                  'söndag'
   }
 
   const oddEven = oddEvenAll(cleaningTime.appliesToEvenWeeks, cleaningTime.appliesToOddWeeks)
