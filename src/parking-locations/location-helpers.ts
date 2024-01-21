@@ -1,6 +1,6 @@
-import { DateTime } from "luxon";
-import { AugmentedParkingLocationData, CleaningTime, DayOfWeek, ParkingLocationData } from "./types";
-import assert from "assert";
+import { DateTime } from "luxon"
+import { AugmentedParkingLocationData, CleaningTime, DayOfWeek, ParkingLocationData } from "./types"
+import assert from "assert"
 
 export function getRawParkingLocationData(): ParkingLocationData[] {
   // TODO: This should probably come from a database in the future, for crowd-sourced data
@@ -356,8 +356,8 @@ export function calculateNextCleaningTime(cleaningTimes: CleaningTime[], current
 
     // Only considering day of the week (not odd/even weeks)
     let dayOffset = cleaningTime.day - currentDay
-    let hourOffsetStart = cleaningTime.startHour - currentHour
-    let hourOffsetEnd = cleaningTime.endHour - currentHour
+    const hourOffsetStart = cleaningTime.startHour - currentHour
+    const hourOffsetEnd = cleaningTime.endHour - currentHour
 
     const cleaningThisWeek = (currentlyEvenWeek && cleaningTime.appliesToEvenWeeks) || (!currentlyEvenWeek && cleaningTime.appliesToOddWeeks)
     if (dayOffset === 0 && hourOffsetStart <= 0 && hourOffsetEnd > 0 && cleaningThisWeek) {
@@ -370,7 +370,7 @@ export function calculateNextCleaningTime(cleaningTimes: CleaningTime[], current
       dayOffset = 7 + dayOffset // Already passed, see next week
     }
 
-    let nextCleaningWeekday = currentTime.plus({ days: dayOffset }).set({ hour: cleaningTime.startHour, minute: 0, second: 0, millisecond: 0 })
+    const nextCleaningWeekday = currentTime.plus({ days: dayOffset }).set({ hour: cleaningTime.startHour, minute: 0, second: 0, millisecond: 0 })
 
     // Consider odd/even weeks
     const isEvenWeek = nextCleaningWeekday.weekNumber % 2 === 0
@@ -392,7 +392,7 @@ export function calculateNextCleaningTime(cleaningTimes: CleaningTime[], current
     return null
   })
 
-  const validMoveDays = allMoveDays.flatMap(day => day ? [day] : []);
+  const validMoveDays = allMoveDays.flatMap(day => day ? [day] : [])
   return validMoveDays.sort(compareLuxonDates)[0] ?? null
   
 }

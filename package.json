@@ -7,6 +7,7 @@
     "build": "next build",
     "start": "next start",
     "lint": "next lint",
+    "lint:fix": "next lint --fix",
     "test": "jest",
     "test:watch": "jest --watch"
   },
@@ -18,11 +19,13 @@
     "react-dom": "^18.2.0"
   },
   "devDependencies": {
+    "@stylistic/eslint-plugin": "^1.5.4",
     "@types/jest": "^29.5.10",
     "@types/luxon": "^3.3.6",
     "@types/node": "^20",
     "@types/react": "^18",
     "@types/react-dom": "^18",
+    "@typescript-eslint/eslint-plugin": "^6.19.0",
     "autoprefixer": "^10.0.1",
     "eslint": "^8",
     "eslint-config-next": "14.0.3",
