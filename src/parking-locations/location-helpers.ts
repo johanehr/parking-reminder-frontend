@@ -1,28 +1,32 @@
 
 import { DateTime } from "luxon";
-import { AugmentedParkingLocationData, CleaningTime, DayOfWeek, ParkingLocationData, ParkingRules } from "./types";
+import { AugmentedParkingLocationData, CleaningTime, ParkingLocationData, ParkingRules } from "./types";
 import assert from "assert";
 import { getAppropriateDisplayColor } from "./helper-functions/getAppropriateDisplayColor";
 import { calculateMaximumTime } from "./helper-functions/calculateMaximumTime";
 import { compareLuxonDates } from "./helper-functions/compareLuxonDates";
 import { WEEKS_PER_YEAR } from "../app/constants";
+import { getRawParkingLocationData } from "./data/getRawParkingLocationData"
 
+const rawData = getRawParkingLocationData()
+const currentTime = DateTime.local()
 
-export function augmentParkingLocationData(rawData: ParkingLocationData[], currentTime: DateTime): AugmentedParkingLocationData[] {
-  return rawData.map( (parkingLocation) => {
-    
+export function augmentParkingLocationData(parkingLocation: ParkingLocationData, currentTime: DateTime): AugmentedParkingLocationData {
     const nextCleaningTime = calculateNextCleaningTime(parkingLocation.parkingRules, currentTime)
     const maximumTime = calculateMaximumTime(parkingLocation.parkingRules.maximum.days, currentTime)
-    const possibleTimes = [maximumTime];
+    const possibleTimes = [maximumTime]
     let lastTimeToMove = maximumTime;
     if (nextCleaningTime) { 
       possibleTimes.push(nextCleaningTime);
-      lastTimeToMove = possibleTimes.sort(compareLuxonDates)[0];
     }
-    const hoursUntilMove = lastTimeToMove.diffNow(['hours']).hours;
+    lastTimeToMove = possibleTimes.sort(compareLuxonDates)[0];
+    const hoursUntilMove = lastTimeToMove.diff(currentTime, 'hours').hours;
     return { ...parkingLocation, color: getAppropriateDisplayColor(hoursUntilMove)}
-  })
 }
+
+export const augmentedDataArray: AugmentedParkingLocationData[] = rawData.map((parkingLocation: ParkingLocationData) => augmentParkingLocationData(parkingLocation, currentTime))
+
+
 
 export function calculateNextCleaningTime(parkingRules: ParkingRules, currentTime: DateTime): DateTime | null {
   const currentDay = currentTime.weekday

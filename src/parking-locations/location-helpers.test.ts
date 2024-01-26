@@ -65,7 +65,7 @@ test.each(testCases)('(%s)', ({ currentTime, parkingRules, expected }) => {
 
 });
 
-describe('handling of edge cases that return null', () => {
+ describe('colour assignment logic', () => {
   it('should set color to green when calculateNextCleaningTime returns null', () => {
     //Monday evening of an odd week
     const currentTime = DateTime.local(2023, 12, 4, 23);
@@ -75,18 +75,16 @@ describe('handling of edge cases that return null', () => {
       ],
       maximum: { days: 14 }
     };
-    const rawData: ParkingLocationData[] = [{
+    const parkingLocation = {
       name: 'Test Parking Location',
       path: [],
       parkingRules: parkingRules
-    }];
-    const augmentedParkingData = augmentParkingLocationData(rawData, currentTime)[0];
+    };
+    const augmentedParkingData = augmentParkingLocationData(parkingLocation, currentTime);
     expect(calculateNextCleaningTime(parkingRules, currentTime)).toEqual(null);
     expect(augmentedParkingData.color).toEqual('green');
   });
-});
-
-
+}); 
 
 
 //standard testing of calculateNextCleaningTime
