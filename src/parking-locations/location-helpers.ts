@@ -8,8 +8,6 @@ import { compareLuxonDates } from "./helper-functions/compareLuxonDates";
 import { WEEKS_PER_YEAR } from "../app/constants";
 import { getRawParkingLocationData } from "./data/getRawParkingLocationData"
 
-const rawData = getRawParkingLocationData()
-const currentTime = DateTime.local()
 
 export function augmentParkingLocationData(parkingLocation: ParkingLocationData, currentTime: DateTime): AugmentedParkingLocationData {
     const nextCleaningTime = calculateNextCleaningTime(parkingLocation.parkingRules, currentTime)
@@ -24,7 +22,13 @@ export function augmentParkingLocationData(parkingLocation: ParkingLocationData,
     return { ...parkingLocation, color: getAppropriateDisplayColor(hoursUntilMove)}
 }
 
-export const augmentedDataArray: AugmentedParkingLocationData[] = rawData.map((parkingLocation: ParkingLocationData) => augmentParkingLocationData(parkingLocation, currentTime))
+
+export const getAugmentedParkingLocationData = (
+  parkingLocationData: ParkingLocationData[] = getRawParkingLocationData(),
+  currentTime: DateTime = DateTime.local()
+): AugmentedParkingLocationData[] =>  {
+  return parkingLocationData.map((parkingLocation: ParkingLocationData) => augmentParkingLocationData(parkingLocation, currentTime))
+}
 
 
 

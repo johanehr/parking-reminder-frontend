@@ -1,4 +1,4 @@
-import { augmentedDataArray } from '@/parking-locations/location-helpers';
+import { getAugmentedParkingLocationData } from '@/parking-locations/location-helpers';
 import ParkingMapPolygons from '@/parking-locations/map-visualization';
 import { GoogleMap, useLoadScript } from '@react-google-maps/api';
 import { useMemo, useRef } from 'react';
@@ -25,7 +25,7 @@ export function ParkingMap() {
     mapId: process.env.NEXT_PUBLIC_GOOGLE_MAPS_MAP_ID as string
   }
   
-  const parkingLocations = augmentedDataArray
+  const parkingLocations = getAugmentedParkingLocationData();
 
   return (
     <GoogleMap
