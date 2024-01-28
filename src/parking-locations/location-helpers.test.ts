@@ -1,20 +1,8 @@
-import { DateTime } from "luxon";
-import { DayOfWeek, ParkingLocationData } from "./types";
-import { calculateNextCleaningTime } from "./location-helpers";
-import { calculateMaximumTime } from "./helper-functions/calculateMaximumTime";
-import { getAppropriateDisplayColor } from "./helper-functions/getAppropriateDisplayColor";
-import { augmentParkingLocationData } from "./location-helpers";
-
-const fakeParkingData: ParkingLocationData = {
-  name: "Name",
-  parkingRules: {
-    cleaningTimes: [{ day: DayOfWeek.TUESDAY, startHour: 8, endHour: 14, appliesToEvenWeeks: false, appliesToOddWeeks: true, noCleaningMonths: [7]}],
-    maximum: {
-      days: 14
-    },
-  },
-  path: []
-}
+import { DateTime } from "luxon"
+import { DayOfWeek } from "./types"
+import { calculateNextCleaningTime } from "./location-helpers"
+import { calculateMaximumTime } from "./helper-functions/calculateMaximumTime"
+import { getAppropriateDisplayColor } from "./helper-functions/getAppropriateDisplayColor"
 
 describe('getAppropriateDisplayColor', () => {
   it.each([
@@ -43,8 +31,8 @@ describe('handling of edge cases that return null', () => {
       description: 'returns no match and null',
       currentTime: DateTime.local(2023, 12, 4, 23), // Monday evening of odd week
       parkingRules: {
-      cleaningTimes:[{ day: DayOfWeek.WEDNESDAY, startHour: 8, endHour: 14, appliesToEvenWeeks: false, appliesToOddWeeks: false, noCleaningMonths: [7] }],
-      maximum: { days: 14 }
+        cleaningTimes: [{ day: DayOfWeek.WEDNESDAY, startHour: 8, endHour: 14, appliesToEvenWeeks: false, appliesToOddWeeks: false, noCleaningMonths: [7] }],
+        maximum: { days: 14 }
       },
       expected: null,
     },
@@ -52,18 +40,18 @@ describe('handling of edge cases that return null', () => {
       description: 'all months have no cleaning and returns null',
       currentTime: DateTime.local(2023, 12, 4, 23), // Monday evening of odd week
       parkingRules: {
-        cleaningTimes:[{ day: DayOfWeek.WEDNESDAY, startHour: 8, endHour: 14, appliesToEvenWeeks: true, appliesToOddWeeks: false, noCleaningMonths: [1,2,3,4,5,6,7,8,9,10,11,12]}],
+        cleaningTimes: [{ day: DayOfWeek.WEDNESDAY, startHour: 8, endHour: 14, appliesToEvenWeeks: true, appliesToOddWeeks: false, noCleaningMonths: [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12] }],
         maximum: { days: 14 }
       },
       expected: null,
     },
   ]
-test.each(testCases)('(%s)', ({ currentTime, parkingRules, expected }) => {
-  const result = calculateNextCleaningTime(parkingRules, currentTime);
-  expect(result).toEqual(expected);
-});
+  test.each(testCases)('(%s)', ({ currentTime, parkingRules, expected }) => {
+    const result = calculateNextCleaningTime(parkingRules, currentTime)
+    expect(result).toEqual(expected)
+  })
 
-});
+})
 
 
 //standard testing of calculateNextCleaningTime
@@ -73,8 +61,8 @@ describe('calculateNextCleaningTime function tests', () => {
       description: 'Currently on-going',
       currentTime: DateTime.local(2023, 12, 4, 12), // Monday noon of odd week
       parkingRules: {
-      cleaningTimes: [{ day: DayOfWeek.MONDAY, startHour: 0, endHour: 23, appliesToEvenWeeks: true, appliesToOddWeeks: true, noCleaningMonths: [7]  }],
-      maximum: { days: 14 }
+        cleaningTimes: [{ day: DayOfWeek.MONDAY, startHour: 0, endHour: 23, appliesToEvenWeeks: true, appliesToOddWeeks: true, noCleaningMonths: [7] }],
+        maximum: { days: 14 }
       },
       expected: DateTime.local(2023, 12, 4, 12),
     },
@@ -82,8 +70,8 @@ describe('calculateNextCleaningTime function tests', () => {
       description: 'Just started',
       currentTime: DateTime.local(2023, 12, 4, 0), // Monday early morning of odd week
       parkingRules: {
-      cleaningTimes: [{ day: DayOfWeek.MONDAY, startHour: 0, endHour: 23, appliesToEvenWeeks: true, appliesToOddWeeks: true, noCleaningMonths: [7] }],
-      maximum: { days: 14 }
+        cleaningTimes: [{ day: DayOfWeek.MONDAY, startHour: 0, endHour: 23, appliesToEvenWeeks: true, appliesToOddWeeks: true, noCleaningMonths: [7] }],
+        maximum: { days: 14 }
       },
       expected: DateTime.local(2023, 12, 4, 0),
     },
@@ -91,8 +79,8 @@ describe('calculateNextCleaningTime function tests', () => {
       description: 'Just ended',
       currentTime: DateTime.local(2023, 12, 4, 23), // Monday evening of odd week
       parkingRules: {
-      cleaningTimes: [{ day: DayOfWeek.MONDAY, startHour: 0, endHour: 23, appliesToEvenWeeks: false, appliesToOddWeeks: true, noCleaningMonths: [7] }],
-      maximum: { days: 14 }
+        cleaningTimes: [{ day: DayOfWeek.MONDAY, startHour: 0, endHour: 23, appliesToEvenWeeks: false, appliesToOddWeeks: true, noCleaningMonths: [7] }],
+        maximum: { days: 14 }
       },
       expected: DateTime.local(2023, 12, 18, 0)
     },
@@ -100,8 +88,8 @@ describe('calculateNextCleaningTime function tests', () => {
       description: 'Later today',
       currentTime: DateTime.local(2023, 12, 4, 8), // Monday morning of odd week
       parkingRules: {
-      cleaningTimes: [{ day: DayOfWeek.MONDAY, startHour: 15, endHour: 18, appliesToEvenWeeks: true, appliesToOddWeeks: true, noCleaningMonths: [7] }],
-      maximum: { days: 14 }
+        cleaningTimes: [{ day: DayOfWeek.MONDAY, startHour: 15, endHour: 18, appliesToEvenWeeks: true, appliesToOddWeeks: true, noCleaningMonths: [7] }],
+        maximum: { days: 14 }
       },
       expected: DateTime.local(2023, 12, 4, 15)
     },
@@ -109,8 +97,8 @@ describe('calculateNextCleaningTime function tests', () => {
       description: 'Tomorrow (new week starting)',
       currentTime: DateTime.local(2023, 12, 10, 22), // Sunday even of odd week
       parkingRules: {
-      cleaningTimes: [{ day: DayOfWeek.MONDAY, startHour: 8, endHour: 12, appliesToEvenWeeks: true, appliesToOddWeeks: true, noCleaningMonths: [7] }],
-      maximum: { days: 14 }
+        cleaningTimes: [{ day: DayOfWeek.MONDAY, startHour: 8, endHour: 12, appliesToEvenWeeks: true, appliesToOddWeeks: true, noCleaningMonths: [7] }],
+        maximum: { days: 14 }
       },
       expected: DateTime.local(2023, 12, 11, 8)
     },
@@ -118,8 +106,8 @@ describe('calculateNextCleaningTime function tests', () => {
       description: 'This week',
       currentTime: DateTime.local(2023, 12, 4, 23), // Monday evening of odd week
       parkingRules: {
-      cleaningTimes: [{ day: DayOfWeek.WEDNESDAY, startHour: 8, endHour: 14, appliesToEvenWeeks: false, appliesToOddWeeks: true, noCleaningMonths: [7] }],
-      maximum: { days: 14 }
+        cleaningTimes: [{ day: DayOfWeek.WEDNESDAY, startHour: 8, endHour: 14, appliesToEvenWeeks: false, appliesToOddWeeks: true, noCleaningMonths: [7] }],
+        maximum: { days: 14 }
       },
       expected: DateTime.local(2023, 12, 6, 8)
     },
@@ -127,8 +115,8 @@ describe('calculateNextCleaningTime function tests', () => {
       description: 'Next week (due to passed weekday)',
       currentTime: DateTime.local(2023, 12, 5, 23),// Tuesday evening of odd week
       parkingRules: {
-      cleaningTimes: [{ day: DayOfWeek.MONDAY, startHour: 10, endHour: 12, appliesToEvenWeeks: true, appliesToOddWeeks: true, noCleaningMonths: [7] }],
-      maximum: { days: 14 }
+        cleaningTimes: [{ day: DayOfWeek.MONDAY, startHour: 10, endHour: 12, appliesToEvenWeeks: true, appliesToOddWeeks: true, noCleaningMonths: [7] }],
+        maximum: { days: 14 }
       },
       expected: DateTime.local(2023, 12, 11, 10)
     },
@@ -136,8 +124,8 @@ describe('calculateNextCleaningTime function tests', () => {
       description: 'Next week (due to passed time earlier today)',
       currentTime: DateTime.local(2023, 12, 4, 15), // Monday afternoon of odd week
       parkingRules: {
-      cleaningTimes:[{ day: DayOfWeek.MONDAY, startHour: 10, endHour: 12, appliesToEvenWeeks: true, appliesToOddWeeks: true, noCleaningMonths: [7] }],
-      maximum: { days: 14 }
+        cleaningTimes: [{ day: DayOfWeek.MONDAY, startHour: 10, endHour: 12, appliesToEvenWeeks: true, appliesToOddWeeks: true, noCleaningMonths: [7] }],
+        maximum: { days: 14 }
       },
       expected: DateTime.local(2023, 12, 11, 10)
     },
@@ -145,8 +133,8 @@ describe('calculateNextCleaningTime function tests', () => {
       description: 'Next week (due to odd week number)',
       currentTime: DateTime.local(2023, 12, 4, 23),// Monday evening of odd week
       parkingRules: {
-      cleaningTimes:[{ day: DayOfWeek.WEDNESDAY, startHour: 8, endHour: 14, appliesToEvenWeeks: true, appliesToOddWeeks: false, noCleaningMonths: [7] }],
-      maximum: { days: 14 }
+        cleaningTimes: [{ day: DayOfWeek.WEDNESDAY, startHour: 8, endHour: 14, appliesToEvenWeeks: true, appliesToOddWeeks: false, noCleaningMonths: [7] }],
+        maximum: { days: 14 }
       },
       expected: DateTime.local(2023, 12, 13, 8)
     },
@@ -154,12 +142,12 @@ describe('calculateNextCleaningTime function tests', () => {
       description: 'Multiple cleaning times',
       currentTime: DateTime.local(2023, 12, 4, 23),// Monday evening of odd week
       parkingRules: {
-         cleaningTimes : [
+        cleaningTimes: [
           { day: DayOfWeek.TUESDAY, startHour: 8, endHour: 14, appliesToEvenWeeks: true, appliesToOddWeeks: false, noCleaningMonths: [7] },  // Next week
           { day: DayOfWeek.WEDNESDAY, startHour: 8, endHour: 14, appliesToEvenWeeks: true, appliesToOddWeeks: true, noCleaningMonths: [7] }, // This week <---
           { day: DayOfWeek.THURSDAY, startHour: 8, endHour: 14, appliesToEvenWeeks: true, appliesToOddWeeks: false, noCleaningMonths: [7] }  // Next week
         ],
-      maximum: { days: 14 }
+        maximum: { days: 14 }
       },
       expected: DateTime.local(2023, 12, 6, 8)
     },
@@ -167,8 +155,8 @@ describe('calculateNextCleaningTime function tests', () => {
       description: 'Current time, but next week',
       currentTime: DateTime.local(2023, 12, 6, 21),// Wednesday evening of odd week
       parkingRules: {
-      cleaningTimes:[{ day: DayOfWeek.WEDNESDAY, startHour: 18, endHour: 22, appliesToEvenWeeks: true, appliesToOddWeeks: false, noCleaningMonths: [7] }],
-      maximum: { days: 14 }
+        cleaningTimes: [{ day: DayOfWeek.WEDNESDAY, startHour: 18, endHour: 22, appliesToEvenWeeks: true, appliesToOddWeeks: false, noCleaningMonths: [7] }],
+        maximum: { days: 14 }
       },
       expected: DateTime.local(2023, 12, 13, 18)
     },
@@ -176,20 +164,20 @@ describe('calculateNextCleaningTime function tests', () => {
       description: 'Cleaning completed recently',
       currentTime: DateTime.local(2023, 12, 6, 21),// Wednesday evening of odd week
       parkingRules: {
-      cleaningTimes:[{ day: DayOfWeek.WEDNESDAY, startHour: 10, endHour: 14, appliesToEvenWeeks: true, appliesToOddWeeks: false, noCleaningMonths: [7] }],
-      maximum: { days: 14 }
+        cleaningTimes: [{ day: DayOfWeek.WEDNESDAY, startHour: 10, endHour: 14, appliesToEvenWeeks: true, appliesToOddWeeks: false, noCleaningMonths: [7] }],
+        maximum: { days: 14 }
       },
       expected: DateTime.local(2023, 12, 13, 10)
     },
 
-  ];
+  ]
 
   test.each(testCases)('(%s)', ({ currentTime, parkingRules, expected }) => {
-    const result = calculateNextCleaningTime(parkingRules, currentTime);
-    expect(result?.toISO()).toEqual(expected.toISO());
-  });
+    const result = calculateNextCleaningTime(parkingRules, currentTime)
+    expect(result?.toISO()).toEqual(expected.toISO())
+  })
 
-  });
+})
 
 
 
@@ -200,8 +188,8 @@ describe('calculateCleaning function tests with July as no cleaning month', () =
       description: 'Finds next cleaning time after month of cleaning-break, currently in month before cleaning break',
       currentTime: DateTime.local(2023, 6, 30, 21),
       parkingRules: {
-      cleaningTimes: [{ day: DayOfWeek.WEDNESDAY, startHour: 8, endHour: 14, appliesToEvenWeeks: false, appliesToOddWeeks: true, noCleaningMonths: [7], }],
-      maximum: { days: 14 }
+        cleaningTimes: [{ day: DayOfWeek.WEDNESDAY, startHour: 8, endHour: 14, appliesToEvenWeeks: false, appliesToOddWeeks: true, noCleaningMonths: [7], }],
+        maximum: { days: 14 }
       },
       expected: DateTime.local(2023, 8, 2, 8),
     },
@@ -209,8 +197,8 @@ describe('calculateCleaning function tests with July as no cleaning month', () =
       description: 'Finds next cleaning time after cleaning break, currently in cleaning break',
       currentTime: DateTime.local(2023, 7, 10, 21),
       parkingRules: {
-      cleaningTimes: [{ day: DayOfWeek.FRIDAY, startHour: 8, endHour: 14, appliesToEvenWeeks: true, appliesToOddWeeks: false, noCleaningMonths: [7], }],
-      maximum: { days: 14 }
+        cleaningTimes: [{ day: DayOfWeek.FRIDAY, startHour: 8, endHour: 14, appliesToEvenWeeks: true, appliesToOddWeeks: false, noCleaningMonths: [7], }],
+        maximum: { days: 14 }
       },
       expected: DateTime.local(2023, 8, 11, 8),
     },
@@ -218,8 +206,8 @@ describe('calculateCleaning function tests with July as no cleaning month', () =
       description: 'Returns to normal checks after cleaning-break',
       currentTime: DateTime.local(2023, 7, 26, 21),
       parkingRules: {
-      cleaningTimes: [{ day: DayOfWeek.TUESDAY, startHour: 8, endHour: 14, appliesToEvenWeeks: true, appliesToOddWeeks: false, noCleaningMonths: [7], }],
-      maximum: { days: 14 }
+        cleaningTimes: [{ day: DayOfWeek.TUESDAY, startHour: 8, endHour: 14, appliesToEvenWeeks: true, appliesToOddWeeks: false, noCleaningMonths: [7], }],
+        maximum: { days: 14 }
       },
       expected: DateTime.local(2023, 8, 8, 8),
     },
@@ -227,8 +215,8 @@ describe('calculateCleaning function tests with July as no cleaning month', () =
       description: 'During cleaning break, is not affected by cleaning "ongoing"',
       currentTime: DateTime.local(2023, 7, 19, 10),
       parkingRules: {
-      cleaningTimes: [{ day: DayOfWeek.WEDNESDAY, startHour: 8, endHour: 14, appliesToEvenWeeks: false, appliesToOddWeeks: true, noCleaningMonths: [7], }],
-      maximum: { days: 14 }
+        cleaningTimes: [{ day: DayOfWeek.WEDNESDAY, startHour: 8, endHour: 14, appliesToEvenWeeks: false, appliesToOddWeeks: true, noCleaningMonths: [7], }],
+        maximum: { days: 14 }
       },
       expected: DateTime.local(2023, 8, 2, 8),
     },
@@ -236,8 +224,8 @@ describe('calculateCleaning function tests with July as no cleaning month', () =
       description: 'During cleaning break, is not affected by cleaning "earlier in the same day"',
       currentTime: DateTime.local(2023, 7, 20, 18),
       parkingRules: {
-      cleaningTimes: [{ day: DayOfWeek.THURSDAY, startHour: 8, endHour: 14, appliesToEvenWeeks: false, appliesToOddWeeks: true, noCleaningMonths: [7], }],
-      maximum: { days: 14 }
+        cleaningTimes: [{ day: DayOfWeek.THURSDAY, startHour: 8, endHour: 14, appliesToEvenWeeks: false, appliesToOddWeeks: true, noCleaningMonths: [7], }],
+        maximum: { days: 14 }
       },
       expected: DateTime.local(2023, 8, 3, 8),
     },
@@ -250,68 +238,68 @@ describe('calculateCleaning function tests with July as no cleaning month', () =
       },
       expected: DateTime.local(2023, 8, 9, 8),
     },
-  ];
+  ]
 
   test.each(testCases)('(%s)', ({ currentTime, parkingRules, expected }) => {
-    const result = calculateNextCleaningTime(parkingRules, currentTime);
-    expect(result?.toISO()).toEqual(expected.toISO());
-  });
-});
+    const result = calculateNextCleaningTime(parkingRules, currentTime)
+    expect(result?.toISO()).toEqual(expected.toISO())
+  })
+})
 
 
 
 //testing of calculateNextCleaningTime with different/multiple/consecutive cleaning holidays 
 describe('calculateCleaning function tests with different months as no cleaning month', () => {
   const testCases = [
-{
-  description: 'Finds next cleaning time, with cleaning break August',
-  currentTime: DateTime.local(2023, 7, 28, 8),
-  parkingRules: {
-  cleaningTimes: [{ day: DayOfWeek.THURSDAY, startHour: 8, endHour: 14, appliesToEvenWeeks: false, appliesToOddWeeks: true, noCleaningMonths: [8], }],
-  maximum: { days: 14 }
-  },
-  expected: DateTime.local(2023, 9, 14, 8),
-},
-{
-  description: 'Finds next cleaning time, with cleaning break June',
-  currentTime: DateTime.local(2023, 6, 23, 8),
-  parkingRules: {
-  cleaningTimes: [{ day: DayOfWeek.WEDNESDAY, startHour: 8, endHour: 14, appliesToEvenWeeks: true, appliesToOddWeeks: false, noCleaningMonths: [6], }],
-  maximum: { days: 14 }
-  },
-  expected: DateTime.local(2023, 7, 12, 8),
-}, 
-  ];
-test.each(testCases)('(%s)', ({ currentTime, parkingRules, expected }) => {
-  const result = calculateNextCleaningTime(parkingRules, currentTime);
-  expect(result?.toISO()).toEqual(expected.toISO());
-});
-});
+    {
+      description: 'Finds next cleaning time, with cleaning break August',
+      currentTime: DateTime.local(2023, 7, 28, 8),
+      parkingRules: {
+        cleaningTimes: [{ day: DayOfWeek.THURSDAY, startHour: 8, endHour: 14, appliesToEvenWeeks: false, appliesToOddWeeks: true, noCleaningMonths: [8], }],
+        maximum: { days: 14 }
+      },
+      expected: DateTime.local(2023, 9, 14, 8),
+    },
+    {
+      description: 'Finds next cleaning time, with cleaning break June',
+      currentTime: DateTime.local(2023, 6, 23, 8),
+      parkingRules: {
+        cleaningTimes: [{ day: DayOfWeek.WEDNESDAY, startHour: 8, endHour: 14, appliesToEvenWeeks: true, appliesToOddWeeks: false, noCleaningMonths: [6], }],
+        maximum: { days: 14 }
+      },
+      expected: DateTime.local(2023, 7, 12, 8),
+    },
+  ]
+  test.each(testCases)('(%s)', ({ currentTime, parkingRules, expected }) => {
+    const result = calculateNextCleaningTime(parkingRules, currentTime)
+    expect(result?.toISO()).toEqual(expected.toISO())
+  })
+})
 
 describe('calculateCleaning tests with consecutive months as no cleaning months', () => {
   const testCases = [
-{
-  description: 'Finds next cleaning time, in first half of two-month break',
-  currentTime: DateTime.local(2023, 2, 9, 8), //during first month of cleaning break thursday morning
-  parkingRules: {
-  cleaningTimes: [{ day: DayOfWeek.MONDAY, startHour: 8, endHour: 14, appliesToEvenWeeks: false, appliesToOddWeeks: true, noCleaningMonths: [2,3], }],
-  maximum: { days: 14 }
-  },
-  expected: DateTime.local(2023, 4, 10, 8),
-},
-{
-  description: 'Finds next cleaning time, before three-month break, also checks crossing year-end',
-  currentTime: DateTime.local(2023, 9, 28, 8), //just before three-month break thursday morning
-  parkingRules: {
-  cleaningTimes: [{ day: DayOfWeek.MONDAY, startHour: 8, endHour: 14, appliesToEvenWeeks: false, appliesToOddWeeks: true, noCleaningMonths: [10,11,12], }],
-  maximum: { days: 14 }
-  },
-  expected: DateTime.local(2024, 1, 1, 8),
-}, 
-  ];
-test.each(testCases)('(%s)', ({ currentTime, parkingRules, expected }) => {
-  const result = calculateNextCleaningTime(parkingRules, currentTime);
-  expect(result?.toISO()).toEqual(expected.toISO());
-});
-});
+    {
+      description: 'Finds next cleaning time, in first half of two-month break',
+      currentTime: DateTime.local(2023, 2, 9, 8), //during first month of cleaning break thursday morning
+      parkingRules: {
+        cleaningTimes: [{ day: DayOfWeek.MONDAY, startHour: 8, endHour: 14, appliesToEvenWeeks: false, appliesToOddWeeks: true, noCleaningMonths: [2, 3], }],
+        maximum: { days: 14 }
+      },
+      expected: DateTime.local(2023, 4, 10, 8),
+    },
+    {
+      description: 'Finds next cleaning time, before three-month break, also checks crossing year-end',
+      currentTime: DateTime.local(2023, 9, 28, 8), //just before three-month break thursday morning
+      parkingRules: {
+        cleaningTimes: [{ day: DayOfWeek.MONDAY, startHour: 8, endHour: 14, appliesToEvenWeeks: false, appliesToOddWeeks: true, noCleaningMonths: [10, 11, 12], }],
+        maximum: { days: 14 }
+      },
+      expected: DateTime.local(2024, 1, 1, 8),
+    },
+  ]
+  test.each(testCases)('(%s)', ({ currentTime, parkingRules, expected }) => {
+    const result = calculateNextCleaningTime(parkingRules, currentTime)
+    expect(result?.toISO()).toEqual(expected.toISO())
+  })
+})
 

@@ -1,4 +1,4 @@
-"use client"; // "Necessary due to google-maps-react using create-context, which is not SSR compatible" 
+"use client" // "Necessary due to google-maps-react using create-context, which is not SSR compatible" 
 
 import Header from './elements/header'
 import { ParkingMap } from './elements/parking-map'
