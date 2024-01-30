@@ -8,6 +8,21 @@ export enum DayOfWeek {
   SUNDAY = 7
 }
 
+export enum MonthOfYear {
+  JANUARY = 1,
+  FEBRUARY = 2,
+  MARCH = 3,
+  APRIL = 4,
+  MAY = 5,
+  JUNE = 6,
+  JULY = 7,
+  AUGUST = 8,
+  SEPTEMBER = 9,
+  OCTOBER = 10,
+  NOVEMBER = 11,
+  DECEMBER = 12
+}
+
 export type ParkingLocationData = {
   name: string;
   parkingRules: ParkingRules
@@ -26,5 +41,6 @@ export type CleaningTime = {
   startHour: number,
   endHour: number,
   appliesToEvenWeeks: boolean,
-  appliesToOddWeeks: boolean
+  appliesToOddWeeks: boolean,
+  noCleaningMonths: MonthOfYear[]
 }
