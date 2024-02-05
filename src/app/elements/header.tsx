@@ -1,7 +1,7 @@
 export default function Header() {
 
   return (
-    <div className="my-header m-auto max-w-5xl flex flex-col sm:flex-row items-center justify-around">
+    <div className="my-header m-auto max-w-5xl flex items-center justify-around mb-12">
       <a
         className="border-b lg:static border p-4"
         href="./"
