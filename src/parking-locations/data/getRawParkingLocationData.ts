@@ -205,6 +205,25 @@ export function getRawParkingLocationData(): ParkingLocationData[] {
       ]
     },
     {
+      name: "Björnstigen - Hjortstigen",
+      parkingRules: {
+        cleaningTimes: [
+          { day: DayOfWeek.THURSDAY, startHour: 10, endHour: 14, appliesToEvenWeeks: true, appliesToOddWeeks: false, noCleaningMonths: [MonthOfYear.JULY]  },
+        ],
+        maximum: { days: 14 }
+      },
+      path: [
+        { "lat": 59.382017, "lng": 18.027133 },
+        { "lat":  59.382043, "lng": 18.027234 },
+        { "lat": 59.382087, "lng": 18.027425 },
+        { "lat": 59.382130, "lng": 18.027687 },
+        { "lat": 59.382115, "lng": 18.027763 },
+        { "lat": 59.382078, "lng": 18.027576 },
+        { "lat": 59.382022, "lng": 18.027316 },
+        { "lat": 59.381963, "lng": 18.027213 },
+      ]
+    },
+    {
       name: "Hjortstigens parkering",
       parkingRules: {
         cleaningTimes: [
