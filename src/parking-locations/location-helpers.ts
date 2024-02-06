@@ -8,7 +8,6 @@ import { compareLuxonDates } from "./helper-functions/compareLuxonDates"
 import { WEEKS_PER_YEAR } from "../app/constants"
 import { getRawParkingLocationData } from "./data/getRawParkingLocationData"
 
-
 export function augmentParkingLocationData(parkingLocation: ParkingLocationData, currentTime: DateTime): AugmentedParkingLocationData {
   const nextCleaningTime = calculateNextCleaningTime(parkingLocation.parkingRules, currentTime)
   const maximumTime = calculateMaximumTime(parkingLocation.parkingRules.maximum.days, currentTime)

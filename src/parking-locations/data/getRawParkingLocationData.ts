@@ -205,6 +205,25 @@ export function getRawParkingLocationData(): ParkingLocationData[] {
       ]
     },
     {
+      name: "Björnstigen - Hjortstigen",
+      parkingRules: {
+        cleaningTimes: [
+          { day: DayOfWeek.THURSDAY, startHour: 10, endHour: 14, appliesToEvenWeeks: true, appliesToOddWeeks: false, noCleaningMonths: [MonthOfYear.JULY]  },
+        ],
+        maximum: { days: 14 }
+      },
+      path: [
+        { "lat": 59.382017, "lng": 18.027133 },
+        { "lat":  59.382043, "lng": 18.027234 },
+        { "lat": 59.382087, "lng": 18.027425 },
+        { "lat": 59.382130, "lng": 18.027687 },
+        { "lat": 59.382115, "lng": 18.027763 },
+        { "lat": 59.382078, "lng": 18.027576 },
+        { "lat": 59.382022, "lng": 18.027316 },
+        { "lat": 59.381963, "lng": 18.027213 },
+      ]
+    },
+    {
       name: "Hjortstigens parkering",
       parkingRules: {
         cleaningTimes: [
@@ -234,6 +253,43 @@ export function getRawParkingLocationData(): ParkingLocationData[] {
         { "lat": 59.383154, "lng": 18.029403 },
       ]
     },
+    {
+      name: "Björnstigen (mellan Hjortstigen ner till skolan)",
+      parkingRules: {
+        cleaningTimes: [
+          { day: DayOfWeek.THURSDAY, startHour: 14, endHour: 18, appliesToEvenWeeks: true, appliesToOddWeeks: false, noCleaningMonths: [MonthOfYear.JULY]  },
+        ],
+        maximum: { days: 14 }
+      },
+      path: [
+        { "lat": 59.382122, "lng": 18.029231},
+        { "lat": 59.382195, "lng": 18.029280},
+        { "lat": 59.382152, "lng": 18.030114 },
+        { "lat": 59.382092, "lng": 18.030121 },
+      ]
+    },
+    {
+      name: "Björnstigen (skolparkering)",
+      parkingRules: {
+        cleaningTimes: [
+          { day: DayOfWeek.THURSDAY, startHour: 14, endHour: 18, appliesToEvenWeeks: true, appliesToOddWeeks: false, noCleaningMonths: [MonthOfYear.JULY]  },
+          // 15 minutes during school hours
+          { day: DayOfWeek.MONDAY, startHour: 7, endHour: 17, appliesToEvenWeeks: true, appliesToOddWeeks: true, noCleaningMonths: [MonthOfYear.JULY]  },
+          { day: DayOfWeek.TUESDAY, startHour: 7, endHour: 17, appliesToEvenWeeks: true, appliesToOddWeeks: true, noCleaningMonths: [MonthOfYear.JULY]  },
+          { day: DayOfWeek.WEDNESDAY, startHour: 7, endHour: 17, appliesToEvenWeeks: true, appliesToOddWeeks: true, noCleaningMonths: [MonthOfYear.JULY]  },
+          { day: DayOfWeek.THURSDAY, startHour: 7, endHour: 17, appliesToEvenWeeks: true, appliesToOddWeeks: true, noCleaningMonths: [MonthOfYear.JULY]  },
+          { day: DayOfWeek.FRIDAY, startHour: 7, endHour: 17, appliesToEvenWeeks: true, appliesToOddWeeks: true, noCleaningMonths: [MonthOfYear.JULY]  },
+        ],
+        maximum: { days: 14 }
+      },
+      path: [
+        { "lat": 59.382095, "lng": 18.030265 },
+        { "lat": 59.382130, "lng": 18.030276 },
+        { "lat": 59.382136, "lng": 18.030852 },
+        { "lat": 59.382083, "lng": 18.030850 },
+      ]
+    },
+
     {
       name: "Hjortstigen (skolparkering)",
       parkingRules: {
