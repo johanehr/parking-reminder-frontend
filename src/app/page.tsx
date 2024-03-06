@@ -15,13 +15,13 @@ export default function Home() {
         <ParkingMap />
 
         <div className="flex flex-col sm:flex-row items-center justify-around p-2 text-contrast">
-          <p style={{color:"red"}}>&lt;3 h</p>
-          <p style={{color:"orangered"}}>&gt;3 h</p>
-          <p style={{color:"orange"}}>&gt;12 h</p>
-          <p style={{color:"yellow"}}>&gt;24 h</p>
-          <p style={{color:"yellowgreen"}}>&gt;3 dagar</p>
-          <p style={{color:"limegreen"}}>&gt;5 dagar</p>
-          <p style={{color:"green"}}>&gt;7 dagar</p>
+          <p style={{ color: "red" }}>&lt;3 h</p>
+          <p style={{ color: "orangered" }}>&gt;3 h</p>
+          <p style={{ color: "orange" }}>&gt;12 h</p>
+          <p style={{ color: "yellow" }}>&gt;24 h</p>
+          <p style={{ color: "yellowgreen" }}>&gt;3 dagar</p>
+          <p style={{ color: "limegreen" }}>&gt;5 dagar</p>
+          <p style={{ color: "green" }}>&gt;7 dagar</p>
         </div>
 
       </div>
@@ -39,6 +39,20 @@ export default function Home() {
           </h2>
           <p className={`m-0 max-w-[45ch] text-sm opacity-50`}>
             Förbättra upplevelsen för dig själv och andra
+          </p>
+        </a>
+        <a
+          href="./about"
+          className="group rounded-lg border border-transparent px-5 py-2 transition-colors hover:border-gray-300 hover:bg-gray-100 hover:dark:border-neutral-700 hover:dark:bg-neutral-800/30"
+        >
+          <h2 className={`mb-2 text-xl font-semibold`}>
+            Om projektet{' '}
+            <span className="inline-block transition-transform group-hover:translate-x-1 motion-reduce:transform-none">
+              -&gt;
+            </span>
+          </h2>
+          <p className={`m-0 max-w-[45ch] text-sm opacity-50`}>
+            Mer om projektet och dess ursprung
           </p>
         </a>
       </div>

@@ -1,26 +1,21 @@
 export default function Header() {
 
   return (
-    <div className="my-header m-auto max-w-5xl flex items-center justify-around mb-12">
+    <div className="my-header m-auto max-w-5xl flex flex-col sm:flex-row items-center justify-around">
       <a
         className="border-b lg:static border p-4"
         href="./"
       >
         Boendeparkering i Bergshamra
       </a>
-
       <a
-        href="./about"
-        className="group rounded-lg border border-transparent px-5 py-2 transition-colors hover:border-gray-300 hover:bg-gray-100 hover:dark:border-neutral-700 hover:dark:bg-neutral-800/30"
+        className="sm:ml-auto lg:pointer-events-auto pointer-events-none"
+        href="https://www.johanehrenfors.se"
+        target="_blank"
+        rel="author"
       >
-        <h2 className={`mb-2 text-xl font-semibold`}>
-          Om projektet{' '}
-          <span className="inline-block transition-transform group-hover:translate-x-1 motion-reduce:transform-none">
-            -&gt;
-          </span>
-        </h2>
+        Skapad av Johan Ehrenfors
       </a>
-
     </div>
   )
 }
