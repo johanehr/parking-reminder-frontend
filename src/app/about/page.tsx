@@ -12,24 +12,23 @@ export default function About() {
         </h1>
 
         <p className="mt-2">
-          Projektet var skapad av   <a
-            className="lg:pointer-events-auto pointer-events-none text-blue-500 hover:underline"
+          Projektet är skapad av   <a
+            className="lg:pointer-events-auto pointer-events-none italic hover:underline"
             href="https://www.johanehrenfors.se"
             target="_blank"
             rel="author"
           >
-            Johan Ehrenfors  
+            Johan Ehrenfors&nbsp;  
           </a>
-          &nbsp;med bidrag av&nbsp;
+         med bidrag av&nbsp;
           <a
-            className="lg:pointer-events-auto pointer-events-none text-blue-500 hover:underline"
+            className="lg:pointer-events-auto pointer-events-none italic hover:underline"
             href="https://www.fullstackfrancis.com"
             target="_blank"
             rel="author"
           >
              Francis Jones
-          </a>
-          ,&nbsp; i Typescript och Next.js.
+          </a>, i Typescript och Next.js.
           
         </p>
 
@@ -42,11 +41,6 @@ export default function About() {
         <p className="mt-2">
           Att bygga en sådan applikation tar en del tid, som ni säkert förstår - men vi tänkte börja
           med att helt enkelt bygga en enkel karta som dynamiskt visar vart det är lämpligast att parkera.
-        </p>
-
-        <p className="mt-2">
-          Om du har haft nytta av projektet får du gärna Swisha några kronor till 0737600282 :)
-          Användningen av Google Maps kostar mer ju fler sidladdningar som görs.
         </p>
 
         <h1 className="text-2xl mt-6">
