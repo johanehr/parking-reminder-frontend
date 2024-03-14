@@ -14,7 +14,7 @@ export default function Header() {
         target="_blank"
         rel="author"
       >
-        Skapad av Johan Ehrenfors
+        Skapad av Johan & Francis
       </a>
     </div>
   )

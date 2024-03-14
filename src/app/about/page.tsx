@@ -12,7 +12,7 @@ export default function About() {
         </h1>
 
         <p className="mt-2">
-          Projektet är skapad av   <a
+          Projektet är skapat av   <a
             className="lg:pointer-events-auto pointer-events-none italic hover:underline"
             href="https://www.johanehrenfors.se"
             target="_blank"
@@ -20,7 +20,7 @@ export default function About() {
           >
             Johan Ehrenfors&nbsp;  
           </a>
-         med bidrag av&nbsp;
+         med bidrag från&nbsp;
           <a
             className="lg:pointer-events-auto pointer-events-none italic hover:underline"
             href="https://www.fullstackfrancis.com"
@@ -34,8 +34,7 @@ export default function About() {
 
         <p className="mt-2">
           Som många andra, så har vi glömt att flytta bilen inför en städdag, vilket har resulterat i saftiga böter.
-          Vi ville ha ett sätt att dels veta vart vi borde ställa bilen för att ha så lång tid som möjligt,
-          och gärna att kunna få påminnelser om bilen skulle behöva flyttas.
+          Vi ville snabbt kunna ta reda på vart vi kan låta bilen stå så länge som möjligt, men även ett smidigt sätt att få relevanta påminnelser när det är dags att flytta bilen igen.
         </p>
 
         <p className="mt-2">
