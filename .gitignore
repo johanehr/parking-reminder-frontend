@@ -34,3 +34,10 @@ yarn-error.log*
 # typescript
 *.tsbuildinfo
 next-env.d.ts
+
+# gcp-backend stuff
+
+/gcp-backend/function/node_modules
+/gcp-backend/function/coverage
+
+/gcp-backend/app/node_modules
