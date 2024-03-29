@@ -42,8 +42,8 @@ exports.sendEmail = async (req, res) => {
 
   // Get the body from the Cloud Task request.
   const {to_email, to_name, from_name} = req.body;
-  console.log("Attempt to log request:")
-  console.log(req)
+  console.log("Attempt to log request:");
+  console.log(req.body);
   if (!to_email) {
     const error = new Error('Email address not provided.');
     error.code = 400;
@@ -61,16 +61,20 @@ exports.sendEmail = async (req, res) => {
   // Construct the email request.
   const msg = {
     to: to_email,
-    from: 'postcard@example.com',
+    from: 'johanehrenfors@hotmail.com',
     subject: 'A Postcard Just for You!',
     html: postcardHTML(to_name, from_name),
   };
+  console.log("Attempt to msg:");
+  console.log(msg);
 
   try {
     await sendgrid.send(msg);
     // Send OK to Cloud Task queue to delete task.
     res.status(200).send('Postcard Sent!');
   } catch (error) {
+    console.log("Hit the catch");
+    console.log(error);
     // Any status code other than 2xx or 503 will trigger the task to retry.
     res.status(error.code).send(error.message);
   }
