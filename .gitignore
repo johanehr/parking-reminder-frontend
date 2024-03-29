@@ -41,3 +41,4 @@ next-env.d.ts
 /gcp-backend/function/coverage
 
 /gcp-backend/app/node_modules
+/gcp-backend/app/coverage
