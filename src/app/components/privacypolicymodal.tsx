@@ -102,6 +102,7 @@ const PrivacyPolicyModal = () => {
                     <Typography variant="body2" sx={{ mt: 2 }} color="black">
                         If you have any questions about this Privacy Policy or our treatment of your personal information, please contact us at ouremailwhenwemakeit@gmail.com.
                     </Typography>
+                    <Button variant='outlined' className='text-black mt-6' onClick={handleClose}>Close</Button>
                 </Box>
             </Modal>
         </div>
