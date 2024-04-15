@@ -35,8 +35,8 @@ export default function About() {
         </p>
 
         <p className="mt-2">
-          Like many others, we've forgotten to move our car before a cleaning day, resulting in hefty fines.
-          We wanted to quickly find out where we could leave our car for as long as possible, as well as a convenient way to receive relevant reminders when it's time to move our car again.
+          Like many others, we&apos;ve forgotten to move our car before a cleaning day, resulting in hefty fines.
+          We wanted to quickly find out where we could leave our car for as long as possible, as well as a convenient way to receive relevant reminders when it&apos;s time to move our car again.
         </p>
 
         {/* notifikationer kommer bli klara när vi lanserad detta   <p className="mt-2">
