@@ -46,37 +46,31 @@ const PrivacyPolicyModal = () => {
                         <strong>At BoendeParkering, we are committed to protecting your privacy and ensuring you have a positive experience using our parking reminder service.</strong>
                     </Typography>
                     <Typography variant="body2" sx={{ mt: 2 }} color="black">
-                        This Privacy Policy outlines the types of information we collect, how we use it, and the measures we take to safeguard your data.
+                    This Privacy Policy outlines the types of information we collect, how we use it, and the measures we take to safeguard your data.
                     </Typography>
 
                     <Typography variant="subtitle1" sx={{ mt: 4, textDecoration: 'underline', fontWeight: 'bold' }} color="black">
                         Information Collection and Use
                     </Typography>
                     <Typography variant="body2" sx={{ mt: 2 }} color="black">
-                        <strong>Personal Information:</strong> We collect minimal personal information, such as your email address and parking location, solely for the purpose of providing you with timely parking reminders and confirmation emails. Your contact details are never used for marketing purposes.
+                        <strong>Personal Information:</strong> We collect minimal personal information, such as your email address or phone number, solely for the purpose of providing you with timely parking reminders and confirmation emails. Your contact details are never used for marketing purposes, and are not stored on our platform after providing the requested communications.
                     </Typography>
                     <Typography variant="body2" sx={{ mt: 2 }} color="black">
-                        <strong>Location Data:</strong> The parking location you provide helps us tailor reminders specifically to your needs. This information is used exclusively for setting up your reminder and is not shared with third parties or used for any other purpose.
-                    </Typography>
-                    <Typography variant="body2" sx={{ mt: 2 }} color="black">
-                        <strong>Device Information:</strong> We may collect non-identifying information about the device you use to access our service, such as the browser type and operating system. This information is used to improve our service and solve any technical issues that may arise.
+                        <strong>Location Data:</strong> The parking location you select helps us tailor reminders specifically to your needs. This information is used exclusively for setting up your reminder and is not shared with third parties or used for any other purpose.
                     </Typography>
 
                     <Typography variant="subtitle1" sx={{ mt: 4, textDecoration: 'underline', fontWeight: 'bold' }} color="black">
                         Data Security:
                     </Typography>
                     <Typography variant="body2" sx={{ mt: 2 }} color="black">
-                        We employ industry-standard security measures to protect your personal information from unauthorized access, alteration, or destruction. Despite our efforts, please be aware that no security measures are completely infallible.
+                    We employ industry-standard security measures to protect your personal information from unauthorised access, alteration, or destruction. Despite our efforts, please be aware that no security measures are completely infallible.
                     </Typography>
 
                     <Typography variant="subtitle1" sx={{ mt: 4, textDecoration: 'underline', fontWeight: 'bold' }} color="black">
                         Data Sharing and Disclosure
                     </Typography>
                     <Typography variant="body2" sx={{ mt: 2 }} color="black">
-                        <strong>Service Providers:</strong> We may share your information with trusted third parties who assist us in operating our service, conducting our business, or serving our users, so long as those parties agree to keep this information confidential.
-                    </Typography>
-                    <Typography variant="body2" sx={{ mt: 2 }} color="black">
-                        <strong>Legal Requirements:</strong> We may disclose your information when we believe release is appropriate to comply with the law, enforce our site policies, or protect ours or others' rights, property, or safety.
+                        <strong>Service Providers:</strong> We may share your information with trusted third parties who assist us in operating our service, conducting our business, or serving our users, so long as those parties agree to keep this information confidential. This includes e.g. Google Cloud Platform (for hosting the service) and SendGrid (for sending emails). 
                     </Typography>
 
                     <Typography variant="subtitle1" sx={{ mt: 4, textDecoration: 'underline', fontWeight: 'bold' }} color="black">
@@ -88,19 +82,11 @@ const PrivacyPolicyModal = () => {
                     <Typography variant="body2" sx={{ mt: 2 }} color="black">
                         <strong>Opt-Out:</strong> If at any point you wish to discontinue receiving reminders from us, you can easily opt-out through the link provided in every reminder and confirmation email.
                     </Typography>
-
-                    <Typography variant="subtitle1" sx={{ mt: 4, textDecoration: 'underline', fontWeight: 'bold' }} color="black">
-                        Changes to This Privacy Policy
-                    </Typography>
-                    <Typography variant="body2" sx={{ mt: 2 }} color="black">
-                        We may update our Privacy Policy from time to time. We will notify you of any changes by posting the new Privacy Policy on this page and updating the "Last Updated" date at the top.
-                    </Typography>
-
                     <Typography variant="subtitle1" sx={{ mt: 4, textDecoration: 'underline', fontWeight: 'bold' }} color="black">
                         Contact Us
                     </Typography>
                     <Typography variant="body2" sx={{ mt: 2 }} color="black">
-                        If you have any questions about this Privacy Policy or our treatment of your personal information, please contact us at ouremailwhenwemakeit@gmail.com.
+                    If you have any questions about this Privacy Policy or our treatment of your personal information, please contact us at johanehrenfors@hotmail.com.
                     </Typography>
                     <Button variant='outlined' className='text-black mt-6' onClick={handleClose}>Close</Button>
                 </Box>
