@@ -56,7 +56,7 @@ export default function About() {
         </h1>
 
         <p className="mt-2">
-          Our app is built using React, Next.js, TypeScript, and Tailwind CSS. We utilise Google Cloud Tasks and SendGrid for the notification system.
+          The app is built using React, Next.js, TypeScript, and Tailwind CSS. We utilise Google Cloud Tasks and SendGrid for the notification system.
         </p>
 
         <h1 className="text-2xl mt-6">
@@ -64,7 +64,7 @@ export default function About() {
         </h1>
 
         <p className="mt-2">
-          Would you like to help enhance our service, either by contributing as a developer or by adding new locations, possibly even beyond Bergshamra? Please feel free to contact me at johanehrenfors@hotmail.com!
+          Would you like to help enhance our service, either by contributing as a developer or by adding new locations, possibly even beyond Bergshamra? Please feel free to contact me at <a href="mailto:johanehrenfors@hotmail.com!">johanehrenfors@hotmail.com!</a>
         </p>
       </div>
     </main >
