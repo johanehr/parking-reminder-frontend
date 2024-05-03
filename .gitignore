@@ -42,3 +42,5 @@ next-env.d.ts
 
 /gcp-backend/app/node_modules
 /gcp-backend/app/coverage
+
+/gcp-cloud-functions/sendgrid-email-scheduled-reminder/node_modules
