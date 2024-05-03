@@ -61,8 +61,8 @@ exports.sendEmail = async (req, res) => {
   // Construct the email request.
   const msg = {
     to: to_email,
-    from: 'johanehrenfors@hotmail.com',
-    subject: 'A Postcard Just for You!',
+    from: 'johanehrenfors@hotmail.com', // This should match the SendGrid verified senders, if set up that way
+    subject: 'An Updated Postcard Just for You!',
     html: postcardHTML(to_name, from_name),
   };
   console.log("Attempt to msg:");
@@ -73,7 +73,6 @@ exports.sendEmail = async (req, res) => {
     // Send OK to Cloud Task queue to delete task.
     res.status(200).send('Postcard Sent!');
   } catch (error) {
-    console.log("Hit the catch");
     console.log(error);
     // Any status code other than 2xx or 503 will trigger the task to retry.
     res.status(error.code).send(error.message);
@@ -129,7 +128,7 @@ const postcardHTML = function (to_name, from_name) {
         From: ${from_name}
       </div>
       <div class="postcard-text">
-          Hello,<br>World!
+          Hello,<br>World (updated)!
       </div>
       <div class="postcard-footer">
         powered by Google

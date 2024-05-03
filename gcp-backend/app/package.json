@@ -7,16 +7,10 @@
     "node": ">=20.0.0"
   },
   "scripts": {
-    "start": "node index.js",
-    "test": "c8 mocha -p -j 2 --timeout 10000"
+    "start": "node index.js"
   },
   "dependencies": {
     "@google-cloud/tasks": "^4.0.0",
     "express": "^4.17.1"
-  },
-  "devDependencies": {
-    "c8": "^8.0.0",
-    "chai": "^4.2.0",
-    "mocha": "^10.0.0"
   }
 }

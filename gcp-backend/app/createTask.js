@@ -23,8 +23,8 @@ const createHttpTaskWithToken = async function (
   location = 'us-central1', // The GCP region of your queue
   url = 'https://example.com/taskhandler', // The full url path that the request will be sent to
   email = '<member>@<project-id>.iam.gserviceaccount.com', // Cloud IAM service account
-  payload = 'Hello, World!', // The task HTTP request body
-  date = new Date() // Intended date to schedule task
+  payload = 'Hello, Cloud Task World!', // The task HTTP request body
+  date = new Date() // Intended date to schedule task, runs "immediately"
 ) {
   // Imports the Google Cloud Tasks library.
   const {v2beta3} = require('@google-cloud/tasks');
