@@ -1,5 +1,5 @@
 {
-  "name": "email-function",
+  "name": "sendgrid-email-scheduled-reminder",
   "description": "Cloud Function sends an email when triggered by Cloud Task",
   "main": "index.js",
   "private": true,
