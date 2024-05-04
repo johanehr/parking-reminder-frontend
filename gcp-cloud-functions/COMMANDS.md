@@ -1,12 +1,14 @@
 # Using GCP Cloud Functions and Tasks To Send Email
 
 ## Preparations
+
+```
 gcloud auth application-default login
 gcloud config set project parking-reminder-407014
 export GOOGLE_APPLICATION_CREDENTIALS=~/.config/gcloud/application_default_credentials.json
 export SENDGRID_API_KEY="YOUR_KEY_HERE" (production key)
-
-Since https://app.sendgrid.com/settings/sender_auth has johanehrenfors@hotmail.com as a verified single sender, I modified this to be the sender in the code.
+export SENDGRID_SENDER_EMAIL="SENDER_EMAIL_HERE" (see [SendGrid setup](https://app.sendgrid.com/settings/sender_auth), needs to match)
+```
 
 ## Creating Cloud Function
 
@@ -35,7 +37,7 @@ gcloud functions deploy sendgridEmailScheduledReminder --gen2 --runtime nodejs20
 ```
 NOTE: The first time I deployed, I had to enable run.googleapis.com for the project (parking-reminder-407014) when prompted.
 
-You can see the function here: https://console.cloud.google.com/functions/details/europe-west1/sendgridEmailScheduledReminder?env=gen2&project=parking-reminder-407014
+You can find the function here afterwards: https://console.cloud.google.com/functions/details/europe-west1/sendgridEmailScheduledReminder?env=gen2&project=parking-reminder-407014
 
 Cloud tasks queue for production:
 https://console.cloud.google.com/cloudtasks/queue/europe-west1/parking-reminder-task-queue/tasks?project=parking-reminder-407014

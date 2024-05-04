@@ -35,7 +35,7 @@ exports.sendgridEmailScheduledReminder = async (req, res) => {
   }
 
   // Get the body from the Cloud Task request.
-  const {to_email, to_name} = req.body;
+  const {to_email, to_name, vehicle_nickname, location_data, } = req.body;
 
   if (!to_email) {
     const error = new Error('Email address not provided.');
@@ -51,7 +51,7 @@ exports.sendgridEmailScheduledReminder = async (req, res) => {
   const msg = {
     to: to_email,
     from: sender_email, 
-    subject: 'Remember to move your car!',
+    subject: `Upcoming Cleaning Time Where You Have Parked ${vehicle_nickname ?? 'Your Car'}`,
     html: reminderHTML(to_name),
   };
   console.log("Message to send via SendGrid:");
@@ -74,51 +74,80 @@ const reminderHTML = function (to_name) {
   return `<html>
   <head>
     <style>
+      body {
+        background: #000000;
+      }
+      
       .reminder {
-        width: 600px;
-        height: 400px;
-        background: #4285F4;
+        width: 80%;
+        margin: auto;
+        height: 100vh;
         text-align: center;
       }
 
-      .reminder-text {
-        font-family: Arial, sans-serif;
-        font-size: 60px;
-        font-weight: bold;
-        text-transform: uppercase;
-        color: #FFF;
-        padding: 40px 0px;
-      }
-
-      .reminder-names {
-        font-family: Monaco, monospace;
-        font-size: 30px;
+      .reminder-header {
+        font-family: Arial, sans-serif;;
+        font-size: 2.0em;
         text-align: left;
+        font-weight: bold;
         color: #FFF;
-        margin: 15px;
-        padding-top: 5px;
         overflow: hidden;
         white-space: nowrap;
       }
 
-      .reminder-footer {
-        font-family: Monaco, monospace;
-        font-size: 14px;
+      .reminder-text {
+        font-family: Arial, sans-serif;
+        font-size: 1.5em;
+        text-align: left;
         color: #FFF;
-        padding-top: 50px;
+        padding: 30px 0px;
+      }
+
+      .reminder-text ul {
+        text-align: left;
+      }
+
+      .reminder-footer {
+        font-family: Arial, sans-serif;
+        font-size: 1.0em;
+        color: #FFF;
+      }
+
+      a {
+        color: #FFF
       }
     </style>
   </head>
   <body>
     <div class="reminder">
-      <div class="reminder-names">
-        Dear ${to_name},
+      <div class="reminder-header">
+        Hello ${to_name ?? 'dear user'},
       </div>
       <div class="reminder-text">
-          It is time to move your car!
+        <p>Just a friendly reminder that the scheduled cleaning time for your parked car at <a href="https://www.google.com/maps/search/?api=1&query=${location_data.lat},${location_data.lng}">${location_data.name}</a> is approaching:</p>
+        <ul>
+          <li><b>Last time to move:</b> ${location_data.timestamp}</li>
+          <li><b>Car nickname:</b> ${vehicle_nickname ?? 'Not specified'}</li>
+        </ul>
+
+        <p>Please ensure your car is moved before the scheduled cleaning starts to avoid any parking tickets.</p>
+
+        <h2>Need a New Spot?</h2>
+        <p>
+          If you're looking for a new place to park, our app can help you find the best available spots nearby.
+          Simply open <a href="https://parkering.johanehrenfors.se">the app</a> and check the map for current parking information.
+        </p>
+
+        <h3>Thank you for using our app!</h3>
+        <p>Best wishes,<br><i>The Boendeparkering team</i></p>
+
+
       </div>
       <div class="reminder-footer">
-        Scheduled reminder sent by parkering.johanehrenfors.se
+        <p>
+          You have received this email because you've subscribed to receive reminders from <a href="https://parkering.johanehrenfors.se">Boendeparkering</a>.
+          If you did not request this reminder, email us at <a href="mailto:johanehrenfors@hotmail.com">johanehrenfors@hotmail.com, so that we can blacklist this email.</a>
+        </p>
       </div>
       </div>
   </body>
