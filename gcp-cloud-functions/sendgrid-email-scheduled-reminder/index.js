@@ -53,7 +53,6 @@ exports.sendgridEmailScheduledReminder = async (req, res) => {
     error.code = 400;
     throw error;
   }
-  // TODO: Try running locally
 
   // Construct the email request. 
   const msg = {
