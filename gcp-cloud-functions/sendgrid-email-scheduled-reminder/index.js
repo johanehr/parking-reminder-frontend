@@ -8,9 +8,12 @@ const sendgrid = require('@sendgrid/mail');
  * from the request body.
  *
  * @param {object} req Cloud Function request context.
- * @param {object} req.body The request payload. // TODO: Modify this according to actual email contents
+ * @param {object} req.body The request payload.
  * @param {string} req.body.to_email Email address of the recipient.
- * @param {string} req.body.to_name Name of the recipient.
+ * @param {string} req.body.vehicle_nickname Optional nickname/identifier for the vehicle
+ * @param {string} req.body.location.name Description of parking location
+ * @param {string} req.body.location.lat Latitude of parking location
+ * @param {string} req.body.location.lng Longitude of parking location
  * @param {object} res Cloud Function response context.
  */
 exports.sendgridEmailScheduledReminder = async (req, res) => {
@@ -35,24 +38,29 @@ exports.sendgridEmailScheduledReminder = async (req, res) => {
   }
 
   // Get the body from the Cloud Task request.
-  const {to_email, to_name, vehicle_nickname, location_data, } = req.body;
+  const {to_email, vehicle_nickname, location, move_by_timestamp } = req.body;
 
   if (!to_email) {
     const error = new Error('Email address not provided.');
     error.code = 400;
     throw error;
-  } else if (!to_name) {
-    const error = new Error('Recipient name not provided.');
+  } else if (!location || !location.name || !location.lat || !location.lng) {
+    const error = new Error('Location data not provided.');
+    error.code = 400;
+    throw error;
+  } else if (!move_by_timestamp) {
+    const error = new Error('Timestamp not provided.');
     error.code = 400;
     throw error;
   }
+  // TODO: Try running locally
 
   // Construct the email request. 
   const msg = {
     to: to_email,
     from: sender_email, 
-    subject: `Upcoming Cleaning Time Where You Have Parked ${vehicle_nickname ?? 'Your Car'}`,
-    html: reminderHTML(to_name),
+    subject: `Reminder: Time To Move ${vehicle_nickname ?? 'Your Car'}`,
+    html: reminderHTML(vehicle_nickname, location, move_by_timestamp),
   };
   console.log("Message to send via SendGrid:");
   console.log(msg);
@@ -70,12 +78,13 @@ exports.sendgridEmailScheduledReminder = async (req, res) => {
 // [END cloud_tasks_func]
 
 // Function creates an HTML postcard with message.
-const reminderHTML = function (to_name) {
+const reminderHTML = function (vehicle_nickname, location, move_by_timestamp) {
   return `<html>
   <head>
+    <link href="https://fonts.googleapis.com/css?family=Open+Sans:400,700" rel="stylesheet">
     <style>
       body {
-        background: #000000;
+        background: #464646;
       }
       
       .reminder {
@@ -86,20 +95,20 @@ const reminderHTML = function (to_name) {
       }
 
       .reminder-header {
-        font-family: Arial, sans-serif;;
+        font-family: 'Open Sans', Arial, sans-serif;
         font-size: 2.0em;
         text-align: left;
         font-weight: bold;
-        color: #FFF;
+        color: #fafafa;
         overflow: hidden;
         white-space: nowrap;
       }
 
       .reminder-text {
-        font-family: Arial, sans-serif;
+        font-family: 'Open Sans', Arial, sans-serif;
         font-size: 1.5em;
         text-align: left;
-        color: #FFF;
+        color: #fafafa;
         padding: 30px 0px;
       }
 
@@ -108,25 +117,26 @@ const reminderHTML = function (to_name) {
       }
 
       .reminder-footer {
-        font-family: Arial, sans-serif;
+        font-family: 'Open Sans', Arial, sans-serif;
         font-size: 1.0em;
-        color: #FFF;
+        color: #fafafa;
       }
 
       a {
-        color: #FFF
+        color: #fafafa
+        text-decoration: #fafafa wavy underline;
       }
     </style>
   </head>
   <body>
     <div class="reminder">
       <div class="reminder-header">
-        Hello ${to_name ?? 'dear user'},
+        Hello,
       </div>
       <div class="reminder-text">
-        <p>Just a friendly reminder that the scheduled cleaning time for your parked car at <a href="https://www.google.com/maps/search/?api=1&query=${location_data.lat},${location_data.lng}">${location_data.name}</a> is approaching:</p>
+        <p>Just a friendly reminder that the scheduled cleaning time for your parked car at <a href="https://www.google.com/maps/search/?api=1&query=${location.lat},${location.lng}">${location.name}</a> is approaching:</p>
         <ul>
-          <li><b>Last time to move:</b> ${location_data.timestamp}</li>
+          <li><b>Last time to move:</b> ${move_by_timestamp}</li>
           <li><b>Car nickname:</b> ${vehicle_nickname ?? 'Not specified'}</li>
         </ul>
 
