@@ -84,7 +84,7 @@ const reminderHTML = function (vehicle_nickname, location, move_by_timestamp) {
     <link href="https://fonts.googleapis.com/css?family=Open+Sans:400,700" rel="stylesheet">
     <style>
       body {
-        background: #464646;
+        background: white;
       }
       
       .reminder {
@@ -92,6 +92,7 @@ const reminderHTML = function (vehicle_nickname, location, move_by_timestamp) {
         margin: auto;
         height: 100vh;
         text-align: center;
+        color: #484848;
       }
 
       .reminder-header {
@@ -99,7 +100,6 @@ const reminderHTML = function (vehicle_nickname, location, move_by_timestamp) {
         font-size: 2.0em;
         text-align: left;
         font-weight: bold;
-        color: #fafafa;
         overflow: hidden;
         white-space: nowrap;
       }
@@ -108,7 +108,6 @@ const reminderHTML = function (vehicle_nickname, location, move_by_timestamp) {
         font-family: 'Open Sans', Arial, sans-serif;
         font-size: 1.5em;
         text-align: left;
-        color: #fafafa;
         padding: 30px 0px;
       }
 
@@ -119,19 +118,19 @@ const reminderHTML = function (vehicle_nickname, location, move_by_timestamp) {
       .reminder-footer {
         font-family: 'Open Sans', Arial, sans-serif;
         font-size: 1.0em;
-        color: #fafafa;
+        font-style: italic;
       }
 
       a {
-        color: #fafafa
-        text-decoration: #fafafa wavy underline;
+        color: #484848
+        text-decoration: #484848 wavy underline;
       }
     </style>
   </head>
   <body>
     <div class="reminder">
       <div class="reminder-header">
-        Hello,
+        <h1>Hello!</h1>
       </div>
       <div class="reminder-text">
         <p>Just a friendly reminder that the scheduled cleaning time for your parked car at <a href="https://www.google.com/maps/search/?api=1&query=${location.lat},${location.lng}">${location.name}</a> is approaching:</p>
@@ -156,7 +155,7 @@ const reminderHTML = function (vehicle_nickname, location, move_by_timestamp) {
       <div class="reminder-footer">
         <p>
           You have received this email because you've subscribed to receive reminders from <a href="https://parkering.johanehrenfors.se">Boendeparkering</a>.
-          If you did not request this reminder, email us at <a href="mailto:johanehrenfors@hotmail.com">johanehrenfors@hotmail.com, so that we can blacklist this email.</a>
+          If you did not request this reminder, email us at <a href="mailto:johanehrenfors@hotmail.com">johanehrenfors@hotmail.com</a>, so that we can blacklist this email.
         </p>
       </div>
       </div>
