@@ -1,12 +1,14 @@
 # Using GCP Cloud Functions and Tasks To Send Email
 
 ## Preparations
+
+```
 gcloud auth application-default login
 gcloud config set project parking-reminder-407014
 export GOOGLE_APPLICATION_CREDENTIALS=~/.config/gcloud/application_default_credentials.json
 export SENDGRID_API_KEY="YOUR_KEY_HERE" (production key)
-
-Since https://app.sendgrid.com/settings/sender_auth has johanehrenfors@hotmail.com as a verified single sender, I modified this to be the sender in the code.
+export SENDGRID_SENDER_EMAIL="SENDER_EMAIL_HERE" (see [SendGrid setup](https://app.sendgrid.com/settings/sender_auth), needs to match)
+```
 
 ## Creating Cloud Function
 
@@ -14,21 +16,28 @@ A serverless cloud function is essentially a single endpoint that will perform s
 
 ### Running locally
 
-You should be able to run the "serverless" server locally, as any NodeJS app to play around with it.
+You can run the "serverless" server locally with `npm start` using Functions Framework, which will present the cloud function as a regular endpoint for you to play around with it. Be sure to set the appropriate environment variables beforehand.
 
-TODO: Verify this and document any quirks
+Example of a call:
+```
+curl --location 'http://localhost:8080/' \
+--header 'Content-Type: application/json' \
+--data-raw '{
+    "to_email": "YOUR EMAIL HERE",
+    "to_name": "YOUR NAME HERE"
+}'
+```
 
 ### Deployment
 
-TODO: How to handle versioning/testing
+Deploying overwrites the existing deployment, so if versioned functions are necessary, you will have to rename the function accordingly. This is generally not an issue for minor tweaks without changing the input data, but keep in mind that scheduled tasks may take several days before they are run, and will target whichever function was scheduled at the time of creation.
 
 ```
-gcloud functions deploy sendgridEmailScheduledReminder --gen2 --runtime nodejs20 --trigger-http  --no-allow-unauthenticated --set-env-vars SENDGRID_API_KEY=<secret-redacted>,SENDGRID_SENDER_EMAIL=johanehrenfors@hotmail.com \
+gcloud functions deploy sendgridEmailScheduledReminder --gen2 --runtime nodejs20 --trigger-http  --no-allow-unauthenticated --set-env-vars SENDGRID_API_KEY=<secret-redacted>,SENDGRID_SENDER_EMAIL=johanehrenfors@hotmail.com --region=europe-west1
 ```
+NOTE: The first time I deployed, I had to enable run.googleapis.com for the project (parking-reminder-407014) when prompted.
 
-I selected europe-west1 for the environment (can be saved as a local setting, or maybe CLI argument?) and had to enable run.googleapis.com for the project (parking-reminder-407014) when prompted.
-
-You can see the function here: https://console.cloud.google.com/functions/details/us-central1/sendgridEmailScheduledReminder?env=gen2&project=parking-reminder-407014
+You can find the function here afterwards: https://console.cloud.google.com/functions/details/europe-west1/sendgridEmailScheduledReminder?env=gen2&project=parking-reminder-407014
 
 Cloud tasks queue for production:
 https://console.cloud.google.com/cloudtasks/queue/europe-west1/parking-reminder-task-queue/tasks?project=parking-reminder-407014
@@ -52,4 +61,6 @@ A task is used to invoke the cloud function with specific data, either immediate
 
 ### Using CLI
 
+```
 gcloud tasks create-http-task --queue=parking-reminder-task-queue --url=https://us-central1-parking-reminder-407014.cloudfunctions.net/sendgridEmailScheduledReminder myCliTaskWithJson --method=POST --header=Content-Type:application/json --body-file=cloudfunctionbody.txt --oidc-service-account-email=cloud-function@parking-reminder-407014.iam.gserviceaccount.com 
+```
