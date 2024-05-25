@@ -3,6 +3,17 @@ import { Fragment } from 'react'
 import React from 'react'
 import { AugmentedParkingLocationData, CleaningTime, DayOfWeek, ParkingRules } from './types'
 
+interface ParkingMapPolygonsProps {
+  parkingLocations: AugmentedParkingLocationData[];
+  highlightedPath: google.maps.LatLng[];
+  onPolygonClick: (location: AugmentedParkingLocationData) => void;
+}
+
+//TODO FJ integrate map centering alongside highlighting
+//TODO FJ on map centering and finding the nearest spot, open info box
+//TODO FJ on "set notificaton" add a button to info box which is "choose location which calls form modal"
+
+
 const handlePolygonClick = (center: google.maps.LatLng, map: google.maps.Map) => {
   console.log(`Center: ${center.lat()}, ${center.lng()}`)
   map.panTo(center)
@@ -41,9 +52,8 @@ const generateDescriptionText = (rules: ParkingRules) => {
   )
 }
 
-export default function ParkingMapPolygons({ parkingLocations }: { parkingLocations: AugmentedParkingLocationData[] }) {
+export default function ParkingMapPolygons({parkingLocations, highlightedPath, onPolygonClick}: ParkingMapPolygonsProps) {
   const mapRef = useGoogleMap()
-
   const [selectedParking, setSelectedParking] = React.useState<AugmentedParkingLocationData | null>(null)
 
   return (
@@ -60,6 +70,10 @@ export default function ParkingMapPolygons({ parkingLocations }: { parkingLocati
           const midLng = (maxLng + minLng) / 2
 
           const center = new google.maps.LatLng({ lat: midLat, lng: midLng })
+          const isHighlighted = highlightedPath.length > 0 && highlightedPath.every(
+            (point, index) => point.lat() === location.path[index].lat && point.lng() === location.path[index].lng
+          );
+  
 
           return (
             <React.Fragment key={`${location.name}-fragment`}>
@@ -67,19 +81,18 @@ export default function ParkingMapPolygons({ parkingLocations }: { parkingLocati
                 key={`${location.name}-polygon`}
                 path={location.path}
                 options={{
-                  strokeColor: location.color,
-                  strokeOpacity: 0.8,
-                  strokeWeight: 1,
+                  strokeColor: isHighlighted ? '#89DAFF' : location.color,
+                  strokeOpacity: isHighlighted ? 1.0 : 0.8,
+                  strokeWeight: isHighlighted ? 3 : 1,
                   fillColor: location.color,
                   fillOpacity: 0.35,
                 }}
                 onClick={() => {
-                  console.log(`Mouse click on ${location.name}`)
-                  handlePolygonClick(center!, mapRef!)
+                  onPolygonClick(location)
                   setSelectedParking(location)
                 }}
               />
-
+  
               {selectedParking?.name === location.name && (
                 <InfoWindow
                   key={`${location.name}-infowindow`}
@@ -90,13 +103,12 @@ export default function ParkingMapPolygons({ parkingLocations }: { parkingLocati
                     <h1 style={{ fontWeight: 'bold', fontSize: 'medium' }}>
                       {location.name}
                     </h1>
-                    { generateDescriptionText(location.parkingRules) }
+                    {generateDescriptionText(location.parkingRules)}
                   </div>
                 </InfoWindow>
               )}
             </React.Fragment>
-          )
-            
+          )         
         })
       }
     </>
