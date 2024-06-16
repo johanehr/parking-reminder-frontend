@@ -8,6 +8,8 @@ import { AugmentedParkingLocationData } from '@/parking-locations/types'
 export function ParkingMap() {
   const [highlightedPath, setHighlightedPath] = useState<google.maps.LatLng[]>([]);
   const [overlayVisible, setOverlayVisible] = useState(true);
+  const [userLocation, setUserLocation] = useState<google.maps.LatLng | null>(null);
+
 
   const libraries = useMemo(() => ['places'], [])
 
@@ -57,6 +59,7 @@ export function ParkingMap() {
           navigator.geolocation.getCurrentPosition(
             position => {
               const userLatLong = new google.maps.LatLng(position.coords.latitude, position.coords.longitude);
+              setUserLocation(userLatLong)
               map.setCenter(userLatLong);
               selectClosestParkingSpot(map, userLatLong);
               // openReminderModal(); // Add logic to open reminder modal
@@ -76,7 +79,8 @@ export function ParkingMap() {
     return <p>Loading map...</p>
   }
 
-  const mapCenter = { lat: 59.380065, lng: 18.035959 } // Hardcoded to Bergshamra
+  const defaultCenter = { lat: 59.380065, lng: 18.035959 } // Hardcoded to Bergshamra
+  const mapCenter = userLocation || defaultCenter;
 
   const mapOptions: google.maps.MapOptions = {
     disableDefaultUI: true,
@@ -96,11 +100,26 @@ export function ParkingMap() {
       onLoad={(onMapLoad)}
 
     >
-      <ParkingMapPolygons parkingLocations={parkingLocations} highlightedPath={highlightedPath} 
-          onPolygonClick={(location) => {
+      <ParkingMapPolygons 
+      parkingLocations={parkingLocations} 
+      highlightedPath={highlightedPath} 
+      onPolygonClick={(location, mapRef) => {
             const path = location.path.map(point => new google.maps.LatLng(point.lat, point.lng));
             setHighlightedPath(path);
-          }}/>
+            if (mapRef) {
+              const maxLat = Math.max(...location.path.map(point => point.lat));
+              const minLat = Math.min(...location.path.map(point => point.lat));
+              const midLat = (maxLat + minLat) / 2;
+  
+              const maxLng = Math.max(...location.path.map(point => point.lng));
+              const minLng = Math.min(...location.path.map(point => point.lng));
+              const midLng = (maxLng + minLng) / 2;
+              
+              const center = new google.maps.LatLng({ lat: midLat, lng: midLng });
+              mapRef.setCenter(center);
+            }
+          }}
+      />
     </GoogleMap>
   )
 }

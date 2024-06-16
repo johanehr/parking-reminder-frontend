@@ -6,7 +6,7 @@ import { AugmentedParkingLocationData, CleaningTime, DayOfWeek, ParkingRules } f
 interface ParkingMapPolygonsProps {
   parkingLocations: AugmentedParkingLocationData[];
   highlightedPath: google.maps.LatLng[];
-  onPolygonClick: (location: AugmentedParkingLocationData) => void;
+  onPolygonClick: (location: AugmentedParkingLocationData, mapRef: google.maps.Map) => void;
 }
 
 //TODO FJ integrate map centering alongside highlighting
@@ -14,10 +14,6 @@ interface ParkingMapPolygonsProps {
 //TODO FJ on "set notificaton" add a button to info box which is "choose location which calls form modal"
 
 
-const handlePolygonClick = (center: google.maps.LatLng, map: google.maps.Map) => {
-  console.log(`Center: ${center.lat()}, ${center.lng()}`)
-  map.panTo(center)
-}
 
 export function getCleaningDayDescription(cleaningTime: CleaningTime): string {
   
@@ -60,7 +56,6 @@ export default function ParkingMapPolygons({parkingLocations, highlightedPath, o
     <>
       {
         parkingLocations.map((location) => {
-          // Use polygon extremities to find rough center
           const maxLat = Math.max(...location.path.map((point) => point.lat))
           const minLat = Math.min(...location.path.map((point) => point.lat))
           const midLat = (maxLat + minLat) / 2
@@ -69,7 +64,7 @@ export default function ParkingMapPolygons({parkingLocations, highlightedPath, o
           const minLng = Math.min(...location.path.map((point) => point.lng))
           const midLng = (maxLng + minLng) / 2
 
-          const center = new google.maps.LatLng({ lat: midLat, lng: midLng })
+          const center = new google.maps.LatLng(midLat, midLng)
           const isHighlighted = highlightedPath.length > 0 && highlightedPath.every(
             (point, index) => point.lat() === location.path[index].lat && point.lng() === location.path[index].lng
           );
@@ -88,9 +83,10 @@ export default function ParkingMapPolygons({parkingLocations, highlightedPath, o
                   fillOpacity: 0.35,
                 }}
                 onClick={() => {
-                  onPolygonClick(location)
-                  setSelectedParking(location)
-                }}
+                  if (mapRef) {
+                    onPolygonClick(location, mapRef);
+                    setSelectedParking(location);
+                  }}}
               />
   
               {selectedParking?.name === location.name && (
