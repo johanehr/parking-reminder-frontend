@@ -1,5 +1,6 @@
 "use client" // "Necessary due to google-maps-react using create-context, which is not SSR compatible" 
 
+import NotificationModal from '@/components/NotificationModal'
 import Header from './elements/header'
 import { ParkingMap } from './elements/parking-map'
 
@@ -13,7 +14,6 @@ export default function Home() {
       <div className="m-auto max-w-5xl w-full mt-4 md:mt-12 mb-4 md:mb-12">
         <p>The map shows for how long you can park at each spot, starting now. Always check the signs!</p>
         <ParkingMap />
-
         <div className="flex flex-col sm:flex-row items-center justify-around p-2 text-contrast">
           <p style={{ color: "red" }}>&lt;3 h</p>
           <p style={{ color: "orangered" }}>&gt;3 h</p>
