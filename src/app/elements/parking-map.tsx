@@ -8,13 +8,12 @@ import { MapButton } from '@/components/MapButton'
 
 export function ParkingMap() {
   const [highlightedPath, setHighlightedPath] = useState<google.maps.LatLng[]>([]);
-  const [overlayVisible, setOverlayVisible] = useState(true);
   const [userLocation, setUserLocation] = useState<google.maps.LatLng | null>(null);
   const [focusedLocation, setFocusedLocation] = useState<google.maps.LatLng | null>(null);
   const [buttonText, setButtonText] = useState("Set a Reminder")
   const mapRef = useRef<google.maps.Map | null>(null);
   const [selectedParkingForDisplay, setSelectedParkingForDisplay] = useState<AugmentedParkingLocationData | null>(null)
-
+  const [reminderMode, setReminderMode] = useState(false)
 
 
 
@@ -46,10 +45,12 @@ export function ParkingMap() {
     if (closestSpot) {
       const path = closestSpot.path.map(point => new google.maps.LatLng(point.lat, point.lng));
       setHighlightedPath(path);
+      setSelectedParkingForDisplay(closestSpot)
     }
   }, []);
 
-  const handleButtonClick = useCallback(() => {
+  const handleMapButtonClick = useCallback(() => {
+    setReminderMode(true)
     if (navigator.geolocation) {
       navigator.geolocation.getCurrentPosition(
         position => {
@@ -59,7 +60,7 @@ export function ParkingMap() {
           selectClosestParkingSpot(userLatLong);
         },
         () => {
-          alert("Unable to retrieve your location. Please enable location services and try again.");
+          alert("Unable to retrieve your location. Please choose desired parking location manually.");
           setButtonText("Choose a location manually");
         }
       );
@@ -111,6 +112,7 @@ export function ParkingMap() {
         }}
       >
         <ParkingMapPolygons
+          reminderMode={reminderMode}
           handleSelectParkingSpotForDisplay={handleSelectParkingSpotForDisplay}
           selectedParkingForDisplay={selectedParkingForDisplay}
           parkingLocations={parkingLocations}
@@ -137,7 +139,7 @@ export function ParkingMap() {
         />
       </GoogleMap>
       <div style={{ position: 'absolute', bottom: '10px', left: '10px' }}>
-        <MapButton onClick={handleButtonClick} text={buttonText} />
+        <MapButton onClick={handleMapButtonClick} text={buttonText} />
       </div>
     </div>
   )
