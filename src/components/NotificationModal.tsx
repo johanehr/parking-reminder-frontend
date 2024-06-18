@@ -3,26 +3,30 @@ import { Button } from "@/components/ui/button"
 import { Label } from "@/components/ui/label"
 import { Input } from "@/components/ui/input"
 import { Select, SelectTrigger, SelectValue, SelectContent, SelectItem } from "@/components/ui/select"
+import { AugmentedParkingLocationData } from "@/parking-locations/types"
+import { Toggle } from "./toggle"
 
-export default function NotificationModal() {
+interface INotificationModalProps {
+  location: AugmentedParkingLocationData
+}
+
+export default function NotificationModal({ location }: INotificationModalProps) {
   return (
-    <Dialog defaultOpen>
+    <Dialog>
       <DialogTrigger asChild>
-        <Button variant="outline">Open Parking Location</Button>
+        <Button variant="outline">Set reminder</Button>
       </DialogTrigger>
       <DialogContent className="sm:max-w-[500px]">
         <div className="grid gap-6">
           <div className="space-y-2">
             <DialogHeader>
               <DialogTitle>Parking Location</DialogTitle>
-              <DialogDescription>Find and reserve your parking spot.</DialogDescription>
+              <DialogDescription>Set a reminder for: <span className="text-black">{location.name}</span></DialogDescription>
+              <DialogDescription>You will recieve a notification to move on the: <span className="text-black">{location.color}</span></DialogDescription>
+
             </DialogHeader>
           </div>
           <div className="grid gap-4">
-            <div className="grid gap-2">
-              <Label htmlFor="search">Search Locations</Label>
-              <Input id="search" placeholder="Enter location" />
-            </div>
             <div className="grid gap-2">
               <Label htmlFor="email">Email</Label>
               <Input id="email" type="email" placeholder="Enter email" />
@@ -45,12 +49,11 @@ export default function NotificationModal() {
                 </SelectContent>
               </Select>
             </div>
+            <Toggle text={`Agree to terms`} />
+
           </div>
-          <DialogFooter>
-            <Button type="submit">Reserve Parking</Button>
-            <div>
-              <Button variant="outline">Cancel</Button>
-            </div>
+          <DialogFooter className="flex space-y-4">
+            <Button type="submit">Set Reminder</Button>
           </DialogFooter>
         </div>
       </DialogContent>

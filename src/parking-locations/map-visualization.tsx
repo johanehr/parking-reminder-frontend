@@ -4,6 +4,7 @@ import React from 'react'
 import { AugmentedParkingLocationData, CleaningTime, DayOfWeek, ParkingRules } from './types'
 import { Button } from '@/components/ui/button';
 import ButtonDisplayWindow from '@/components/ButtonDisplayWindow';
+import NotificationModal from '@/components/NotificationModal';
 
 interface ParkingMapPolygonsProps {
   parkingLocations: AugmentedParkingLocationData[];
@@ -11,6 +12,7 @@ interface ParkingMapPolygonsProps {
   onPolygonClick: (location: AugmentedParkingLocationData, mapRef: google.maps.Map) => void;
   handleSelectParkingSpotForDisplay: (location: AugmentedParkingLocationData | null) => void;
   selectedParkingForDisplay: AugmentedParkingLocationData | null;
+  reminderMode: boolean
 }
 
 
@@ -47,7 +49,7 @@ const generateDescriptionText = (rules: ParkingRules) => {
   )
 }
 
-export default function ParkingMapPolygons({ parkingLocations, highlightedPath, onPolygonClick, handleSelectParkingSpotForDisplay, selectedParkingForDisplay }: ParkingMapPolygonsProps) {
+export default function ParkingMapPolygons({ parkingLocations, highlightedPath, onPolygonClick, handleSelectParkingSpotForDisplay, selectedParkingForDisplay, reminderMode }: ParkingMapPolygonsProps) {
   const mapRef = useGoogleMap()
 
   return (
@@ -95,13 +97,13 @@ export default function ParkingMapPolygons({ parkingLocations, highlightedPath, 
                   onCloseClick={() => handleSelectParkingSpotForDisplay(null)}
                 >
                   <>
-                    <div className='mapInfoWindow' style={{ color: 'black' }}>
+                    <div className='mapInfoWindow mb-4' style={{ color: 'black' }}>
                       <h1 style={{ fontWeight: 'bold', fontSize: 'medium' }}>
                         {location.name}
                       </h1>
                       {generateDescriptionText(location.parkingRules)}
                     </div>
-                    <ButtonDisplayWindow text={`Set a reminder`} />
+                    {reminderMode && <NotificationModal location={location} />}
                   </>
                 </InfoWindow>
               )}
