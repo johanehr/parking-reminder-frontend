@@ -34,7 +34,10 @@ export type ParkingRules = {
   maximum: { days: number }
 }
 
-export type AugmentedParkingLocationData = ParkingLocationData & { color: string }
+export type AugmentedParkingLocationData = ParkingLocationData & {
+  color: string;
+  hoursUntilMove: number;
+}
 
 export type CleaningTime = {
   day: DayOfWeek
@@ -43,4 +46,15 @@ export type CleaningTime = {
   appliesToEvenWeeks: boolean,
   appliesToOddWeeks: boolean,
   noCleaningMonths: MonthOfYear[]
+}
+
+export class ReminderDataForBackend {
+  constructor(
+    public email: string,
+    public hoursUntilReminder: number,
+    public originalEventDate: Date,
+    public notificationDate: Date,
+    public carNickname: string,
+    public parkingSpotName: string,
+  ) { }
 }
