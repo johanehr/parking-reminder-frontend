@@ -9,24 +9,24 @@ import { MapButton } from '@/components/MapButton'
 export function ParkingMap() {
   const [highlightedPath, setHighlightedPath] = useState<google.maps.LatLng[]>([]);
   const [overlayVisible, setOverlayVisible] = useState(true);
-  const [reminderMode, setReminderMode] = useState(false)
   const [userLocation, setUserLocation] = useState<google.maps.LatLng | null>(null);
-  const [selectedLocation, setSelectedLocation] = useState<google.maps.LatLng | null>(null);
+  const [focusedLocation, setFocusedLocation] = useState<google.maps.LatLng | null>(null);
   const [buttonText, setButtonText] = useState("Set a Reminder")
   const mapRef = useRef<google.maps.Map | null>(null);
+  const [selectedParkingForDisplay, setSelectedParkingForDisplay] = useState<AugmentedParkingLocationData | null>(null)
+
 
 
 
   const libraries = useMemo(() => ['places'], [])
-  const googleMaps = window.google.maps;
 
-  
+
   const { isLoaded } = useLoadScript({
     googleMapsApiKey: process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY as string,
     libraries: libraries as any, // eslint-disable-line @typescript-eslint/no-explicit-any
   })
-  
-  const selectClosestParkingSpot = useCallback((map: google.maps.Map, userLatLong: google.maps.LatLng) => {
+
+  const selectClosestParkingSpot = useCallback((userLatLong: google.maps.LatLng) => {
     const parkingLocations = getAugmentedParkingLocationData();
     let firstPoint = parkingLocations[0].path[0];
     let minDistance = google.maps.geometry.spherical.computeDistanceBetween(userLatLong, new google.maps.LatLng(firstPoint.lat, firstPoint.lng));
@@ -55,13 +55,12 @@ export function ParkingMap() {
         position => {
           const userLatLong = new google.maps.LatLng(position.coords.latitude, position.coords.longitude);
           setUserLocation(userLatLong);
-          setButtonText("Choose a Location");
-          if (mapRef.current) {
-            selectClosestParkingSpot(mapRef.current, userLatLong);
-          } 
+          setButtonText("Choose a different location");
+          selectClosestParkingSpot(userLatLong);
         },
         () => {
           alert("Unable to retrieve your location. Please enable location services and try again.");
+          setButtonText("Choose a location manually");
         }
       );
     } else {
@@ -69,29 +68,16 @@ export function ParkingMap() {
     }
   }, [selectClosestParkingSpot]);
 
+  const handleSelectParkingSpotForDisplay = (location: AugmentedParkingLocationData | null) => {
+    setSelectedParkingForDisplay(location)
+  }
 
 
   useEffect(() => {
-    if (navigator.geolocation) {
-      navigator.geolocation.getCurrentPosition(
-        position => {
-          const userLatLong = new google.maps.LatLng(position.coords.latitude, position.coords.longitude);
-          setUserLocation(userLatLong);
-        },
-        () => {
-          console.warn("Unable to retrieve your location. Falling back to default center.");
-        }
-      );
+    if (userLocation && focusedLocation === null) {
+      selectClosestParkingSpot(userLocation);
     }
-  }, []);
-
-  useEffect(() => {
-    if (userLocation && selectedLocation === null && mapRef.current) {
-      selectClosestParkingSpot(mapRef.current, userLocation);
-    }
-  }, [userLocation, selectClosestParkingSpot, selectedLocation]);
-
-
+  }, [userLocation, selectClosestParkingSpot, focusedLocation]);
 
 
   if (!isLoaded) {
@@ -99,7 +85,7 @@ export function ParkingMap() {
   }
 
   const defaultCenter = { lat: 59.380065, lng: 18.035959 } // Hardcoded to Bergshamra
-  const mapCenter = userLocation || selectedLocation || defaultCenter;
+  const mapCenter = userLocation || focusedLocation || defaultCenter;
 
   const mapOptions: google.maps.MapOptions = {
     disableDefaultUI: true,
@@ -120,11 +106,13 @@ export function ParkingMap() {
         onLoad={map => {
           mapRef.current = map;
           if (userLocation) {
-            selectClosestParkingSpot(map, userLocation);
+            selectClosestParkingSpot(userLocation);
           }
         }}
       >
         <ParkingMapPolygons
+          handleSelectParkingSpotForDisplay={handleSelectParkingSpotForDisplay}
+          selectedParkingForDisplay={selectedParkingForDisplay}
           parkingLocations={parkingLocations}
           highlightedPath={highlightedPath}
           onPolygonClick={(location, mapRef) => {
@@ -141,7 +129,7 @@ export function ParkingMap() {
               const midLng = (maxLng + minLng) / 2;
 
               const center = new google.maps.LatLng({ lat: midLat, lng: midLng });
-              setSelectedLocation(center)
+              setFocusedLocation(center)
               mapRef.setCenter(center);
 
             }

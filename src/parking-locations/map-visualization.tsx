@@ -2,21 +2,20 @@ import { InfoWindow, Polygon, useGoogleMap } from '@react-google-maps/api'
 import { Fragment } from 'react'
 import React from 'react'
 import { AugmentedParkingLocationData, CleaningTime, DayOfWeek, ParkingRules } from './types'
+import { Button } from '@/components/ui/button';
+import ButtonDisplayWindow from '@/components/ButtonDisplayWindow';
 
 interface ParkingMapPolygonsProps {
   parkingLocations: AugmentedParkingLocationData[];
   highlightedPath: google.maps.LatLng[];
   onPolygonClick: (location: AugmentedParkingLocationData, mapRef: google.maps.Map) => void;
+  handleSelectParkingSpotForDisplay: (location: AugmentedParkingLocationData | null) => void;
+  selectedParkingForDisplay: AugmentedParkingLocationData | null;
 }
-
-//TODO FJ integrate map centering alongside highlighting
-//TODO FJ on map centering and finding the nearest spot, open info box
-//TODO FJ on "set notificaton" add a button to info box which is "choose location which calls form modal"
-
 
 
 export function getCleaningDayDescription(cleaningTime: CleaningTime): string {
-  
+
   const oddEvenAll = (even: boolean, odd: boolean) => (even && odd) ? 'Alla' : (even ? 'Jämna' : 'Udda')
   const weekday = (day: DayOfWeek) => {
     return (day === DayOfWeek.MONDAY) ? 'måndag' :
@@ -40,7 +39,7 @@ const generateDescriptionText = (rules: ParkingRules) => {
       <p>Städdagar:</p>
       <ul>
         {
-          rules.cleaningTimes.map((cleaning) => { return (<li key={`${cleaning.day}${cleaning.appliesToEvenWeeks}`}> - { getCleaningDayDescription(cleaning) }</li>) })
+          rules.cleaningTimes.map((cleaning) => { return (<li key={`${cleaning.day}${cleaning.appliesToEvenWeeks}`}> - {getCleaningDayDescription(cleaning)}</li>) })
         }
       </ul>
       <p>Max {rules.maximum.days} dagar.</p>
@@ -48,9 +47,8 @@ const generateDescriptionText = (rules: ParkingRules) => {
   )
 }
 
-export default function ParkingMapPolygons({parkingLocations, highlightedPath, onPolygonClick}: ParkingMapPolygonsProps) {
+export default function ParkingMapPolygons({ parkingLocations, highlightedPath, onPolygonClick, handleSelectParkingSpotForDisplay, selectedParkingForDisplay }: ParkingMapPolygonsProps) {
   const mapRef = useGoogleMap()
-  const [selectedParking, setSelectedParking] = React.useState<AugmentedParkingLocationData | null>(null)
 
   return (
     <>
@@ -68,7 +66,7 @@ export default function ParkingMapPolygons({parkingLocations, highlightedPath, o
           const isHighlighted = highlightedPath.length > 0 && highlightedPath.every(
             (point, index) => point.lat() === location.path[index].lat && point.lng() === location.path[index].lng
           );
-  
+
 
           return (
             <React.Fragment key={`${location.name}-fragment`}>
@@ -85,26 +83,30 @@ export default function ParkingMapPolygons({parkingLocations, highlightedPath, o
                 onClick={() => {
                   if (mapRef) {
                     onPolygonClick(location, mapRef);
-                    setSelectedParking(location);
-                  }}}
+                    handleSelectParkingSpotForDisplay(location);
+                  }
+                }}
               />
-  
-              {selectedParking?.name === location.name && (
+
+              {selectedParkingForDisplay?.name === location.name && (
                 <InfoWindow
                   key={`${location.name}-infowindow`}
                   position={center}
-                  onCloseClick={() => setSelectedParking(null)}
+                  onCloseClick={() => handleSelectParkingSpotForDisplay(null)}
                 >
-                  <div className='mapInfoWindow' style={{ color: 'black' }}>
-                    <h1 style={{ fontWeight: 'bold', fontSize: 'medium' }}>
-                      {location.name}
-                    </h1>
-                    {generateDescriptionText(location.parkingRules)}
-                  </div>
+                  <>
+                    <div className='mapInfoWindow' style={{ color: 'black' }}>
+                      <h1 style={{ fontWeight: 'bold', fontSize: 'medium' }}>
+                        {location.name}
+                      </h1>
+                      {generateDescriptionText(location.parkingRules)}
+                    </div>
+                    <ButtonDisplayWindow text={`Set a reminder`} />
+                  </>
                 </InfoWindow>
               )}
             </React.Fragment>
-          )         
+          )
         })
       }
     </>
