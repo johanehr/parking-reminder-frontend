@@ -59,3 +59,10 @@ export class ReminderDataForBackend {
     public parkingSpotName: string,
   ) { }
 }
+
+export class NotifDayBefore {
+  constructor(
+    public suggestNotifDayBefore: boolean,
+    public acceptedNotifDayBefore: boolean
+  ) { }
+}

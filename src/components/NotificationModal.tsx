@@ -3,25 +3,16 @@ import { Button } from "@/components/ui/button"
 import { Label } from "@/components/ui/label"
 import { Input } from "@/components/ui/input"
 import { Select, SelectTrigger, SelectValue, SelectContent, SelectItem } from "@/components/ui/select"
-import { AugmentedParkingLocationData, ReminderDataForBackend } from "@/parking-locations/types"
+import { AugmentedParkingLocationData, NotifDayBefore, ReminderDataForBackend } from "@/parking-locations/types"
 import { FormEvent, useEffect, useState } from "react"
 import { DateTime } from "luxon"
 import { Switch } from "./ui/switch"
+import { calculateReminderDate } from "@/parking-locations/helper-functions/calculateReminderDate"
+import { handleChange, handleSelectionChange, handleToggleChange } from "@/parking-locations/helper-functions/formHelpers"
+import e from "cors"
 
 interface INotificationModalProps {
   location: AugmentedParkingLocationData
-}
-
-function calculateReminderDateWithBuffer(nextCleaningTime: DateTime, notificationBuffer: number): DateTime {
-  const reminderDate = nextCleaningTime.minus({ minutes: notificationBuffer });
-  return reminderDate;
-}
-
-class NotifDayBefore {
-  constructor(
-    public suggestNotifDayBefore: boolean,
-    public acceptedNotifDayBefore: boolean
-  ) { }
 }
 
 export default function NotificationModal({ location }: INotificationModalProps) {
@@ -36,25 +27,16 @@ export default function NotificationModal({ location }: INotificationModalProps)
     "",
   ))
 
-
-  //TODO clean up and import functions in when needed
   //TODO look at edge cases where cleaning is ongoing. 
 
-  const handleNotificationBufferChange = (value: string) => {
-    setNotificationBuffer(parseInt(value));
-  };
 
-  const handleToggleChange = (stateSetter: React.Dispatch<React.SetStateAction<boolean>>, value: boolean) => {
-    stateSetter(value);
-  };
-
-  const handleNotifDayBeforeToggleChange = (value: boolean) => {
-    setNotifDayBefore({...notifDayBefore, acceptedNotifDayBefore: value})
-  }
+  useEffect(() => {
+    console.log(reminderDataForBackend, "this is data for backend")
+  }, [reminderDataForBackend])
 
   useEffect(() => {
     if (reminderDataForBackend.nextCleaningTime) {
-      const notificationDate = calculateReminderDateWithBuffer(reminderDataForBackend.nextCleaningTime, notificationBuffer);
+      const notificationDate = calculateReminderDate(reminderDataForBackend.nextCleaningTime, notificationBuffer);
 
       const reminderHour = notificationDate.hour;
       if (reminderHour < 6 || reminderHour >= 21) {
@@ -75,10 +57,6 @@ export default function NotificationModal({ location }: INotificationModalProps)
   }, [notificationBuffer]);
 
 
-  useEffect(() => { console.log(notifDayBefore.acceptedNotifDayBefore) }, [notifDayBefore.acceptedNotifDayBefore])
-
-
-
   return (
     <Dialog>
       <DialogTrigger asChild>
@@ -96,15 +74,15 @@ export default function NotificationModal({ location }: INotificationModalProps)
           <div className="grid gap-4">
             <div className="grid gap-2">
               <Label htmlFor="email">Email</Label>
-              <Input id="email" type="email" placeholder="Enter email" />
+              <Input onChange={(e) => handleChange(e, setReminderDataForBackend, reminderDataForBackend)} name="email" id="email" type="email" placeholder="Enter email" />
             </div>
             <div className="grid gap-2">
               <Label htmlFor="car-nickname">Car Nickname</Label>
-              <Input id="car-nickname" placeholder="Enter car nickname" />
+              <Input onChange={(e) => handleChange(e, setReminderDataForBackend, reminderDataForBackend)} name="carNickname" id="car-nickname" placeholder="Enter car nickname" />
             </div>
             <div className="grid gap-2">
               <Label htmlFor="notification-time">Notification Time</Label>
-              <Select name="notification-time" defaultValue="30" onValueChange={handleNotificationBufferChange}>
+              <Select name="notification-time" defaultValue="30" onValueChange={(e) => handleSelectionChange(e, setNotificationBuffer)}>
                 <SelectTrigger className="w-full">
                   <SelectValue placeholder="Select time" />
                 </SelectTrigger>
@@ -119,21 +97,21 @@ export default function NotificationModal({ location }: INotificationModalProps)
               </Select>
               {notifDayBefore.suggestNotifDayBefore && (
                 <div className="flex space-x-2 items-center">
-                   {notifDayBefore.acceptedNotifDayBefore ? <p className="text-xs my-2"> We will notify you the day before you need to move, <span className="font-bold">at 20:00 on the {location.nextCleaningTime?.toLocaleString(DateTime.DATE_SHORT)}</span> as requested </p> : <p className="text-xs my-2">Your requested notification time lands is in unsociable hours, on the <span className="font-bold">{reminderDataForBackend.notificationDate?.toLocaleString(DateTime.DATETIME_MED)}</span>, shall we notify you the day before at 20:00 instead?</p>}
-                <Switch
-                  id="notifDayBefore"
-                  defaultChecked={notifDayBefore.acceptedNotifDayBefore}
-                  onCheckedChange={(e: boolean) =>  handleNotifDayBeforeToggleChange(e)}
-                />
-                <Label htmlFor="termsToggle">Accept day before reminder</Label>
-              </div>
+                  {notifDayBefore.acceptedNotifDayBefore ? <p className="text-xs my-2"> We will notify you the day before you need to move, <span className="font-bold">at 20:00 on the {location.nextCleaningTime?.toLocaleString(DateTime.DATE_SHORT)}</span> as requested </p> : <p className="text-xs my-2">Your requested notification time lands is in unsociable hours, on the <span className="font-bold">{reminderDataForBackend.notificationDate?.toLocaleString(DateTime.DATETIME_MED)}</span>, shall we notify you the day before at 20:00 instead?</p>}
+                  <Switch
+                    id="notifDayBefore"
+                    defaultChecked={notifDayBefore.acceptedNotifDayBefore}
+                    onCheckedChange={(e: boolean) => handleToggleChange(setNotifDayBefore, e, "notif")}
+                  />
+                  <Label htmlFor="termsToggle">Accept day before reminder</Label>
+                </div>
               )}
             </div>
             <div className="flex space-x-2 items-center">
               <Switch
                 id="acceptTerms"
                 defaultChecked={acceptTerms}
-                onCheckedChange={(e: boolean) =>  handleToggleChange(setAcceptTerms, e)}
+                onCheckedChange={(e: boolean) => handleToggleChange(setAcceptTerms, e, "terms")}
               />
               <Label htmlFor="termsToggle">Accept terms</Label>
             </div>

@@ -1,6 +1,6 @@
-export function calculateReminderDate(hoursUntilMove: number): Date {
-    const reminderDate = new Date()
-    reminderDate.setHours(reminderDate.getHours() + hoursUntilMove)
-    console.log(reminderDate)
-    return reminderDate; 
-  }
+import { DateTime } from "luxon";
+
+export function calculateReminderDate(nextCleaningTime: DateTime, notificationBuffer: number): DateTime {
+  const reminderDate = nextCleaningTime.minus({ minutes: notificationBuffer });
+  return reminderDate;
+}
