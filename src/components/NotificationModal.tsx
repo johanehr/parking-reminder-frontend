@@ -6,20 +6,14 @@ import { Select, SelectTrigger, SelectValue, SelectContent, SelectItem } from "@
 import { AugmentedParkingLocationData, ReminderDataForBackend } from "@/parking-locations/types"
 import { Toggle } from "./Toggle"
 import { useEffect, useState } from "react"
+import { DateTime } from "luxon"
 
 interface INotificationModalProps {
   location: AugmentedParkingLocationData
 }
 
-function calculateReminderDate(hoursUntilMove: number): Date {
-  const notificationDate = new Date();
-  notificationDate.setHours(notificationDate.getHours() + hoursUntilMove);
-  return notificationDate;
-}
-
-function calculateAdjustedReminderDate(originalEventDate: Date, minutesBefore: number): Date {
-  const reminderDate = new Date(originalEventDate.getTime())
-  reminderDate.setMinutes(reminderDate.getMinutes() - minutesBefore);
+function calculateReminderDateWithBuffer(nextCleaningTime: DateTime, notificationBuffer: number): DateTime {
+  const reminderDate = nextCleaningTime.minus({ minutes: notificationBuffer });
   return reminderDate;
 }
 
@@ -31,16 +25,14 @@ class NotifDayBefore {
 }
 
 export default function NotificationModal({ location }: INotificationModalProps) {
-  const originalEventDate = calculateReminderDate(location.hoursUntilMove)
-  const [notificationBuffer, setNotificationBuffer] = useState(60)
+  const [notificationBuffer, setNotificationBuffer] = useState(30)
   const [notifDayBefore, setNotifDayBefore] = useState(new NotifDayBefore(false, false))
   const [reminderDataForBackend, setReminderDataForBackend] = useState(new ReminderDataForBackend(
     "",
-    location.hoursUntilMove,
-    originalEventDate,
-    originalEventDate, //Create a "default" case, where notification date is set for 2 hours before?
+    location.nextCleaningTime,
+    location.nextCleaningTime,
     "",
-    ""
+    "",
   ))
 
 
@@ -52,17 +44,24 @@ export default function NotificationModal({ location }: INotificationModalProps)
 
 
   useEffect(() => {
-    const notificationDate = calculateAdjustedReminderDate(reminderDataForBackend.originalEventDate, notificationBuffer);
-    const reminderHour = notificationDate.getHours();
-    if (reminderHour < 6 || reminderHour >= 21) {
-      setNotifDayBefore(prev => ({ ...prev, suggestNotifDayBefore: true }));
-    } else {
-      setNotifDayBefore(prev => ({ ...prev, suggestNotifDayBefore: false }));
+    if (reminderDataForBackend.nextCleaningTime) {
+      const notificationDate = calculateReminderDateWithBuffer(reminderDataForBackend.nextCleaningTime, notificationBuffer);
+
+      const reminderHour = notificationDate.hour;
+      if (reminderHour < 6 || reminderHour >= 21) {
+        setNotifDayBefore(prev => ({ ...prev, suggestNotifDayBefore: true }));
+      } else {
+        setNotifDayBefore(prev => ({ ...prev, suggestNotifDayBefore: false }));
+      }
+      setReminderDataForBackend(prev => ({
+        ...prev,
+        notificationDate: notificationDate
+      }));
+
     }
-    setReminderDataForBackend(prev => ({
-      ...prev,
-      notificationDate: notificationDate
-    }));
+    else {
+      alert("we have no next cleaning time available for this parking spot") //TODO FJ FIX EDGECASE LOGIC NEXTCLEANING TIME IS NULL
+    }
   }, [notificationBuffer]);
 
 
@@ -80,7 +79,8 @@ export default function NotificationModal({ location }: INotificationModalProps)
             <DialogHeader>
               <DialogTitle>Parking Location</DialogTitle>
               <DialogDescription>Set a reminder for: <span className="text-black">{location.name}</span></DialogDescription>
-              <DialogDescription>You will recieve a notification to move on: <span className="text-black">{reminderDataForBackend.notificationDate.toLocaleDateString()}{reminderDataForBackend.notificationDate.toLocaleTimeString()}</span></DialogDescription>
+              <DialogDescription>You need to move your car by: <span className="text-black">{reminderDataForBackend.nextCleaningTime?.toISODate()} at {reminderDataForBackend.nextCleaningTime?.toISOTime()}</span></DialogDescription>
+              <DialogDescription>You will recieve a notification to move on: <span className="text-black">{reminderDataForBackend.notificationDate?.toISODate()} at {reminderDataForBackend.notificationDate?.toISOTime()}</span></DialogDescription>
 
             </DialogHeader>
           </div>
@@ -95,7 +95,7 @@ export default function NotificationModal({ location }: INotificationModalProps)
             </div>
             <div className="grid gap-2">
               <Label htmlFor="notification-time">Notification Time</Label>
-              <Select name="notification-time" defaultValue="120" onValueChange={handleNotificationBufferChange}>
+              <Select name="notification-time" defaultValue="30" onValueChange={handleNotificationBufferChange}>
                 <SelectTrigger className="w-full">
                   <SelectValue placeholder="Select time" />
                 </SelectTrigger>
@@ -110,8 +110,8 @@ export default function NotificationModal({ location }: INotificationModalProps)
               </Select>
               {notifDayBefore.suggestNotifDayBefore && (
                 <div className="grid gap-2">
-                  <p>Your requested notification time lands in unsociable hours {reminderDataForBackend.notificationDate.toLocaleTimeString()}, do you want it the day before at 20:00?</p>
-                  <Toggle id="unSociableHoursToggle" text="Notify me the evening before"/>
+                  <p>Your requested notification time lands in unsociable hours {reminderDataForBackend.notificationDate?.toISO()}, shall we notify you the day before at 20:00?</p>
+                  <Toggle id="unSociableHoursToggle" text="Notify me the evening before" /> 
                 </div>
               )}
             </div>

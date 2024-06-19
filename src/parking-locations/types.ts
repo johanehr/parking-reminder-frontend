@@ -1,3 +1,5 @@
+import { DateTime } from "luxon";
+
 export enum DayOfWeek {
   MONDAY = 1,
   TUESDAY = 2,
@@ -36,7 +38,7 @@ export type ParkingRules = {
 
 export type AugmentedParkingLocationData = ParkingLocationData & {
   color: string;
-  hoursUntilMove: number;
+  nextCleaningTime: DateTime | null; 
 }
 
 export type CleaningTime = {
@@ -51,9 +53,8 @@ export type CleaningTime = {
 export class ReminderDataForBackend {
   constructor(
     public email: string,
-    public hoursUntilReminder: number,
-    public originalEventDate: Date,
-    public notificationDate: Date,
+    public nextCleaningTime: DateTime | null,
+    public notificationDate: DateTime | null,
     public carNickname: string,
     public parkingSpotName: string,
   ) { }
