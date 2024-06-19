@@ -1,4 +1,4 @@
-import { Label } from "@/components/ui/label"
+/* import { Label } from "@/components/ui/label"
 import { Switch } from "@/components/ui/switch"
 
 interface IToggleProps {
@@ -6,11 +6,11 @@ interface IToggleProps {
     id: string
 }
 
-export function Toggle({ text, id }: IToggleProps) {
+export function DayBeforeNotifToggle({ text, id }: IToggleProps) {
     return (
         <div className="flex items-center space-x-2">
-            <Switch id={id} />
+            <Switch id={id} onChange={(e) =>}/>
             <Label htmlFor={id}>{text}</Label>
         </div>
     )
-}
+} */

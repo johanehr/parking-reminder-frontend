@@ -4,9 +4,9 @@ import { Label } from "@/components/ui/label"
 import { Input } from "@/components/ui/input"
 import { Select, SelectTrigger, SelectValue, SelectContent, SelectItem } from "@/components/ui/select"
 import { AugmentedParkingLocationData, ReminderDataForBackend } from "@/parking-locations/types"
-import { Toggle } from "./Toggle"
-import { useEffect, useState } from "react"
+import { FormEvent, useEffect, useState } from "react"
 import { DateTime } from "luxon"
+import { Switch } from "./ui/switch"
 
 interface INotificationModalProps {
   location: AugmentedParkingLocationData
@@ -27,6 +27,7 @@ class NotifDayBefore {
 export default function NotificationModal({ location }: INotificationModalProps) {
   const [notificationBuffer, setNotificationBuffer] = useState(30)
   const [notifDayBefore, setNotifDayBefore] = useState(new NotifDayBefore(false, false))
+  const [acceptTerms, setAcceptTerms] = useState(false)
   const [reminderDataForBackend, setReminderDataForBackend] = useState(new ReminderDataForBackend(
     "",
     location.nextCleaningTime,
@@ -36,12 +37,20 @@ export default function NotificationModal({ location }: INotificationModalProps)
   ))
 
 
+  //TODO clean up and import functions in when needed
+  //TODO look at edge cases where cleaning is ongoing. 
 
   const handleNotificationBufferChange = (value: string) => {
     setNotificationBuffer(parseInt(value));
   };
 
+  const handleToggleChange = (stateSetter: React.Dispatch<React.SetStateAction<boolean>>, value: boolean) => {
+    stateSetter(value);
+  };
 
+  const handleNotifDayBeforeToggleChange = (value: boolean) => {
+    setNotifDayBefore({...notifDayBefore, acceptedNotifDayBefore: value})
+  }
 
   useEffect(() => {
     if (reminderDataForBackend.nextCleaningTime) {
@@ -62,9 +71,11 @@ export default function NotificationModal({ location }: INotificationModalProps)
     else {
       alert("we have no next cleaning time available for this parking spot") //TODO FJ FIX EDGECASE LOGIC NEXTCLEANING TIME IS NULL
     }
+    console.log(location.nextCleaningTime)
   }, [notificationBuffer]);
 
 
+  useEffect(() => { console.log(notifDayBefore.acceptedNotifDayBefore) }, [notifDayBefore.acceptedNotifDayBefore])
 
 
 
@@ -79,9 +90,7 @@ export default function NotificationModal({ location }: INotificationModalProps)
             <DialogHeader>
               <DialogTitle>Parking Location</DialogTitle>
               <DialogDescription>Set a reminder for: <span className="text-black">{location.name}</span></DialogDescription>
-              <DialogDescription>You need to move your car by: <span className="text-black">{reminderDataForBackend.nextCleaningTime?.toISODate()} at {reminderDataForBackend.nextCleaningTime?.toISOTime()}</span></DialogDescription>
-              <DialogDescription>You will recieve a notification to move on: <span className="text-black">{reminderDataForBackend.notificationDate?.toISODate()} at {reminderDataForBackend.notificationDate?.toISOTime()}</span></DialogDescription>
-
+              <DialogDescription>You need to move your car by: <span className="text-black"> {reminderDataForBackend.nextCleaningTime?.toLocaleString(DateTime.DATETIME_MED)}</span></DialogDescription>
             </DialogHeader>
           </div>
           <div className="grid gap-4">
@@ -109,16 +118,29 @@ export default function NotificationModal({ location }: INotificationModalProps)
                 </SelectContent>
               </Select>
               {notifDayBefore.suggestNotifDayBefore && (
-                <div className="grid gap-2">
-                  <p>Your requested notification time lands in unsociable hours {reminderDataForBackend.notificationDate?.toISO()}, shall we notify you the day before at 20:00?</p>
-                  <Toggle id="unSociableHoursToggle" text="Notify me the evening before" /> 
-                </div>
+                <div className="flex space-x-2 items-center">
+                   {notifDayBefore.acceptedNotifDayBefore ? <p className="text-xs my-2"> We will notify you the day before you need to move, <span className="font-bold">at 20:00 on the {location.nextCleaningTime?.toLocaleString(DateTime.DATE_SHORT)}</span> as requested </p> : <p className="text-xs my-2">Your requested notification time lands is in unsociable hours, on the <span className="font-bold">{reminderDataForBackend.notificationDate?.toLocaleString(DateTime.DATETIME_MED)}</span>, shall we notify you the day before at 20:00 instead?</p>}
+                <Switch
+                  id="notifDayBefore"
+                  defaultChecked={notifDayBefore.acceptedNotifDayBefore}
+                  onCheckedChange={(e: boolean) =>  handleNotifDayBeforeToggleChange(e)}
+                />
+                <Label htmlFor="termsToggle">Accept day before reminder</Label>
+              </div>
               )}
             </div>
-            <Toggle id="aggreeToTermsToggle" text={`Agree to terms`} />
+            <div className="flex space-x-2 items-center">
+              <Switch
+                id="acceptTerms"
+                defaultChecked={acceptTerms}
+                onCheckedChange={(e: boolean) =>  handleToggleChange(setAcceptTerms, e)}
+              />
+              <Label htmlFor="termsToggle">Accept terms</Label>
+            </div>
+            <DialogDescription className="mx-2">You will recieve a notification to move on:<br /><span className="text-black">{reminderDataForBackend.notificationDate?.toLocaleString(DateTime.DATETIME_MED)}</span></DialogDescription>
 
           </div>
-          <DialogFooter className="flex space-y-4">
+          <DialogFooter className="flex space-y-4 items-center">
             <Button type="submit">Set Reminder</Button>
           </DialogFooter>
         </div>
