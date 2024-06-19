@@ -50,13 +50,22 @@ export type CleaningTime = {
   noCleaningMonths: MonthOfYear[]
 }
 
-export class ReminderDataForBackend {
+/* export class ReminderDataForBackend {
   constructor(
     public email: string,
     public nextCleaningTime: DateTime | null,
     public notificationDate: DateTime | null,
     public carNickname: string,
     public parkingSpotName: string,
+  ) { }
+} */
+
+export class UserInput {
+  constructor(
+    public email: string,
+    public carNickname: string,
+    public acceptTerms: boolean,
+    public notificationDate: DateTime | null,
   ) { }
 }
 
