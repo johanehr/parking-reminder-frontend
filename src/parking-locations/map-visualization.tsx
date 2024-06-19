@@ -2,8 +2,6 @@ import { InfoWindow, Polygon, useGoogleMap } from '@react-google-maps/api'
 import { Fragment } from 'react'
 import React from 'react'
 import { AugmentedParkingLocationData, CleaningTime, DayOfWeek, ParkingRules } from './types'
-import { Button } from '@/components/ui/button';
-import ButtonDisplayWindow from '@/components/ButtonDisplayWindow';
 import NotificationModal from '@/components/NotificationModal';
 
 interface ParkingMapPolygonsProps {

@@ -18,9 +18,9 @@ export function augmentParkingLocationData(parkingLocation: ParkingLocationData,
   }
   lastTimeToMove = possibleTimes.sort(compareLuxonDates)[0]
   const hoursUntilMove = lastTimeToMove.diff(currentTime, 'hours').hours
-  console.log(hoursUntilMove, "hours until move>>")
-  return { ...parkingLocation, color: getAppropriateDisplayColor(hoursUntilMove), hoursUntilMove: hoursUntilMove }
-}
+  return { ...parkingLocation, color: getAppropriateDisplayColor(hoursUntilMove), nextCleaningTime: nextCleaningTime}
+ }
+
 
 
 export const getAugmentedParkingLocationData = (
@@ -106,5 +106,4 @@ export function calculateNextCleaningTime(parkingRules: ParkingRules, currentTim
 
   const validMoveDays = allMoveDays.flatMap(day => day ? [day] : [])
   return validMoveDays.sort(compareLuxonDates)[0] ?? null
-
 }
