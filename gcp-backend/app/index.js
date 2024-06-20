@@ -46,6 +46,13 @@ app.post('/send-email', (req, res) => {
   res.status(202).send('📫 Your postcard is in the mail! 💌');
 });
 // [END cloud_tasks_app]
+//FJ testing endpoint on form submission (work in progress)
+app.post('/api/submitForm', (req, res) => {
+  const { email, carNickname, acceptTerms, notificationDate } = req.body;
+  console.log("save to db:", email, carNickname, acceptTerms, notificationDate)
+
+  res.status(200).json({ message: 'Form submitted successfully' });
+});
 
 const PORT = parseInt(process.env.PORT) || 8080;
 app.listen(PORT, () => {
