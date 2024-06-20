@@ -13,6 +13,7 @@ import { z } from 'zod';
 import axios from 'axios';
 
 import { formSchema } from "@/models/formSchema"
+import { Alert, AlertDescription, AlertTitle } from "./ui/alert"
 
 interface INotificationModalProps {
   location: AugmentedParkingLocationData
@@ -28,6 +29,7 @@ export default function NotificationModal({ location }: INotificationModalProps)
     location.nextCleaningTime
   ))
   const [errors, setErrors] = useState<z.ZodIssue[]>([]);
+  const [isCleaningOngoing, setIsCleaningOngoing] = useState(false)
 
   const handleSubmit = async (event: React.FormEvent) => {
     event.preventDefault();
@@ -42,8 +44,11 @@ export default function NotificationModal({ location }: INotificationModalProps)
     const zodResult = formSchema.safeParse(data);
     if (!zodResult.success) {
       setErrors(zodResult.error.issues);
+      console.log(errors)
+
       return;
     }
+
     setErrors([]);
     /*  const res = await axios.post('https://your-gcp-backend-url/api/submitForm', { data });
      console.log(res.data) */
@@ -68,6 +73,13 @@ export default function NotificationModal({ location }: INotificationModalProps)
   useEffect(() => {
     if (location.nextCleaningTime) {
       const notificationDate = calculateReminderDate(location.nextCleaningTime, notificationBuffer);
+      const now = DateTime.now();
+      if (notificationDate <= now) {
+        setIsCleaningOngoing(true);
+      } else {
+        setIsCleaningOngoing(false);
+      }
+
 
       const reminderHour = notificationDate.hour;
       if (reminderHour < 6 || reminderHour >= 21) {
@@ -85,6 +97,11 @@ export default function NotificationModal({ location }: INotificationModalProps)
       alert("we have no next cleaning time available for this parking spot") //TODO FJ FIX EDGECASE LOGIC NEXTCLEANING TIME IS NULL
     }
   }, [notificationBuffer]);
+
+  const getErrorMessage = (path: string) => {
+    const error = errors.find(error => error.path.includes(path));
+    return error ? error.message : null;
+  };
 
 
   useEffect(() => { console.log(userInput) }, [userInput])
@@ -107,13 +124,13 @@ export default function NotificationModal({ location }: INotificationModalProps)
             <div className="grid gap-4">
               <div className="grid gap-2">
                 <Label htmlFor="email">Email</Label>
-                <Input onChange={(e) => handleChange(e, setUserInput, userInput)} name="email" id="email" type="email" placeholder="Enter email" />
-                {errors.find(error => error.path.includes('email')) && <p className="text-xs text-red-500">Email is invalid</p>}
+                <Input onChange={(e) => handleChange(e, setUserInput, userInput)} name="email" id="email" placeholder="Enter email" />
+                {errors.find(error => error.path.includes('email')) && <p className="text-xs text-red-500">{getErrorMessage('email')}</p>}
               </div>
               <div className="grid gap-2">
                 <Label htmlFor="car-nickname">Car Nickname</Label>
                 <Input onChange={(e) => handleChange(e, setUserInput, userInput)} name="carNickname" id="car-nickname" placeholder="Enter car nickname" />
-                {errors.find(error => error.path.includes('carNickname')) && <p className="text-xs text-red-500">Car Nickname is required</p>}
+                {errors.find(error => error.path.includes('carNickname')) && <p className="text-xs text-red-500">{getErrorMessage('carNickname')}</p>}
               </div>
               <div className="grid gap-2">
                 {!notifDayBefore.acceptedNotifDayBefore &&
@@ -153,13 +170,21 @@ export default function NotificationModal({ location }: INotificationModalProps)
                   onCheckedChange={(e: boolean) => handleToggleChange(setUserInput, e, "terms")}
                 />
                 <Label htmlFor="termsToggle">Accept terms</Label>
-                {errors.find(error => error.path.includes('acceptTerms')) && <p>You must accept the terms</p>}
+                {errors.find(error => error.path.includes('acceptTerms')) && <p className="text-xs text-red-500">{getErrorMessage('acceptTerms')}</p>}
               </div>
-              <DialogDescription className="mx-2">You will recieve a notification to move on:<br /><span className="text-black">{userInput.notificationDate?.toLocaleString(DateTime.DATETIME_MED)}</span></DialogDescription>
-
+              {isCleaningOngoing ?
+                <Alert variant="destructive">
+                  <div className="h-4 w-4" />
+                  <AlertTitle>Cleaning in Progress</AlertTitle>
+                  <AlertDescription>
+                    Cleaning is currently ongoing at the chosen location. A notification cannot be set at this time.
+                  </AlertDescription>
+                </Alert> :
+                <DialogDescription className="mx-2">You will recieve a notification to move on:<br /><span className="text-black">{userInput.notificationDate?.toLocaleString(DateTime.DATETIME_MED)}</span></DialogDescription>
+              }
             </div>
             <DialogFooter className="flex space-y-4 items-center">
-              <Button type="submit">Set Reminder</Button>
+              <Button disabled={isCleaningOngoing} type="submit">Set Reminder</Button>
             </DialogFooter>
           </div>
         </form>
