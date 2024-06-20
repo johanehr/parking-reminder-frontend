@@ -1,23 +1,23 @@
 import { NotifDayBefore, UserInput } from "../types";
 
 
-export const handleToggleChange = (stateSetter: React.Dispatch<React.SetStateAction<any>>, value: boolean, identifier: string) => {
+export const handleToggleChange = (setState: React.Dispatch<React.SetStateAction<any>>, value: boolean, identifier: string) => {
   if (identifier === "notif") {
-    stateSetter((prevState: NotifDayBefore) => ({
+    setState((prevState: NotifDayBefore) => ({
       ...prevState,
       acceptedNotifDayBefore: value,
     }));
   } else if (identifier === "terms") {
     console.log("hello terms", value)
-    stateSetter((prevState: UserInput) => ({
+    setState((prevState: UserInput) => ({
       ...prevState,
       acceptTerms: value,
     }));
   }
 }
 
-export const handleSelectionChange = (value: string, stateSetter: React.Dispatch<React.SetStateAction<number>>) => {
-  stateSetter(parseInt(value)); //currently only using for number selection, refactor if more generalised is needed.
+export const handleSelectionChange = (value: string, setState: React.Dispatch<React.SetStateAction<number>>) => {
+  setState(parseInt(value)); //currently only using for number selection, refactor if more generalised is needed.
 };
 
 

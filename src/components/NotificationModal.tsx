@@ -9,7 +9,10 @@ import { DateTime } from "luxon"
 import { Switch } from "./ui/switch"
 import { calculateReminderDate } from "@/parking-locations/helper-functions/calculateReminderDate"
 import { handleChange, handleSelectionChange, handleToggleChange } from "@/parking-locations/helper-functions/formHelpers"
-import e from "cors"
+import { z } from 'zod';
+import axios from 'axios';
+
+import { formSchema } from "@/models/formSchema"
 
 interface INotificationModalProps {
   location: AugmentedParkingLocationData
@@ -24,6 +27,28 @@ export default function NotificationModal({ location }: INotificationModalProps)
     false,
     location.nextCleaningTime
   ))
+  const [errors, setErrors] = useState<z.ZodIssue[]>([]);
+
+  const handleSubmit = async (event: React.FormEvent) => {
+    event.preventDefault();
+
+    const data = {
+      email: userInput.email,
+      carNickname: userInput.carNickname,
+      acceptTerms: userInput.acceptTerms,
+      notificationDate: userInput.notificationDate?.toISO(),
+    };
+
+    const zodResult = formSchema.safeParse(data);
+    if (!zodResult.success) {
+      setErrors(zodResult.error.issues);
+      return;
+    }
+    setErrors([]);
+    /*  const res = await axios.post('https://your-gcp-backend-url/api/submitForm', { data });
+     console.log(res.data) */
+  };
+
 
 
   //TODO look at edge cases where cleaning is ongoing. 
@@ -62,7 +87,7 @@ export default function NotificationModal({ location }: INotificationModalProps)
   }, [notificationBuffer]);
 
 
-  useEffect(() => {console.log(userInput)}, [userInput])
+  useEffect(() => { console.log(userInput) }, [userInput])
 
   return (
     <Dialog>
@@ -70,70 +95,74 @@ export default function NotificationModal({ location }: INotificationModalProps)
         <Button variant="outline">Set reminder</Button>
       </DialogTrigger>
       <DialogContent className="sm:max-w-[500px]">
-        <div className="grid gap-6">
-          <div className="space-y-2">
-            <DialogHeader>
-              <DialogTitle>Parking Location</DialogTitle>
-              <DialogDescription>Set a reminder for: <span className="text-black">{location.name}</span></DialogDescription>
-              <DialogDescription>You need to move your car by: <span className="text-black"> {location.nextCleaningTime?.toLocaleString(DateTime.DATETIME_MED)}</span></DialogDescription>
-            </DialogHeader>
-          </div>
-          { }
-          <div className="grid gap-4">
-            <div className="grid gap-2">
-              <Label htmlFor="email">Email</Label>
-              <Input onChange={(e) => handleChange(e, setUserInput, userInput)} name="email" id="email" type="email" placeholder="Enter email" />
+        <form onSubmit={handleSubmit}>
+          <div className="grid gap-6">
+            <div className="space-y-2">
+              <DialogHeader>
+                <DialogTitle>Parking Location</DialogTitle>
+                <DialogDescription>Set a reminder for: <span className="text-black">{location.name}</span></DialogDescription>
+                <DialogDescription>You need to move your car by: <span className="text-black"> {location.nextCleaningTime?.toLocaleString(DateTime.DATETIME_MED)}</span></DialogDescription>
+              </DialogHeader>
             </div>
-            <div className="grid gap-2">
-              <Label htmlFor="car-nickname">Car Nickname</Label>
-              <Input onChange={(e) => handleChange(e, setUserInput, userInput)} name="carNickname" id="car-nickname" placeholder="Enter car nickname" />
-            </div>
-            <div className="grid gap-2">
-              {!notifDayBefore.acceptedNotifDayBefore &&
-                <>
-                  < Label htmlFor="notification-time">Notification Time</Label>
-                  <Select name="notification-time" defaultValue="30" onValueChange={(e) => handleSelectionChange(e, setNotificationBuffer)}>
-                    <SelectTrigger className="w-full">
-                      <SelectValue placeholder="Select time" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="15">15 minutes before</SelectItem>
-                      <SelectItem value="30">30 minutes before</SelectItem>
-                      <SelectItem value="60">1 hour before</SelectItem>
-                      <SelectItem value="120">2 hours before</SelectItem>
-                      <SelectItem value="360">6 hours before</SelectItem>
-                      <SelectItem value="720">12 hours before</SelectItem>
-                    </SelectContent>
-                  </Select>
-                </>
-              }
-              {notifDayBefore.suggestNotifDayBefore && (
-                <div className="flex space-x-2 items-center">
-                  {notifDayBefore.acceptedNotifDayBefore ? <p className="text-xs my-2"> We will notify you the day before you need to move, <span className="font-bold">at 20:00 on the {location.nextCleaningTime?.toLocaleString(DateTime.DATE_SHORT)}</span> as requested </p> : <p className="text-xs my-2">Your requested notification time lands is in unsociable hours, on the <span className="font-bold">{userInput.notificationDate?.toLocaleString(DateTime.DATETIME_MED)}</span>, shall we notify you the day before at 20:00 instead?</p>}
-                  <Switch
-                    id="notifDayBefore"
-                    defaultChecked={notifDayBefore.acceptedNotifDayBefore}
-                    onCheckedChange={(e: boolean) => handleToggleChange(setNotifDayBefore, e, "notif")}
-                  />
-                  <Label htmlFor="termsToggle">Accept day before reminder</Label>
-                </div>
-              )}
-            </div>
-            <div className="flex space-x-2 items-center">
-              <Switch
-                id="acceptTerms"
-                defaultChecked={userInput.acceptTerms}
-                onCheckedChange={(e: boolean) => handleToggleChange(setUserInput, e, "terms")}
-              />
-              <Label htmlFor="termsToggle">Accept terms</Label>
-            </div>
-            <DialogDescription className="mx-2">You will recieve a notification to move on:<br /><span className="text-black">{userInput.notificationDate?.toLocaleString(DateTime.DATETIME_MED)}</span></DialogDescription>
+            <div className="grid gap-4">
+              <div className="grid gap-2">
+                <Label htmlFor="email">Email</Label>
+                <Input onChange={(e) => handleChange(e, setUserInput, userInput)} name="email" id="email" type="email" placeholder="Enter email" />
+                {errors.find(error => error.path.includes('email')) && <p className="text-xs text-red-500">Email is invalid</p>}
+              </div>
+              <div className="grid gap-2">
+                <Label htmlFor="car-nickname">Car Nickname</Label>
+                <Input onChange={(e) => handleChange(e, setUserInput, userInput)} name="carNickname" id="car-nickname" placeholder="Enter car nickname" />
+                {errors.find(error => error.path.includes('carNickname')) && <p className="text-xs text-red-500">Car Nickname is required</p>}
+              </div>
+              <div className="grid gap-2">
+                {!notifDayBefore.acceptedNotifDayBefore &&
+                  <>
+                    < Label htmlFor="notification-time">Notification Time</Label>
+                    <Select name="notification-time" defaultValue="30" onValueChange={(e) => handleSelectionChange(e, setNotificationBuffer)}>
+                      <SelectTrigger className="w-full">
+                        <SelectValue placeholder="Select time" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="15">15 minutes before</SelectItem>
+                        <SelectItem value="30">30 minutes before</SelectItem>
+                        <SelectItem value="60">1 hour before</SelectItem>
+                        <SelectItem value="120">2 hours before</SelectItem>
+                        <SelectItem value="360">6 hours before</SelectItem>
+                        <SelectItem value="720">12 hours before</SelectItem>
+                      </SelectContent>
+                    </Select>
+                  </>
+                }
+                {notifDayBefore.suggestNotifDayBefore && (
+                  <div className="flex space-x-2 items-center">
+                    {notifDayBefore.acceptedNotifDayBefore ? <p className="text-xs my-2"> We will notify you the day before you need to move, <span className="font-bold">at 20:00 on the {location.nextCleaningTime?.toLocaleString(DateTime.DATE_SHORT)}</span> as requested </p> : <p className="text-xs my-2">Your requested notification time lands is in unsociable hours, on the <span className="font-bold">{userInput.notificationDate?.toLocaleString(DateTime.DATETIME_MED)}</span>, shall we notify you the day before at 20:00 instead?</p>}
+                    <Switch
+                      id="notifDayBefore"
+                      defaultChecked={notifDayBefore.acceptedNotifDayBefore}
+                      onCheckedChange={(e: boolean) => handleToggleChange(setNotifDayBefore, e, "notif")}
+                    />
+                    <Label htmlFor="termsToggle">Accept day before reminder</Label>
+                  </div>
+                )}
+              </div>
+              <div className="flex space-x-2 items-center">
+                <Switch
+                  id="acceptTerms"
+                  defaultChecked={userInput.acceptTerms}
+                  onCheckedChange={(e: boolean) => handleToggleChange(setUserInput, e, "terms")}
+                />
+                <Label htmlFor="termsToggle">Accept terms</Label>
+                {errors.find(error => error.path.includes('acceptTerms')) && <p>You must accept the terms</p>}
+              </div>
+              <DialogDescription className="mx-2">You will recieve a notification to move on:<br /><span className="text-black">{userInput.notificationDate?.toLocaleString(DateTime.DATETIME_MED)}</span></DialogDescription>
 
+            </div>
+            <DialogFooter className="flex space-y-4 items-center">
+              <Button type="submit">Set Reminder</Button>
+            </DialogFooter>
           </div>
-          <DialogFooter className="flex space-y-4 items-center">
-            <Button type="submit">Set Reminder</Button>
-          </DialogFooter>
-        </div>
+        </form>
       </DialogContent>
     </Dialog >
   )
