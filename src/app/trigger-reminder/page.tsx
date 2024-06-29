@@ -12,8 +12,17 @@ export default function TriggerReminder() {
   const callApi = async () => {
     try {
       console.log("This will show up in the browser, as this is done in the frontend.")
-      const response = await fetch('/api/trigger-reminder')
+      const response = await fetch('/api/trigger-reminder', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ nickname: 'HARDCODED FRONTEND NICKNAME' })
+      })
       setStatusCode(response.status)
+
+      const data = await response.json()
+      console.log(`Triggered an email with car nickname: ${data.nickname}`)
     } catch (error) {
       console.error('Error calling API:', error)
     }
