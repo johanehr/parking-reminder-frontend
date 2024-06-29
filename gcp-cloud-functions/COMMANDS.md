@@ -52,7 +52,8 @@ https://console.cloud.google.com/iam-admin/serviceaccounts?project=parking-remin
 To invoke the cloud function, you will need to be authenticated through GCP with a bearer token.
 
 ```
-curl -m 70 -X POST https://europe-west1-parking-reminder-407014.cloudfunctions.net/sendgridEmailScheduledReminder -H "Authorization: bearer $(gcloud auth print-identity-token)" -H "Content-Type: application/json" -d '{ "to_email": "RECIPIENT EMAIL HERE", "to_name": "YOUR NAME HERE"'}
+curl -m 70 -X POST https://europe-west1-parking-reminder-407014.cloudfunctions.net/sendgridEmailScheduledReminder -H "Authorization: bearer $(gcloud auth print-identity-token)" -H "Content-Type: application/json" -d '{ "to_email": "example@gmail.com", "vehi
+cle_nickname": "Volvo", "location": { "name": "Street 123", "lat": 12.3, "lng": 4.56 }, "move_by_timestamp": "2024-06-29T13:52:13Z" }'
 ```
 
 ## Creating Tasks
@@ -62,5 +63,5 @@ A task is used to invoke the cloud function with specific data, either immediate
 ### Using CLI
 
 ```
-gcloud tasks create-http-task --queue=parking-reminder-task-queue --url=https://us-central1-parking-reminder-407014.cloudfunctions.net/sendgridEmailScheduledReminder myCliTaskWithJson --method=POST --header=Content-Type:application/json --body-file=cloudfunctionbody.txt --oidc-service-account-email=cloud-function@parking-reminder-407014.iam.gserviceaccount.com 
+gcloud tasks create-http-task --queue=parking-reminder-task-queue --url=https://europe-west1-parking-reminder-407014.cloudfunctions.net/sendgridEmailScheduledReminder myCliTaskWithJson --method=POST --header=Content-Type:application/json --body-file=cloudfunctionbody.txt --oidc-service-account-email=cloud-function@parking-reminder-407014.iam.gserviceaccount.com 
 ```
