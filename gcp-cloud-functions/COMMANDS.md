@@ -18,7 +18,7 @@ A serverless cloud function is essentially a single endpoint that will perform s
 
 You can run the "serverless" server locally with `npm start` using Functions Framework, which will present the cloud function as a regular endpoint for you to play around with it. Be sure to set the appropriate environment variables beforehand.
 
-Example of a call:
+Example of a call (note that the data being sent is out of date):
 ```
 curl --location 'http://localhost:8080/' \
 --header 'Content-Type: application/json' \
