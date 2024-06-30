@@ -1,16 +1,34 @@
 import type { NextApiRequest, NextApiResponse } from 'next'
 import { CloudTasksClient, protos } from '@google-cloud/tasks'
+import { GoogleAuth } from 'google-auth-library'
 
-const client = new CloudTasksClient()
+// TODO: For the real implementation, use environment variables or user input for these values
+const project = 'parking-reminder-407014'
+const queue = 'parking-reminder-task-queue'
+const location = 'europe-west1'
+const url = 'https://europe-west1-parking-reminder-407014.cloudfunctions.net/sendgridEmailScheduledReminder'
+const inSeconds = 0
+
+const gcpCredentialBase64 = process.env.APPENGINE_BASE64 as string // GOOGLE_CLOUD_CREDENTIALS_BASE64 as string
+const credential = JSON.parse(
+  Buffer.from(gcpCredentialBase64, 'base64').toString().replace(/\n/g,"")
+)
+//console.log(JSON.stringify(credential, null, 2)) // TODO: REMOVE THIS! DISPLAYS SENSITIVE DATA
+
+const client = new CloudTasksClient({
+  auth: new GoogleAuth({
+    projectId: project,
+    scopes: 'https://www.googleapis.com/auth/cloud-platform/', // 'https://www.googleapis.com/auth/tasks',
+    credentials: {
+      client_email: credential.client_email, // 'cloud-function@parking-reminder-407014.iam.gserviceaccount.com',
+      private_key: credential.private_key, //.replace(/\n/g,""), // process.env.GOOGLE_CLOUD_TASKS_SERVICE_ACCOUNT_PRIVATE_KEY_NO_NEWLINE as string
+    }
+  })
+})
 
 // Based on https://cloud.google.com/tasks/docs/creating-http-target-tasks#advanced_task_creation_createtask_method
 async function createHttpTask() {
-  // TODO: For the real implementation, use environment variables or user input for these values
-  const project = 'parking-reminder-407014'
-  const queue = 'parking-reminder-task-queue'
-  const location = 'europe-west1'
-  const url = 'https://europe-west1-parking-reminder-407014.cloudfunctions.net/sendgridEmailScheduledReminder'
-  const inSeconds = 0
+
 
   const parent = client.queuePath(project, location, queue)
 
