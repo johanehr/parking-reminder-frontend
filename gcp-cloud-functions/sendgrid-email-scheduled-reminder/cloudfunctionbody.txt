@@ -1,4 +1,10 @@
 {
-  "to_name": "Johan",
-  "to_email": "luhcforgh@gmail.com"
+    "to_email": "luhcforgh@gmail.com",
+    "vehicle_nickname": "Volvo",
+    "location": {
+        "name": "Storgatan 12",
+        "lat": 59.330741,
+        "lng": 18.032743
+    },
+    "move_by_timestamp": "2024-05-02T16:10:18Z"
 }
