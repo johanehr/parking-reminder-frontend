@@ -1,17 +1,17 @@
-import { NotifDayBefore, UserInput } from "../types";
+import { NotifUnsocialHours, UserInput } from "../types";
 
 
 export const handleToggleChange = (setState: React.Dispatch<React.SetStateAction<any>>, value: boolean, identifier: string) => {
   if (identifier === "notif") {
-    setState((prevState: NotifDayBefore) => ({
+    setState((prevState: NotifUnsocialHours) => ({
       ...prevState,
-      acceptedNotifDayBefore: value,
+      acceptedUnsocialHours: value,
     }));
   } else if (identifier === "terms") {
     console.log("hello terms", value)
     setState((prevState: UserInput) => ({
       ...prevState,
-      acceptTerms: value,
+      acceptedUnsocialHours: value,
     }));
   }
 }

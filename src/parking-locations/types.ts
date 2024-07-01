@@ -69,9 +69,10 @@ export class UserInput {
   ) { }
 }
 
-export class NotifDayBefore {
+export class NotifUnsocialHours {
   constructor(
-    public suggestNotifDayBefore: boolean,
-    public acceptedNotifDayBefore: boolean
+    public suggestUnsocialHours: boolean,
+    public acceptedUnsocialHours: boolean,
+    public dayBefore: boolean | undefined
   ) { }
 }
