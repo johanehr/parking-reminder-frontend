@@ -1,10 +1,12 @@
 import { getAugmentedParkingLocationData } from '@/parking-locations/location-helpers'
 import ParkingMapPolygons from '@/parking-locations/map-visualization'
-import { GoogleMap, useLoadScript } from '@react-google-maps/api'
+import { GoogleMap, Marker, useLoadScript } from '@react-google-maps/api'
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import '../styles/button.css'
 import { AugmentedParkingLocationData } from '@/parking-locations/types'
 import { MapButton } from '@/components/MapButton'
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { faPerson } from '@fortawesome/free-solid-svg-icons';
 
 export function ParkingMap() {
   const [highlightedPath, setHighlightedPath] = useState<google.maps.LatLng[]>([]);
@@ -60,7 +62,7 @@ export function ParkingMap() {
           selectClosestParkingSpot(userLatLong);
         },
         () => {
-          alert("Unable to retrieve your location. Please choose desired parking location manually.");
+          alert("Unable to retrieve your location. Please click desired parking location manually to set reminder.");
           setButtonText("Choose a location manually");
         }
       );
@@ -111,6 +113,24 @@ export function ParkingMap() {
           }
         }}
       >
+        {userLocation && (
+          <Marker
+            position={userLocation}
+            title="Your location is here"
+            icon={{
+              path: faPerson.icon[4] as string,
+              fillColor: "#FF7F3E",
+              fillOpacity: 1,
+              anchor: new google.maps.Point(
+                faPerson.icon[0] / 2, // width
+                faPerson.icon[1] // height
+              ),
+              strokeWeight: 1,
+              strokeColor: "#ffffff",
+              scale: 0.075,
+            }}
+          />
+        )}
         <ParkingMapPolygons
           reminderMode={reminderMode}
           handleSelectParkingSpotForDisplay={handleSelectParkingSpotForDisplay}
@@ -140,7 +160,7 @@ export function ParkingMap() {
         />
       </GoogleMap>
       <div style={{ position: 'absolute', bottom: '10px', left: '10px' }}>
-        <MapButton onClick={handleMapButtonClick} text={buttonText} />
+        {!reminderMode && <MapButton onClick={handleMapButtonClick} text={buttonText} />}
       </div>
     </div>
   )

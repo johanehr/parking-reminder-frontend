@@ -6,5 +6,5 @@ interface IMapButtonProps {
 }
 
 export function MapButton({ text, onClick }: IMapButtonProps) {
-    return <Button className="m-2" variant="outline" onClick={onClick}>{text}</Button>
+    return <Button className="m-2 bg-black text-white" variant="outline" onClick={onClick}>{text}</Button>
 }

@@ -104,7 +104,7 @@ export default function ParkingMapPolygons({ parkingLocations, highlightedPath, 
                       {generateDescriptionText(location.parkingRules)}
                     </div>
                     {reminderMode && <NotificationModal location={location} />}
-                    {!reminderMode && <MapButton onClick={handleMapButtonClick} text={"Active reminder mode"} />}
+                    {!reminderMode && <MapButton onClick={handleMapButtonClick} text={"Activate reminders"} />}
                   </>
                 </InfoWindow>
               )}
