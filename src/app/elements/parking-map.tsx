@@ -122,8 +122,8 @@ export function ParkingMap() {
               fillColor: "#FF7F3E",
               fillOpacity: 1,
               anchor: new google.maps.Point(
-                faPerson.icon[0] / 2, // width
-                faPerson.icon[1] // height
+                faPerson.icon[0] / 2, 
+                faPerson.icon[1] 
               ),
               strokeWeight: 1,
               strokeColor: "#ffffff",

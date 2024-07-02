@@ -1,9 +1,11 @@
-import { InfoWindow, Polygon, useGoogleMap } from '@react-google-maps/api'
+import { InfoWindow, Marker, Polygon, useGoogleMap } from '@react-google-maps/api'
 import { Fragment } from 'react'
 import React from 'react'
 import { AugmentedParkingLocationData, CleaningTime, DayOfWeek, ParkingRules } from './types'
 import NotificationModal from '@/components/NotificationModal';
 import { MapButton } from '@/components/MapButton';
+import { faCar } from '@fortawesome/free-solid-svg-icons';
+
 
 interface ParkingMapPolygonsProps {
   parkingLocations: AugmentedParkingLocationData[];
@@ -72,23 +74,23 @@ export default function ParkingMapPolygons({ parkingLocations, highlightedPath, 
 
           return (
             <React.Fragment key={`${location.name}-fragment`}>
-              <Polygon
-                key={`${location.name}-polygon`}
-                path={location.path}
-                options={{
-                  strokeColor: isHighlighted ? '#89DAFF' : location.color,
-                  strokeOpacity: isHighlighted ? 1.0 : 0.8,
-                  strokeWeight: isHighlighted ? 3 : 1,
-                  fillColor: location.color,
-                  fillOpacity: 0.35,
-                }}
-                onClick={() => {
-                  if (mapRef) {
-                    onPolygonClick(location, mapRef);
-                    handleSelectParkingSpotForDisplay(location);
-                  }
-                }}
-              />
+            <Polygon
+              key={`${location.name}-polygon`}
+              path={location.path}
+              options={{
+                strokeColor: location.color,
+                strokeOpacity: 0.8,
+                strokeWeight: 1,
+                fillColor: location.color,
+                fillOpacity: 0.35,
+              }}
+              onClick={() => {
+                if (mapRef) {
+                  onPolygonClick(location, mapRef);
+                  handleSelectParkingSpotForDisplay(location);
+                }
+              }}
+            />
 
               {selectedParkingForDisplay?.name === location.name && (
                 <InfoWindow
@@ -107,6 +109,24 @@ export default function ParkingMapPolygons({ parkingLocations, highlightedPath, 
                     {!reminderMode && <MapButton onClick={handleMapButtonClick} text={"Activate reminders"} />}
                   </>
                 </InfoWindow>
+              )}
+
+              {isHighlighted && (
+                <Marker
+                  position={center}
+                  icon={{
+                    path: faCar.icon[4] as string,
+                    fillColor: "#FF7F3E",
+                    fillOpacity: 1,
+                    anchor: new google.maps.Point(
+                      faCar.icon[0] / 2, 
+                      faCar.icon[1] 
+                    ),
+                    strokeWeight: 1,
+                    strokeColor: "#ffffff",
+                    scale: 0.06,
+                  }}
+                />
               )}
             </React.Fragment>
           )
