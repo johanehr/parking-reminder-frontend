@@ -56,17 +56,31 @@ export default function NotificationModal({ location }: INotificationModalProps)
      console.log(res.data) */
   };
 
-
-  const calculateNotifUnsocialHours = () => {
-
-
-    if (notifUnsocHours.acceptedUnsocialHours && userInput.notificationDate) {
+  const calculateSameDayOrDayBefore = () => {
+    if (userInput.notificationDate) {
       if (userInput.notificationDate.hour >= 0 && userInput.notificationDate.hour <= 6) {
-        //seperating this logic in order to then update UI accordingly. 
         setNotifUnsocHours((prev) => ({ ...prev, dayBefore: true }))
       } else if (userInput.notificationDate.hour >= 22) {
         setNotifUnsocHours((prev) => ({ ...prev, dayBefore: false }))
       }
+    }
+  }
+
+  const resetNotificationSettings = () => {
+    setNotifUnsocHours(new NotifUnsocialHours(false, false, undefined));
+    setUserInput(new UserInput(
+      "",
+      "",
+      false,
+      location.nextCleaningTime
+    ));
+    setNotificationBuffer(1440); 
+    setErrors([]);
+    setIsCleaningOngoing(false);
+  };
+
+  const calculateNotifUnsocialHours = () => {
+    if (notifUnsocHours.acceptedUnsocialHours && userInput.notificationDate) {
       if (notifUnsocHours.dayBefore) {
         let cleaningTimeDayBefore = userInput.notificationDate.minus({ days: 1 }).set({ hour: 20, minute: 0, second: 0, millisecond: 0 });
         setUserInput((prev) => ({ ...prev, notificationDate: cleaningTimeDayBefore }))
@@ -80,7 +94,13 @@ export default function NotificationModal({ location }: INotificationModalProps)
     }
   }
 
-  useEffect(() => { calculateNotifUnsocialHours() }, [notifUnsocHours.acceptedUnsocialHours])
+  useEffect(() => {calculateNotifUnsocialHours()},[notifUnsocHours.acceptedUnsocialHours])
+
+  useEffect(() => {
+    calculateSameDayOrDayBefore();
+  }, [notificationBuffer, userInput.notificationDate]);
+
+
 
   useEffect(() => {
     if (location.nextCleaningTime) {
@@ -149,7 +169,12 @@ export default function NotificationModal({ location }: INotificationModalProps)
                 {!notifUnsocHours.acceptedUnsocialHours &&
                   <>
                     <Label htmlFor="notification-time">Notification Time</Label>
-                    <Select name="notification-time" defaultValue="1440" onValueChange={(e) => handleSelectionChange(e, setNotificationBuffer)}>
+                    <Select name="notification-time" defaultValue="1440" onValueChange={
+                      (e) => {
+                        calculateSameDayOrDayBefore()
+                        handleSelectionChange(e, setNotificationBuffer)
+                      }
+                    }>
                       <SelectTrigger className="w-full">
                         <SelectValue placeholder="Select time" />
                       </SelectTrigger>
@@ -158,7 +183,7 @@ export default function NotificationModal({ location }: INotificationModalProps)
                         <SelectItem value="180">3 hours before</SelectItem>
                         <SelectItem value="720">12 hours before</SelectItem>
                         <SelectItem value="1440">24 hours before</SelectItem>
-                        <SelectItem value="2000">idk hours before</SelectItem>
+                        <SelectItem value="2000">day before test hours before</SelectItem>
 
                         <SelectItem value="2880">48 hours before</SelectItem>
                       </SelectContent>
@@ -168,7 +193,7 @@ export default function NotificationModal({ location }: INotificationModalProps)
                 {notifUnsocHours.suggestUnsocialHours && (
                   <div className="flex space-x-2 items-center">
                     {!notifUnsocHours.acceptedUnsocialHours &&
-                      <><p className="text-xs my-2">Your requested notification time lands during unsociable hours, on the <span className="font-bold">{userInput.notificationDate?.toLocaleString(DateTime.DATETIME_MED)}</span>, shall we notify you at 20:00 instead on the {notifUnsocHours.dayBefore ? "day before" : "same day"}?</p>
+                      <><div className="text-xs my-2">Your requested notification time lands during unsociable hours, on the <span className="font-bold">{userInput.notificationDate?.toLocaleString(DateTime.DATETIME_MED)}</span>, shall we notify you at 20:00 instead on the {notifUnsocHours.dayBefore ? "day before" : "same day"}?</div>
                         <Switch
                           id="unsocialHours"
                           defaultChecked={notifUnsocHours.acceptedUnsocialHours}
@@ -190,15 +215,13 @@ export default function NotificationModal({ location }: INotificationModalProps)
                     Cleaning is currently ongoing at the chosen location. A notification cannot be set at this time.
                   </AlertDescription>
                 </Alert> :
-                <DialogDescription className="mx-2">You will recieve {!notifUnsocHours.acceptedUnsocialHours && "your notification"}
+                <DialogDescription className="mx-2">You will recieve {!notifUnsocHours.acceptedUnsocialHours && "your notification "}
                   {notifUnsocHours.acceptedUnsocialHours && !notifUnsocHours.dayBefore && <><span className="text-red-600 font-bold"> an early</span> <span> notification </span></>}
                   {notifUnsocHours.acceptedUnsocialHours && notifUnsocHours.dayBefore && <span> a notification, the <span className="text-red-600 font-bold">day before </span></span>}
 
-                  on:<br /> <div className="flex items-center justify-content"><span className="text-black">{userInput.notificationDate?.toLocaleString(DateTime.DATETIME_MED)}</span>
+                   on:<br /> <div className="flex items-center justify-content"><span className="text-black">{userInput.notificationDate?.toLocaleString(DateTime.DATETIME_MED)}</span>
                     {notifUnsocHours.acceptedUnsocialHours &&
-                      <Button onClick={() => {
-                        setNotifUnsocHours((prev) => ({ ...prev, acceptedUnsocialHours: false }))
-                      }} variant={"outline"} className="text-red-600 ml-auto">
+                      <Button onClick={resetNotificationSettings} variant={"outline"} className="text-red-600 ml-auto">
                         Reset
                       </Button>
                     }
@@ -207,7 +230,7 @@ export default function NotificationModal({ location }: INotificationModalProps)
               }
             </div>
             <DialogFooter className="flex items-center justify-content ">
-              <h4 className="text-xs mr-auto">By continuing you are accepting the <br /><Link>terms and conditions</Link></h4>
+              <h4 className="text-xs mr-auto">By continuing you are accepting the <br /><a className= "text-blue-500" href="/">terms and conditions</a></h4>
               <Button disabled={isCleaningOngoing} type="submit">Set Reminder</Button>
             </DialogFooter>
           </div>
