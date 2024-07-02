@@ -12,7 +12,7 @@ export function ParkingMap() {
   const [highlightedPath, setHighlightedPath] = useState<google.maps.LatLng[]>([]);
   const [userLocation, setUserLocation] = useState<google.maps.LatLng | null>(null);
   const [focusedLocation, setFocusedLocation] = useState<google.maps.LatLng | null>(null);
-  const [buttonText, setButtonText] = useState("Set a Reminder")
+  const [buttonText, setButtonText] = useState("Activate reminders")
   const mapRef = useRef<google.maps.Map | null>(null);
   const [selectedParkingForDisplay, setSelectedParkingForDisplay] = useState<AugmentedParkingLocationData | null>(null)
   const [reminderMode, setReminderMode] = useState(false)
