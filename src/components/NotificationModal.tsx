@@ -15,8 +15,6 @@ import { formSchema } from "@/models/formSchema"
 import { Alert, AlertDescription, AlertTitle } from "./ui/alert"
 import { Link } from "lucide-react"
 
-//TODO identify and fix bug where "day before" and "early" notifs get mixed. Suspect synchronicity issue with state update.
-
 interface INotificationModalProps {
   location: AugmentedParkingLocationData
 }
