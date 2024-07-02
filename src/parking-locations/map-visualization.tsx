@@ -3,6 +3,7 @@ import { Fragment } from 'react'
 import React from 'react'
 import { AugmentedParkingLocationData, CleaningTime, DayOfWeek, ParkingRules } from './types'
 import NotificationModal from '@/components/NotificationModal';
+import { MapButton } from '@/components/MapButton';
 
 interface ParkingMapPolygonsProps {
   parkingLocations: AugmentedParkingLocationData[];
@@ -11,6 +12,7 @@ interface ParkingMapPolygonsProps {
   handleSelectParkingSpotForDisplay: (location: AugmentedParkingLocationData | null) => void;
   selectedParkingForDisplay: AugmentedParkingLocationData | null;
   reminderMode: boolean
+  handleMapButtonClick: () => void;
 }
 
 
@@ -47,7 +49,7 @@ const generateDescriptionText = (rules: ParkingRules) => {
   )
 }
 
-export default function ParkingMapPolygons({ parkingLocations, highlightedPath, onPolygonClick, handleSelectParkingSpotForDisplay, selectedParkingForDisplay, reminderMode }: ParkingMapPolygonsProps) {
+export default function ParkingMapPolygons({ parkingLocations, highlightedPath, onPolygonClick, handleSelectParkingSpotForDisplay, selectedParkingForDisplay, reminderMode, handleMapButtonClick }: ParkingMapPolygonsProps) {
   const mapRef = useGoogleMap()
 
   return (
@@ -102,6 +104,7 @@ export default function ParkingMapPolygons({ parkingLocations, highlightedPath, 
                       {generateDescriptionText(location.parkingRules)}
                     </div>
                     {reminderMode && <NotificationModal location={location} />}
+                    {!reminderMode && <MapButton onClick={handleMapButtonClick} text={"Active reminder mode"} />}
                   </>
                 </InfoWindow>
               )}

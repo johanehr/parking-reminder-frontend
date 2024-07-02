@@ -117,6 +117,7 @@ export function ParkingMap() {
           selectedParkingForDisplay={selectedParkingForDisplay}
           parkingLocations={parkingLocations}
           highlightedPath={highlightedPath}
+          handleMapButtonClick={handleMapButtonClick}
           onPolygonClick={(location, mapRef) => {
             const googleMaps = window.google.maps;
             const path = location.path.map(point => new googleMaps.LatLng(point.lat, point.lng));
