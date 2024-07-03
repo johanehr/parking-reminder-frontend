@@ -8,7 +8,7 @@ import { useEffect, useState } from "react"
 import { DateTime } from "luxon"
 import { Switch } from "./ui/switch"
 import { calculateReminderDate } from "@/parking-locations/helper-functions/calculateReminderDate"
-import { handleChange, handleSelectionChange, handleToggleChange } from "@/parking-locations/helper-functions/formHelpers"
+import { handleChange, handleSelectionChange } from "@/parking-locations/helper-functions/formHelpers"
 import { z } from 'zod';
 import axios from 'axios';
 import { formSchema } from "@/models/formSchema"
@@ -72,7 +72,7 @@ export default function NotificationModal({ location }: INotificationModalProps)
       false,
       location.nextCleaningTime
     ));
-    setNotificationBuffer(1440); 
+    setNotificationBuffer(1440);
     setErrors([]);
     setIsCleaningOngoing(false);
   };
@@ -92,7 +92,7 @@ export default function NotificationModal({ location }: INotificationModalProps)
     }
   }
 
-  useEffect(() => {calculateNotifUnsocialHours()},[notifUnsocHours.acceptedUnsocialHours])
+  useEffect(() => { calculateNotifUnsocialHours() }, [notifUnsocHours.acceptedUnsocialHours])
 
   useEffect(() => {
     calculateSameDayOrDayBefore();
@@ -140,7 +140,7 @@ export default function NotificationModal({ location }: INotificationModalProps)
   return (
     <Dialog>
       <DialogTrigger asChild>
-        <Button variant="outline">Set reminder</Button>
+        <Button className= "m-2" variant="outline">Set reminder</Button>
       </DialogTrigger>
       <DialogContent className="sm:max-w-[500px]">
         <form onSubmit={handleSubmit}>
@@ -192,13 +192,14 @@ export default function NotificationModal({ location }: INotificationModalProps)
                   <div className="flex space-x-2 items-center">
                     {!notifUnsocHours.acceptedUnsocialHours &&
                       <><div className="text-xs my-2">Your requested notification time lands during unsociable hours, on the <span className="font-bold">{userInput.notificationDate?.toLocaleString(DateTime.DATETIME_MED)}</span>, shall we notify you at <span className="font-bold">20:00</span> instead on the {notifUnsocHours.dayBefore ? "day before" : "same day"}?</div>
-                        <Switch
+                        <Button
                           id="unsocialHours"
-                          defaultChecked={notifUnsocHours.acceptedUnsocialHours}
-                          onCheckedChange={(e: boolean) => handleToggleChange(setNotifUnsocHours, e, "notif")}
-                        />
-
-                        <Label htmlFor="termsToggle">Accept {notifUnsocHours.dayBefore ? "reminder on the day before" : "early reminder"}</Label>
+                          onClick={() => {
+                            setNotifUnsocHours(prev => ({ ...prev, acceptedUnsocialHours: true }))
+                          }}
+                        >
+                          Accept {notifUnsocHours.dayBefore ? "reminder day before" : "20:00 reminder"}
+                        </Button>
                       </>
                     }
                   </div>
@@ -214,17 +215,17 @@ export default function NotificationModal({ location }: INotificationModalProps)
                   </AlertDescription>
                 </Alert> :
                 <DialogDescription className="mx-2">You will recieve your notification on:<br /> <div className="flex items-center justify-content"><span className="text-black">{userInput.notificationDate?.toLocaleString(DateTime.DATETIME_MED)}</span>
-                    {notifUnsocHours.acceptedUnsocialHours &&
-                      <Button onClick={resetNotificationSettings} variant={"outline"} className="text-red-600 ml-auto">
-                        Reset
-                      </Button>
-                    }
-                  </div>
+                  {notifUnsocHours.acceptedUnsocialHours &&
+                    <Button onClick={resetNotificationSettings} variant={"outline"} className="text-red-600 ml-auto">
+                      Reset
+                    </Button>
+                  }
+                </div>
                 </DialogDescription>
               }
             </div>
             <DialogFooter className="flex items-center justify-content ">
-              <h4 className="text-xs mr-auto">By continuing you are accepting the <br /><a className= "text-blue-500" href="/">terms and conditions</a></h4>
+              <h4 className="text-xs mr-auto">By continuing you are accepting the <br /><a className="text-blue-500" href="/">terms and conditions</a></h4>
               <Button className="mb-4" disabled={isCleaningOngoing} type="submit">Set Reminder</Button>
             </DialogFooter>
           </div>

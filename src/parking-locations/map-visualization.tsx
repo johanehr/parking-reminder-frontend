@@ -4,7 +4,8 @@ import React from 'react'
 import { AugmentedParkingLocationData, CleaningTime, DayOfWeek, ParkingRules } from './types'
 import NotificationModal from '@/components/NotificationModal';
 import { MapButton } from '@/components/MapButton';
-import { faCar } from '@fortawesome/free-solid-svg-icons';
+import { faLocationPin } from '@fortawesome/free-solid-svg-icons';
+
 
 
 interface ParkingMapPolygonsProps {
@@ -13,7 +14,6 @@ interface ParkingMapPolygonsProps {
   onPolygonClick: (location: AugmentedParkingLocationData, mapRef: google.maps.Map) => void;
   handleSelectParkingSpotForDisplay: (location: AugmentedParkingLocationData | null) => void;
   selectedParkingForDisplay: AugmentedParkingLocationData | null;
-  reminderMode: boolean
   handleMapButtonClick: () => void;
 }
 
@@ -51,7 +51,7 @@ const generateDescriptionText = (rules: ParkingRules) => {
   )
 }
 
-export default function ParkingMapPolygons({ parkingLocations, highlightedPath, onPolygonClick, handleSelectParkingSpotForDisplay, selectedParkingForDisplay, reminderMode, handleMapButtonClick }: ParkingMapPolygonsProps) {
+export default function ParkingMapPolygons({ parkingLocations, highlightedPath, onPolygonClick, handleSelectParkingSpotForDisplay, selectedParkingForDisplay, handleMapButtonClick }: ParkingMapPolygonsProps) {
   const mapRef = useGoogleMap()
 
   return (
@@ -105,8 +105,7 @@ export default function ParkingMapPolygons({ parkingLocations, highlightedPath, 
                       </h1>
                       {generateDescriptionText(location.parkingRules)}
                     </div>
-                    {reminderMode && <NotificationModal location={location} />}
-                    {!reminderMode && <MapButton onClick={handleMapButtonClick} text={"Activate reminders"} />}
+                    <NotificationModal location={location} />
                   </>
                 </InfoWindow>
               )}
@@ -115,12 +114,12 @@ export default function ParkingMapPolygons({ parkingLocations, highlightedPath, 
                 <Marker
                   position={center}
                   icon={{
-                    path: faCar.icon[4] as string,
-                    fillColor: "#FF7F3E",
+                    path: faLocationPin.icon[4] as string,
+                    fillColor: "#4285F4",
                     fillOpacity: 1,
                     anchor: new google.maps.Point(
-                      faCar.icon[0] / 2, 
-                      faCar.icon[1] 
+                      faLocationPin.icon[0] / 2, 
+                      faLocationPin.icon[1] 
                     ),
                     strokeWeight: 1,
                     strokeColor: "#ffffff",
