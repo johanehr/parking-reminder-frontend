@@ -1,6 +1,6 @@
 import { getAugmentedParkingLocationData } from '@/parking-locations/location-helpers'
 import ParkingMapPolygons from '@/parking-locations/map-visualization'
-import { GoogleMap, Marker, useLoadScript } from '@react-google-maps/api'
+import { Circle, GoogleMap, Marker, useLoadScript } from '@react-google-maps/api'
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import '../styles/button.css'
 import { AugmentedParkingLocationData } from '@/parking-locations/types'
@@ -11,11 +11,11 @@ import { faPerson } from '@fortawesome/free-solid-svg-icons';
 export function ParkingMap() {
   const [highlightedPath, setHighlightedPath] = useState<google.maps.LatLng[]>([]);
   const [userLocation, setUserLocation] = useState<google.maps.LatLng | null>(null);
+  const [userLocationAccuracy, setUserLocationAccuracy] = useState<number | null>(null);
   const [focusedLocation, setFocusedLocation] = useState<google.maps.LatLng | null>(null);
-  const [buttonText, setButtonText] = useState("Activate reminders")
+  const [buttonText, setButtonText] = useState("Find nearest spot")
   const mapRef = useRef<google.maps.Map | null>(null);
   const [selectedParkingForDisplay, setSelectedParkingForDisplay] = useState<AugmentedParkingLocationData | null>(null)
-  const [reminderMode, setReminderMode] = useState(false)
 
 
 
@@ -52,7 +52,6 @@ export function ParkingMap() {
   }, []);
 
   const handleMapButtonClick = useCallback(() => {
-    setReminderMode(true)
     if (navigator.geolocation) {
       navigator.geolocation.getCurrentPosition(
         position => {
@@ -113,26 +112,36 @@ export function ParkingMap() {
           }
         }}
       >
-        {userLocation && (
-          <Marker
-            position={userLocation}
-            title="Your location is here"
-            icon={{
-              path: faPerson.icon[4] as string,
-              fillColor: "#FF7F3E",
-              fillOpacity: 1,
-              anchor: new google.maps.Point(
-                faPerson.icon[0] / 2, 
-                faPerson.icon[1] 
-              ),
-              strokeWeight: 1,
-              strokeColor: "#ffffff",
-              scale: 0.075,
-            }}
-          />
+      {userLocation && (
+          <>
+            <Marker
+              position={userLocation}
+              title="Your location is here"
+              icon={{
+                path: google.maps.SymbolPath.CIRCLE,
+                scale: 8,
+                fillColor: '#4285F4',
+                fillOpacity: 1,
+                strokeColor: 'white',
+                strokeWeight: 2,
+              }}
+            />
+            {userLocationAccuracy && (
+              <Circle
+                center={userLocation}
+                radius={userLocationAccuracy}
+                options={{
+                  fillColor: '#4285F4',
+                  fillOpacity: 0.2,
+                  strokeColor: '#4285F4',
+                  strokeOpacity: 0.4,
+                  strokeWeight: 1,
+                }}
+              />
+            )}
+          </>
         )}
         <ParkingMapPolygons
-          reminderMode={reminderMode}
           handleSelectParkingSpotForDisplay={handleSelectParkingSpotForDisplay}
           selectedParkingForDisplay={selectedParkingForDisplay}
           parkingLocations={parkingLocations}
@@ -160,7 +169,7 @@ export function ParkingMap() {
         />
       </GoogleMap>
       <div style={{ position: 'absolute', bottom: '10px', left: '10px' }}>
-        {!reminderMode && <MapButton onClick={handleMapButtonClick} text={buttonText} />}
+        <MapButton onClick={handleMapButtonClick} text={buttonText} />
       </div>
     </div>
   )

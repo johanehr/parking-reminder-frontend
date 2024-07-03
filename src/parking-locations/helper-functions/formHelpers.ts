@@ -1,21 +1,5 @@
 import { NotifUnsocialHours, UserInput } from "../types";
 
-
-export const handleToggleChange = (setState: React.Dispatch<React.SetStateAction<any>>, value: boolean, identifier: string) => {
-  if (identifier === "notif") {
-    setState((prevState: NotifUnsocialHours) => ({
-      ...prevState,
-      acceptedUnsocialHours: value,
-    }));
-  } else if (identifier === "terms") {
-    console.log("hello terms", value)
-    setState((prevState: UserInput) => ({
-      ...prevState,
-      acceptedUnsocialHours: value,
-    }));
-  }
-}
-
 export const handleSelectionChange = (value: string, setState: React.Dispatch<React.SetStateAction<number>>) => {
   setState(parseInt(value)); //currently only using for number selection, refactor if more generalised is needed.
 };
