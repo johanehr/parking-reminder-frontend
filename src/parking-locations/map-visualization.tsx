@@ -3,18 +3,14 @@ import { Fragment } from 'react'
 import React from 'react'
 import { AugmentedParkingLocationData, CleaningTime, DayOfWeek, ParkingRules } from './types'
 import NotificationModal from '@/components/NotificationModal';
-import { MapButton } from '@/components/MapButton';
-import { faLocationPin } from '@fortawesome/free-solid-svg-icons';
 
 
 
 interface ParkingMapPolygonsProps {
   parkingLocations: AugmentedParkingLocationData[];
-  highlightedPath: google.maps.LatLng[];
   onPolygonClick: (location: AugmentedParkingLocationData, mapRef: google.maps.Map) => void;
   handleSelectParkingSpotForDisplay: (location: AugmentedParkingLocationData | null) => void;
   selectedParkingForDisplay: AugmentedParkingLocationData | null;
-  handleMapButtonClick: () => void;
 }
 
 
@@ -51,7 +47,7 @@ const generateDescriptionText = (rules: ParkingRules) => {
   )
 }
 
-export default function ParkingMapPolygons({ parkingLocations, highlightedPath, onPolygonClick, handleSelectParkingSpotForDisplay, selectedParkingForDisplay, handleMapButtonClick }: ParkingMapPolygonsProps) {
+export default function ParkingMapPolygons({ parkingLocations, onPolygonClick, handleSelectParkingSpotForDisplay, selectedParkingForDisplay }: ParkingMapPolygonsProps) {
   const mapRef = useGoogleMap()
 
   return (
@@ -67,9 +63,6 @@ export default function ParkingMapPolygons({ parkingLocations, highlightedPath, 
           const midLng = (maxLng + minLng) / 2
 
           const center = new google.maps.LatLng(midLat, midLng)
-          const isHighlighted = highlightedPath.length > 0 && highlightedPath.every(
-            (point, index) => point.lat() === location.path[index].lat && point.lng() === location.path[index].lng
-          );
 
 
           return (
@@ -108,24 +101,6 @@ export default function ParkingMapPolygons({ parkingLocations, highlightedPath, 
                     <NotificationModal location={location} />
                   </>
                 </InfoWindow>
-              )}
-
-              {isHighlighted && (
-                <Marker
-                  position={center}
-                  icon={{
-                    path: faLocationPin.icon[4] as string,
-                    fillColor: "#4285F4",
-                    fillOpacity: 1,
-                    anchor: new google.maps.Point(
-                      faLocationPin.icon[0] / 2, 
-                      faLocationPin.icon[1] 
-                    ),
-                    strokeWeight: 1,
-                    strokeColor: "#ffffff",
-                    scale: 0.06,
-                  }}
-                />
               )}
             </React.Fragment>
           )
