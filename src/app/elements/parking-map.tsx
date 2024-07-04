@@ -5,15 +5,11 @@ import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import '../styles/button.css'
 import { AugmentedParkingLocationData } from '@/parking-locations/types'
 import { MapButton } from '@/components/MapButton'
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faPerson } from '@fortawesome/free-solid-svg-icons';
 
 export function ParkingMap() {
-  const [highlightedPath, setHighlightedPath] = useState<google.maps.LatLng[]>([]);
   const [userLocation, setUserLocation] = useState<google.maps.LatLng | null>(null);
   const [userLocationAccuracy, setUserLocationAccuracy] = useState<number | null>(null);
   const [focusedLocation, setFocusedLocation] = useState<google.maps.LatLng | null>(null);
-  const [buttonText, setButtonText] = useState("Find nearest spot")
   const mapRef = useRef<google.maps.Map | null>(null);
   const [selectedParkingForDisplay, setSelectedParkingForDisplay] = useState<AugmentedParkingLocationData | null>(null)
 
@@ -46,23 +42,20 @@ export function ParkingMap() {
 
     if (closestSpot) {
       const path = closestSpot.path.map(point => new google.maps.LatLng(point.lat, point.lng));
-      setHighlightedPath(path);
       setSelectedParkingForDisplay(closestSpot)
     }
   }, []);
 
-  const handleMapButtonClick = useCallback(() => {
+  const getUserLocation = useCallback(() => {
     if (navigator.geolocation) {
       navigator.geolocation.getCurrentPosition(
         position => {
           const userLatLong = new google.maps.LatLng(position.coords.latitude, position.coords.longitude);
           setUserLocation(userLatLong);
-          setButtonText("Choose a different location");
           selectClosestParkingSpot(userLatLong);
         },
         () => {
           alert("Unable to retrieve your location. Please click desired parking location manually to set reminder.");
-          setButtonText("Choose a location manually");
         }
       );
     } else {
@@ -73,6 +66,8 @@ export function ParkingMap() {
   const handleSelectParkingSpotForDisplay = (location: AugmentedParkingLocationData | null) => {
     setSelectedParkingForDisplay(location)
   }
+
+  useEffect(() => { getUserLocation() }, [])
 
 
   useEffect(() => {
@@ -112,7 +107,7 @@ export function ParkingMap() {
           }
         }}
       >
-      {userLocation && (
+        {userLocation && (
           <>
             <Marker
               position={userLocation}
@@ -145,12 +140,9 @@ export function ParkingMap() {
           handleSelectParkingSpotForDisplay={handleSelectParkingSpotForDisplay}
           selectedParkingForDisplay={selectedParkingForDisplay}
           parkingLocations={parkingLocations}
-          highlightedPath={highlightedPath}
-          handleMapButtonClick={handleMapButtonClick}
           onPolygonClick={(location, mapRef) => {
             const googleMaps = window.google.maps;
             const path = location.path.map(point => new googleMaps.LatLng(point.lat, point.lng));
-            setHighlightedPath(path);
             if (mapRef) {
               const maxLat = Math.max(...location.path.map(point => point.lat));
               const minLat = Math.min(...location.path.map(point => point.lat));
@@ -169,7 +161,7 @@ export function ParkingMap() {
         />
       </GoogleMap>
       <div style={{ position: 'absolute', bottom: '10px', left: '10px' }}>
-        <MapButton onClick={handleMapButtonClick} text={buttonText} />
+        {userLocation && <MapButton onClick={() => selectClosestParkingSpot(userLocation)} text={"Open nearest spot"} />}
       </div>
     </div>
   )
