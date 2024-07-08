@@ -5,13 +5,11 @@ import 'tailwindcss/tailwind.css'
 import Header from '../elements/header'
 import { useState } from 'react'
 
-
 export default function TriggerReminder() {
 
   const [statusCode, setStatusCode] = useState<number | null>(null)
   const callApi = async () => {
     try {
-      console.log("This will show up in the browser, as this is done in the frontend.")
       const response = await fetch('/api/trigger-reminder', {
         method: 'POST',
         headers: {
