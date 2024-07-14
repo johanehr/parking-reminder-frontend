@@ -6,14 +6,13 @@ import { Select, SelectTrigger, SelectValue, SelectContent, SelectItem } from "@
 import { AugmentedParkingLocationData, NotifUnsocialHours, UserInput } from "@/parking-locations/types"
 import { useEffect, useState } from "react"
 import { DateTime } from "luxon"
-import { Switch } from "./ui/switch"
 import { calculateReminderDate } from "@/parking-locations/helper-functions/calculateReminderDate"
 import { handleChange, handleSelectionChange } from "@/parking-locations/helper-functions/formHelpers"
 import { z } from 'zod';
-import axios from 'axios';
 import { formSchema } from "@/models/formSchema"
 import { Alert, AlertDescription, AlertTitle } from "./ui/alert"
 import { Link } from "lucide-react"
+import NicknameModal from "./NicknameModal"
 
 interface INotificationModalProps {
   location: AugmentedParkingLocationData
@@ -24,8 +23,7 @@ export default function NotificationModal({ location }: INotificationModalProps)
   const [notifUnsocHours, setNotifUnsocHours] = useState(new NotifUnsocialHours(false, false, undefined))
   const [userInput, setUserInput] = useState(new UserInput(
     "",
-    "",
-    false,
+    "My car",
     location.nextCleaningTime
   ))
   const [errors, setErrors] = useState<z.ZodIssue[]>([]);
@@ -37,7 +35,6 @@ export default function NotificationModal({ location }: INotificationModalProps)
     const data = {
       email: userInput.email,
       carNickname: userInput.carNickname,
-      acceptTerms: userInput.acceptTerms,
       notificationDate: userInput.notificationDate?.toISO(),
     };
 
@@ -45,11 +42,11 @@ export default function NotificationModal({ location }: INotificationModalProps)
     if (!zodResult.success) {
       setErrors(zodResult.error.issues);
       console.log(errors)
-
       return;
     }
 
     setErrors([]);
+    console.log(data, "here is the data for backend >>>>>>")
     /*  const res = await axios.post('https://your-gcp-backend-url/api/submitForm', { data });
      console.log(res.data) */
   };
@@ -69,7 +66,6 @@ export default function NotificationModal({ location }: INotificationModalProps)
     setUserInput(new UserInput(
       "",
       "",
-      false,
       location.nextCleaningTime
     ));
     setNotificationBuffer(1440);
@@ -140,7 +136,7 @@ export default function NotificationModal({ location }: INotificationModalProps)
   return (
     <Dialog>
       <DialogTrigger asChild>
-        <Button className= "m-2" variant="outline">Set reminder</Button>
+        <Button className="m-2" variant="outline">Set reminder</Button>
       </DialogTrigger>
       <DialogContent className="sm:max-w-[500px]">
         <form onSubmit={handleSubmit}>
@@ -159,8 +155,8 @@ export default function NotificationModal({ location }: INotificationModalProps)
                 {errors.find(error => error.path.includes('email')) && <p className="text-xs text-red-500">{getErrorMessage('email')}</p>}
               </div>
               <div className="grid gap-2">
-                <Label htmlFor="car-nickname">Car Nickname</Label>
-                <Input onChange={(e) => handleChange(e, setUserInput, userInput)} name="carNickname" id="car-nickname" placeholder="Enter car nickname" />
+                <Label htmlFor="car-nickname">Car Nickname (optional)<NicknameModal /></Label>
+                <Input onChange={(e) => handleChange(e, setUserInput, userInput)} name="carNickname" id="car-nickname" value={userInput.carNickname} placeholder="Enter car nickname" />
                 {errors.find(error => error.path.includes('carNickname')) && <p className="text-xs text-red-500">{getErrorMessage('carNickname')}</p>}
               </div>
               <div className="grid gap-2">
@@ -181,24 +177,23 @@ export default function NotificationModal({ location }: INotificationModalProps)
                         <SelectItem value="180">3 hours before</SelectItem>
                         <SelectItem value="720">12 hours before</SelectItem>
                         <SelectItem value="1440">24 hours before</SelectItem>
-                        <SelectItem value="2000">day before test hours before</SelectItem>
-
                         <SelectItem value="2880">48 hours before</SelectItem>
                       </SelectContent>
                     </Select>
                   </>
                 }
                 {notifUnsocHours.suggestUnsocialHours && (
-                  <div className="flex space-x-2 items-center">
+                  <div className={`flex space-x-2 items-center ${!notifUnsocHours.acceptedUnsocialHours ? 'bg-red-100 p-2 rounded-sm' : ''}`}>
                     {!notifUnsocHours.acceptedUnsocialHours &&
                       <><div className="text-xs my-2">Your requested notification time lands during unsociable hours, on the <span className="font-bold">{userInput.notificationDate?.toLocaleString(DateTime.DATETIME_MED)}</span>, shall we notify you at <span className="font-bold">20:00</span> instead on the {notifUnsocHours.dayBefore ? "day before" : "same day"}?</div>
                         <Button
+
                           id="unsocialHours"
                           onClick={() => {
                             setNotifUnsocHours(prev => ({ ...prev, acceptedUnsocialHours: true }))
                           }}
                         >
-                          Accept {notifUnsocHours.dayBefore ? "reminder day before" : "20:00 reminder"}
+                          Sure!
                         </Button>
                       </>
                     }

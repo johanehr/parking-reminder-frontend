@@ -64,7 +64,6 @@ export class UserInput {
   constructor(
     public email: string,
     public carNickname: string,
-    public acceptTerms: boolean,
     public notificationDate: DateTime | null,
   ) { }
 }
