@@ -6,7 +6,7 @@ export default function Header() {
         className="border-b lg:static border p-4"
         href="./"
       >
-        Boendeparkering i Bergshamra
+        Residential Parking in Bergshamra
       </a>
       <a
         className="sm:ml-auto lg:pointer-events-auto pointer-events-none"
@@ -14,7 +14,7 @@ export default function Header() {
         target="_blank"
         rel="author"
       >
-        Skapad av Johan & Francis
+        Created by Johan & Francis
       </a>
     </div>
   )

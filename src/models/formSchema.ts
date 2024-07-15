@@ -1,4 +1,4 @@
-import { z } from 'zod';
+import { z } from 'zod'
 
 export const formSchema = z.object({
   email: z.string().email(),
@@ -7,8 +7,8 @@ export const formSchema = z.object({
     message: "Please accept the terms to continue with setting a notification",
   }),
   notificationDate: z.string().refine((date) => {
-    return !isNaN(Date.parse(date));
+    return !isNaN(Date.parse(date))
   }, {
     message: "Invalid date format",
   }),
-});
+})
