@@ -5,12 +5,14 @@ import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import '../styles/button.css'
 import { AugmentedParkingLocationData } from '@/parking-locations/types'
 import { MapButton } from '@/components/MapButton'
-import { calculateDistance, filterLocationsByGeohash, geohashPrecision, getUserGeohashAndNeighbors, mapLocationsToDistances, sortByDistance } from '@/parking-locations/helper-functions/geoHashHelpers'
+import { filterLocationsByGeohash, geohashPrecision, getUserGeohashAndNeighbors, mapLocationsToDistances, sortByDistance } from '@/parking-locations/helper-functions/geoHashHelpers'
+import { userLocationCircleOptions, getUserLocationIcon } from '@/components/MapIcons'
 
 export function ParkingMap() {
   const [userLocation, setUserLocation] = useState<google.maps.LatLng | null>(null)
   const [userLocationAccuracy, setUserLocationAccuracy] = useState<number | null>(null)
   const [focusedLocation, setFocusedLocation] = useState<google.maps.LatLng | null>(null)
+  const [userLocationIcon, setUserLocationIcon] = useState<google.maps.Symbol | null>(null);
   const mapRef = useRef<google.maps.Map | null>(null)
   const [selectedParkingForDisplay, setSelectedParkingForDisplay] = useState<AugmentedParkingLocationData | null>(null)
 
@@ -25,12 +27,12 @@ export function ParkingMap() {
   const selectClosestParkingSpot = useCallback((userLatLong: google.maps.LatLng) => {
     const parkingLocations = getAugmentedParkingLocationData();
     const userGeohashAndNeighbors = getUserGeohashAndNeighbors(userLatLong, geohashPrecision);
-    const filteredLocations = filterLocationsByGeohash(userGeohashAndNeighbors, parkingLocations, geohashPrecision);    
+    const filteredLocations = filterLocationsByGeohash(userGeohashAndNeighbors, parkingLocations, geohashPrecision);
     const distances = mapLocationsToDistances(userLatLong, filteredLocations);
     const sortedDistances = distances.sort(sortByDistance);
-  
+
     const closestSpot = sortedDistances.length > 0 ? sortedDistances[0].location : null;
-  
+
     if (closestSpot) {
       setSelectedParkingForDisplay(closestSpot);
     }
@@ -60,7 +62,12 @@ export function ParkingMap() {
     setSelectedParkingForDisplay(location)
   }
 
-  useEffect(() => { getUserLocation() }, [getUserLocation])
+  useEffect(() => { 
+    getUserLocation()
+    const icon = getUserLocationIcon();
+    setUserLocationIcon(icon);
+  
+  }, [getUserLocation])
 
 
   useEffect(() => {
@@ -101,34 +108,22 @@ export function ParkingMap() {
         }}
       >
         {userLocation && (
-          <>
-            <Marker
-              position={userLocation}
-              title="Your location is here"
-              icon={{
-                path: google.maps.SymbolPath.CIRCLE,
-                scale: 8,
-                fillColor: '#4285F4',
-                fillOpacity: 1,
-                strokeColor: 'white',
-                strokeWeight: 2,
-              }}
-            />
-            {userLocationAccuracy && (
-              <Circle
-                center={userLocation}
-                radius={userLocationAccuracy}
-                options={{
-                  fillColor: '#4285F4',
-                  fillOpacity: 0.2,
-                  strokeColor: '#4285F4',
-                  strokeOpacity: 0.4,
-                  strokeWeight: 1,
-                  zIndex: 0,
-                }}
-              />
-            )}
-          </>
+             <>
+             {userLocationIcon && (
+               <Marker
+                 position={userLocation}
+                 title="Your location is here"
+                 icon={userLocationIcon}
+               />
+             )}
+             {userLocationAccuracy && (
+               <Circle
+                 center={userLocation}
+                 radius={userLocationAccuracy}
+                 options={userLocationCircleOptions}
+               />
+             )}
+           </>
         )}
         <ParkingMapPolygons
           handleSelectParkingSpotForDisplay={handleSelectParkingSpotForDisplay}
