@@ -149,9 +149,8 @@ export default function NotificationModal({ location }: INotificationModalProps)
           <div className="grid gap-6">
             <div className="space-y-2">
               <DialogHeader>
-                <DialogTitle>Parking Location</DialogTitle>
-                <DialogDescription>Set a reminder for: <span className="text-black">{location.name}</span></DialogDescription>
-                <DialogDescription>Move your car by: <span className="text-black"> {location.nextCleaningTime?.toLocaleString(timestampFormatOpts)}</span></DialogDescription>
+                <DialogTitle>{location.name}</DialogTitle>
+                <DialogDescription>Move your car by: <span className="text"> {location.nextCleaningTime?.toLocaleString(timestampFormatOpts)}</span></DialogDescription>
               </DialogHeader>
             </div>
             <div className="grid gap-4">
@@ -171,7 +170,7 @@ export default function NotificationModal({ location }: INotificationModalProps)
                     <Label htmlFor="notification-time">Notification Time</Label>
                     <Select name="notification-time" defaultValue="1440" onValueChange={
                       (e) => {
-                        calculateSameDayOrDayBefore()
+                        calculateSameDayOrDayBefore(userInput.notificationDate)
                         handleSelectionChange(e, setNotificationBuffer)
                       }
                     }>
@@ -191,18 +190,21 @@ export default function NotificationModal({ location }: INotificationModalProps)
                 {notifUnsocHours.suggestUnsocialHours && (
                   <div className={`flex space-x-2 items-center ${!notifUnsocHours.acceptedUnsocialHours ? 'bg-red-100 p-2 rounded-sm' : ''}`}>
                     {!notifUnsocHours.acceptedUnsocialHours &&
-                      <><div className="text-xs m-2">Your requested notification time lands during unsociable hours, on <span className="font-bold">{
-                        userInput.notificationDate?.toLocaleString(timestampFormatOpts)
-                      }</span>. Shall we notify you at <span className="font-bold">20:00</span> instead on the {notifUnsocHours.dayBefore ? "day before" : "same day"}?</div>
-                      <Button
+                      <>
+                        <div className="text-xs m-2">
+                          Your requested notification time lands during unsociable hours, on <span className="font-bold">{
+                            userInput.notificationDate?.toLocaleString(timestampFormatOpts)
+                          }</span>. Shall we notify you at <span className="font-bold">20:00</span> instead on the {notifUnsocHours.dayBefore ? "day before" : "same day"}?
+                        </div>
 
-                        id="unsocialHours"
-                        onClick={() => {
-                          setNotifUnsocHours(prev => ({ ...prev, acceptedUnsocialHours: true }))
-                        }}
-                      >
+                        <Button
+                          id="unsocialHours"
+                          onClick={() => {
+                            setNotifUnsocHours(prev => ({ ...prev, acceptedUnsocialHours: true }))
+                          }}
+                        >
                           Sure!
-                      </Button>
+                        </Button>
                       </>
                     }
                   </div>
@@ -217,14 +219,19 @@ export default function NotificationModal({ location }: INotificationModalProps)
                     Cleaning is currently ongoing at the chosen location. A notification cannot be set at this time.
                   </AlertDescription>
                 </Alert> :
-                <DialogDescription className="mx-2">You will recieve your notification on:<br /> <div className="flex items-center justify-content"><span className="text-black">{userInput.notificationDate?.toLocaleString(timestampFormatOpts)}</span>
-                  {notifUnsocHours.acceptedUnsocialHours &&
-                    <Button onClick={resetNotificationSettings} variant={"outline"} className="text-red-600 ml-auto">
-                      Reset
-                    </Button>
-                  }
+                <div className="mx-2">
+                  You will recieve your notification on:<br />
+                  <div className="flex items-center justify-content">
+                    <span className="text">
+                      {userInput.notificationDate?.toLocaleString(timestampFormatOpts)}
+                    </span>
+                    {notifUnsocHours.acceptedUnsocialHours &&
+                      <Button onClick={resetNotificationSettings} variant={"outline"} className="text-red-600 ml-auto">
+                        Reset
+                      </Button>
+                    }
+                  </div>
                 </div>
-                </DialogDescription>
               }
             </div>
             <DialogFooter className="flex items-center justify-content ">
