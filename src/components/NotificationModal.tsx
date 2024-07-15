@@ -19,11 +19,16 @@ interface INotificationModalProps {
 
 export default function NotificationModal({ location }: INotificationModalProps) {
   const [notificationBuffer, setNotificationBuffer] = useState(1440)
-  const [notifUnsocHours, setNotifUnsocHours] = useState(new NotifUnsocialHours(false, false, undefined))
-  const [userInput, setUserInput] = useState(new UserInput(
-    "",
-    "My car",
-    location.nextCleaningTime
+  const [notifUnsocHours, setNotifUnsocHours] = useState(new NotifUnsocialHours({
+    suggestUnsocialHours: false,
+    acceptedUnsocialHours: false,
+    dayBefore: undefined
+  }))
+  const [userInput, setUserInput] = useState(new UserInput({
+    email: "",
+    carNickname: "My car",
+    notificationDate: location.nextCleaningTime
+  }
   ))
   const [errors, setErrors] = useState<z.ZodIssue[]>([])
   const [isCleaningOngoing, setIsCleaningOngoing] = useState(false)
@@ -61,11 +66,17 @@ export default function NotificationModal({ location }: INotificationModalProps)
   }
 
   const resetNotificationSettings = () => {
-    setNotifUnsocHours(new NotifUnsocialHours(false, false, undefined))
+    setNotifUnsocHours(new NotifUnsocialHours({
+      suggestUnsocialHours: false,
+      acceptedUnsocialHours: false,
+      dayBefore: undefined
+    }))
     setUserInput(new UserInput(
-      "",
-      "",
-      location.nextCleaningTime
+      {
+        email: "",
+        carNickname: "",
+        notificationDate: location.nextCleaningTime
+      }
     ))
     setNotificationBuffer(1440)
     setErrors([])
