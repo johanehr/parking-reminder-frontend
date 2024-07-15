@@ -1,7 +1,7 @@
 import ngeohash from 'ngeohash';
 import { AugmentedParkingLocationData } from '../types';
 
-const geohashPrecision = 5;
+const geohashPrecision = 5; //each geohash represents an area approximately 4.9 km x 4.9 km with precision of 5.
 
 const geohashPoint = (lat: number, lng: number) => ngeohash.encode(lat, lng, geohashPrecision);
 
