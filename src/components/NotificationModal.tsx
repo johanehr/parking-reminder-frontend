@@ -130,10 +130,6 @@ export default function NotificationModal({ location }: INotificationModalProps)
     return error ? error.message : null
   }
 
-
-
-  useEffect(() => { console.log(userInput) }, [userInput])
-
   const timestampFormatOpts: DateTimeFormatOptions = {
     weekday: 'long',
     month: 'long',

@@ -13,10 +13,7 @@ export function ParkingMap() {
   const mapRef = useRef<google.maps.Map | null>(null)
   const [selectedParkingForDisplay, setSelectedParkingForDisplay] = useState<AugmentedParkingLocationData | null>(null)
 
-
-
   const libraries = useMemo(() => ['places'], [])
-
 
   const { isLoaded } = useLoadScript({
     googleMapsApiKey: process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY as string,
@@ -24,16 +21,17 @@ export function ParkingMap() {
   })
 
   const selectClosestParkingSpot = useCallback((userLatLong: google.maps.LatLng) => {
-    // TODO: TypeError: Cannot read properties of undefined (reading 'spherical') at runtime
+    if (!isLoaded || google.maps.geometry === undefined ) return // Some runtime issue with loading google and google.maps.geometry is causing issues
+
     const parkingLocations = getAugmentedParkingLocationData()
     const firstPoint = parkingLocations[0].path[0]
-    let minDistance = google.maps.geometry?.spherical.computeDistanceBetween(userLatLong, new google.maps.LatLng(firstPoint.lat, firstPoint.lng)) ?? 0
+    let minDistance = google.maps.geometry.spherical.computeDistanceBetween(userLatLong, new google.maps.LatLng(firstPoint.lat, firstPoint.lng))
     let closestSpot: AugmentedParkingLocationData | null = parkingLocations[0]
 
     for (const location of parkingLocations) {
       for (const point of location.path) {
         const locationLatLong = new google.maps.LatLng(point.lat, point.lng)
-        const distance = google.maps.geometry?.spherical.computeDistanceBetween(userLatLong, locationLatLong) ?? 0
+        const distance = google.maps.geometry.spherical.computeDistanceBetween(userLatLong, locationLatLong)
         if (distance < minDistance) {
           closestSpot = location
           minDistance = distance
@@ -44,9 +42,11 @@ export function ParkingMap() {
     if (closestSpot) {
       setSelectedParkingForDisplay(closestSpot)
     }
-  }, [])
+  }, [isLoaded])
 
   const getUserLocation = useCallback(() => {
+    if (!isLoaded) return // Some runtime issue with loading google is causing issues
+
     if (navigator.geolocation) {
       navigator.geolocation.getCurrentPosition(
         position => {
@@ -62,7 +62,7 @@ export function ParkingMap() {
     } else {
       alert("Geolocation is not supported by your browser.")
     }
-  }, [selectClosestParkingSpot])
+  }, [selectClosestParkingSpot, isLoaded])
 
   const handleSelectParkingSpotForDisplay = (location: AugmentedParkingLocationData | null) => {
     setSelectedParkingForDisplay(location)
@@ -154,8 +154,7 @@ export function ParkingMap() {
 
               const center = new google.maps.LatLng({ lat: midLat, lng: midLng })
               setFocusedLocation(center)
-              mapRef.setCenter(center)
-
+              mapRef.panTo(center)
             }
           }}
         />
