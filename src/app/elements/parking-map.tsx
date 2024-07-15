@@ -14,8 +14,6 @@ export function ParkingMap() {
   const mapRef = useRef<google.maps.Map | null>(null)
   const [selectedParkingForDisplay, setSelectedParkingForDisplay] = useState<AugmentedParkingLocationData | null>(null)
 
-
-
   const libraries = useMemo(() => ['places'], [])
 
   const { isLoaded } = useLoadScript({
@@ -36,9 +34,11 @@ export function ParkingMap() {
     if (closestSpot) {
       setSelectedParkingForDisplay(closestSpot);
     }
-  }, [])
+  }, [isLoaded])
 
   const getUserLocation = useCallback(() => {
+    if (!isLoaded) return // Some runtime issue with loading google is causing issues
+
     if (navigator.geolocation) {
       navigator.geolocation.getCurrentPosition(
         position => {
@@ -54,7 +54,7 @@ export function ParkingMap() {
     } else {
       alert("Geolocation is not supported by your browser.")
     }
-  }, [selectClosestParkingSpot])
+  }, [selectClosestParkingSpot, isLoaded])
 
   const handleSelectParkingSpotForDisplay = (location: AugmentedParkingLocationData | null) => {
     setSelectedParkingForDisplay(location)
@@ -146,8 +146,7 @@ export function ParkingMap() {
 
               const center = new google.maps.LatLng({ lat: midLat, lng: midLng })
               setFocusedLocation(center)
-              mapRef.setCenter(center)
-
+              mapRef.panTo(center)
             }
           }}
         />
