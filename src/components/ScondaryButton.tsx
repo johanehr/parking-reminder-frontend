@@ -1,9 +1,9 @@
 import { Button } from "@/components/ui/button"
 
 interface IButtonSecondaryProps {
-    text: string
+  text: string
 }
 
 export function ButtonSecondary({ text }: IButtonSecondaryProps) {
-    return <Button variant="secondary">{text}</Button>
+  return <Button variant="secondary">{text}</Button>
 }

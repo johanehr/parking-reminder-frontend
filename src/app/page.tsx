@@ -1,6 +1,5 @@
 "use client" // "Necessary due to google-maps-react using create-context, which is not SSR compatible" 
 
-import NotificationModal from '@/components/NotificationModal'
 import Header from './elements/header'
 import { ParkingMap } from './elements/parking-map'
 
@@ -38,7 +37,7 @@ export default function Home() {
             </span>
           </h2>
           <p className={`m-0 max-w-[45ch] text-sm opacity-50`}>
-          Contribute to improve the experience for yourself and others
+            Contribute to improve the experience for yourself and others
           </p>
         </a>
         <a

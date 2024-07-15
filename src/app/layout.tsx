@@ -5,8 +5,8 @@ import './globals.css'
 const inter = Inter({ subsets: ['latin'] })
 
 export const metadata: Metadata = {
-  title: 'Boendeparkering',
-  description: 'Städdagar för boendeparkering',
+  title: 'Bergshamra Parking',
+  description: 'Cleaning days for residential parking',
 }
 
 export default function RootLayout({
