@@ -5,6 +5,7 @@ import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import '../styles/button.css'
 import { AugmentedParkingLocationData } from '@/parking-locations/types'
 import { MapButton } from '@/components/MapButton'
+import { calculateDistance, filterLocationsByGeohash, geohashPrecision, getUserGeohashAndNeighbors, mapLocationsToDistances, sortByDistance } from '@/parking-locations/helper-functions/geoHashHelpers'
 
 export function ParkingMap() {
   const [userLocation, setUserLocation] = useState<google.maps.LatLng | null>(null);
@@ -17,32 +18,23 @@ export function ParkingMap() {
 
   const libraries = useMemo(() => ['places'], [])
 
-
   const { isLoaded } = useLoadScript({
     googleMapsApiKey: process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY as string,
     libraries: libraries as any, // eslint-disable-line @typescript-eslint/no-explicit-any
   })
 
+
   const selectClosestParkingSpot = useCallback((userLatLong: google.maps.LatLng) => {
     const parkingLocations = getAugmentedParkingLocationData();
-    let firstPoint = parkingLocations[0].path[0];
-    let minDistance = google.maps.geometry.spherical.computeDistanceBetween(userLatLong, new google.maps.LatLng(firstPoint.lat, firstPoint.lng));
-    let closestSpot: AugmentedParkingLocationData | null = parkingLocations[0];
-
-    for (const location of parkingLocations) {
-      for (const point of location.path) {
-        const locationLatLong = new google.maps.LatLng(point.lat, point.lng);
-        const distance = google.maps.geometry.spherical.computeDistanceBetween(userLatLong, locationLatLong);
-        if (distance < minDistance) {
-          closestSpot = location;
-          minDistance = distance;
-        }
-      }
-    }
-
+    const userGeohashAndNeighbors = getUserGeohashAndNeighbors(userLatLong, geohashPrecision);
+    const filteredLocations = filterLocationsByGeohash(userGeohashAndNeighbors, parkingLocations, geohashPrecision);    
+    const distances = mapLocationsToDistances(userLatLong, filteredLocations);
+    const sortedDistances = distances.sort(sortByDistance);
+  
+    const closestSpot = sortedDistances.length > 0 ? sortedDistances[0].location : null;
+  
     if (closestSpot) {
-      const path = closestSpot.path.map(point => new google.maps.LatLng(point.lat, point.lng));
-      setSelectedParkingForDisplay(closestSpot)
+      setSelectedParkingForDisplay(closestSpot);
     }
   }, []);
 
