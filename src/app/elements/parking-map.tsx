@@ -8,10 +8,10 @@ import { MapButton } from '@/components/MapButton'
 import { calculateDistance, filterLocationsByGeohash, geohashPrecision, getUserGeohashAndNeighbors, mapLocationsToDistances, sortByDistance } from '@/parking-locations/helper-functions/geoHashHelpers'
 
 export function ParkingMap() {
-  const [userLocation, setUserLocation] = useState<google.maps.LatLng | null>(null);
-  const [userLocationAccuracy, setUserLocationAccuracy] = useState<number | null>(null);
-  const [focusedLocation, setFocusedLocation] = useState<google.maps.LatLng | null>(null);
-  const mapRef = useRef<google.maps.Map | null>(null);
+  const [userLocation, setUserLocation] = useState<google.maps.LatLng | null>(null)
+  const [userLocationAccuracy, setUserLocationAccuracy] = useState<number | null>(null)
+  const [focusedLocation, setFocusedLocation] = useState<google.maps.LatLng | null>(null)
+  const mapRef = useRef<google.maps.Map | null>(null)
   const [selectedParkingForDisplay, setSelectedParkingForDisplay] = useState<AugmentedParkingLocationData | null>(null)
 
 
@@ -36,37 +36,38 @@ export function ParkingMap() {
     if (closestSpot) {
       setSelectedParkingForDisplay(closestSpot);
     }
-  }, []);
+  }, [])
 
   const getUserLocation = useCallback(() => {
     if (navigator.geolocation) {
       navigator.geolocation.getCurrentPosition(
         position => {
-          const userLatLong = new google.maps.LatLng(position.coords.latitude, position.coords.longitude);
-          setUserLocation(userLatLong);
-          selectClosestParkingSpot(userLatLong);
+          const userLatLong = new google.maps.LatLng(position.coords.latitude, position.coords.longitude)
+          setUserLocation(userLatLong)
+          setUserLocationAccuracy(position.coords.accuracy)
+          selectClosestParkingSpot(userLatLong)
         },
         () => {
-          alert("Unable to retrieve your location. Please click desired parking location manually to set reminder.");
+          alert("Unable to retrieve your location. Please click desired parking location manually to set reminder.")
         }
-      );
+      )
     } else {
-      alert("Geolocation is not supported by your browser.");
+      alert("Geolocation is not supported by your browser.")
     }
-  }, [selectClosestParkingSpot]);
+  }, [selectClosestParkingSpot])
 
   const handleSelectParkingSpotForDisplay = (location: AugmentedParkingLocationData | null) => {
     setSelectedParkingForDisplay(location)
   }
 
-  useEffect(() => { getUserLocation() }, [])
+  useEffect(() => { getUserLocation() }, [getUserLocation])
 
 
   useEffect(() => {
     if (userLocation && focusedLocation === null) {
-      selectClosestParkingSpot(userLocation);
+      selectClosestParkingSpot(userLocation)
     }
-  }, [userLocation, selectClosestParkingSpot, focusedLocation]);
+  }, [userLocation, selectClosestParkingSpot, focusedLocation])
 
 
   if (!isLoaded) {
@@ -74,7 +75,7 @@ export function ParkingMap() {
   }
 
   const defaultCenter = { lat: 59.380065, lng: 18.035959 } // Hardcoded to Bergshamra
-  const mapCenter = userLocation || focusedLocation || defaultCenter;
+  const mapCenter = userLocation || focusedLocation || defaultCenter
 
   const mapOptions: google.maps.MapOptions = {
     disableDefaultUI: true,
@@ -93,9 +94,9 @@ export function ParkingMap() {
         center={mapCenter}
         mapContainerStyle={{ width: '100%', height: '75vh' }}
         onLoad={map => {
-          mapRef.current = map;
+          mapRef.current = map
           if (userLocation) {
-            selectClosestParkingSpot(userLocation);
+            selectClosestParkingSpot(userLocation)
           }
         }}
       >
@@ -123,6 +124,7 @@ export function ParkingMap() {
                   strokeColor: '#4285F4',
                   strokeOpacity: 0.4,
                   strokeWeight: 1,
+                  zIndex: 0,
                 }}
               />
             )}
@@ -133,20 +135,18 @@ export function ParkingMap() {
           selectedParkingForDisplay={selectedParkingForDisplay}
           parkingLocations={parkingLocations}
           onPolygonClick={(location, mapRef) => {
-            const googleMaps = window.google.maps;
-            const path = location.path.map(point => new googleMaps.LatLng(point.lat, point.lng));
             if (mapRef) {
-              const maxLat = Math.max(...location.path.map(point => point.lat));
-              const minLat = Math.min(...location.path.map(point => point.lat));
-              const midLat = (maxLat + minLat) / 2;
+              const maxLat = Math.max(...location.path.map(point => point.lat))
+              const minLat = Math.min(...location.path.map(point => point.lat))
+              const midLat = (maxLat + minLat) / 2
 
-              const maxLng = Math.max(...location.path.map(point => point.lng));
-              const minLng = Math.min(...location.path.map(point => point.lng));
-              const midLng = (maxLng + minLng) / 2;
+              const maxLng = Math.max(...location.path.map(point => point.lng))
+              const minLng = Math.min(...location.path.map(point => point.lng))
+              const midLng = (maxLng + minLng) / 2
 
-              const center = new google.maps.LatLng({ lat: midLat, lng: midLng });
+              const center = new google.maps.LatLng({ lat: midLat, lng: midLng })
               setFocusedLocation(center)
-              mapRef.setCenter(center);
+              mapRef.setCenter(center)
 
             }
           }}

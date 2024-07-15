@@ -19,7 +19,7 @@ export function augmentParkingLocationData(parkingLocation: ParkingLocationData,
   lastTimeToMove = possibleTimes.sort(compareLuxonDates)[0]
   const hoursUntilMove = lastTimeToMove.diff(currentTime, 'hours').hours
   return { ...parkingLocation, color: getAppropriateDisplayColor(hoursUntilMove), nextCleaningTime: nextCleaningTime}
- }
+}
 
 
 

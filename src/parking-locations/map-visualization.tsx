@@ -1,8 +1,8 @@
-import { InfoWindow, Marker, Polygon, useGoogleMap } from '@react-google-maps/api'
+import { InfoWindow, Polygon, useGoogleMap } from '@react-google-maps/api'
 import { Fragment } from 'react'
 import React from 'react'
 import { AugmentedParkingLocationData, CleaningTime, DayOfWeek, ParkingRules } from './types'
-import NotificationModal from '@/components/NotificationModal';
+import NotificationModal from '@/components/NotificationModal'
 
 
 
@@ -16,33 +16,33 @@ interface ParkingMapPolygonsProps {
 
 export function getCleaningDayDescription(cleaningTime: CleaningTime): string {
 
-  const oddEvenAll = (even: boolean, odd: boolean) => (even && odd) ? 'Alla' : (even ? 'Jämna' : 'Udda')
+  const oddEvenAll = (even: boolean, odd: boolean) => (even && odd) ? 'All' : (even ? 'Even' : 'Odd')
   const weekday = (day: DayOfWeek) => {
-    return (day === DayOfWeek.MONDAY) ? 'måndag' :
-      (day === DayOfWeek.TUESDAY) ? 'tisdag' :
-        (day === DayOfWeek.WEDNESDAY) ? 'onsdag' :
-          (day === DayOfWeek.THURSDAY) ? 'torsdag' :
-            (day === DayOfWeek.FRIDAY) ? 'fredag' :
-              (day === DayOfWeek.SATURDAY) ? 'lördag' :
-                'söndag'
+    return (day === DayOfWeek.MONDAY) ? 'Monday' :
+      (day === DayOfWeek.TUESDAY) ? 'Tuesday' :
+        (day === DayOfWeek.WEDNESDAY) ? 'Wednesday' :
+          (day === DayOfWeek.THURSDAY) ? 'Thursday' :
+            (day === DayOfWeek.FRIDAY) ? 'Friday' :
+              (day === DayOfWeek.SATURDAY) ? 'Saturday' :
+                'Sunday'
   }
 
   const oddEven = oddEvenAll(cleaningTime.appliesToEvenWeeks, cleaningTime.appliesToOddWeeks)
   const dayName = weekday(cleaningTime.day)
 
-  return `${oddEven} ${dayName}ar ${cleaningTime.startHour}:00-${cleaningTime.endHour}:00`
+  return `${oddEven} ${dayName}s ${cleaningTime.startHour}:00-${cleaningTime.endHour}:00`
 }
 
 const generateDescriptionText = (rules: ParkingRules) => {
   return (
     <Fragment>
-      <p>Städdagar:</p>
+      <p>Cleaning days:</p>
       <ul>
         {
           rules.cleaningTimes.map((cleaning) => { return (<li key={`${cleaning.day}${cleaning.appliesToEvenWeeks}`}> - {getCleaningDayDescription(cleaning)}</li>) })
         }
       </ul>
-      <p>Max {rules.maximum.days} dagar.</p>
+      <p>Max {rules.maximum.days} days.</p>
     </Fragment>
   )
 }
@@ -61,29 +61,29 @@ export default function ParkingMapPolygons({ parkingLocations, onPolygonClick, h
           const maxLng = Math.max(...location.path.map((point) => point.lng))
           const minLng = Math.min(...location.path.map((point) => point.lng))
           const midLng = (maxLng + minLng) / 2
-
           const center = new google.maps.LatLng(midLat, midLng)
 
 
           return (
             <React.Fragment key={`${location.name}-fragment`}>
-            <Polygon
-              key={`${location.name}-polygon`}
-              path={location.path}
-              options={{
-                strokeColor: location.color,
-                strokeOpacity: 0.8,
-                strokeWeight: 1,
-                fillColor: location.color,
-                fillOpacity: 0.35,
-              }}
-              onClick={() => {
-                if (mapRef) {
-                  onPolygonClick(location, mapRef);
-                  handleSelectParkingSpotForDisplay(location);
-                }
-              }}
-            />
+              <Polygon
+                key={`${location.name}-polygon`}
+                path={location.path}
+                options={{
+                  strokeColor: location.color,
+                  strokeOpacity: 0.8,
+                  strokeWeight: 1,
+                  fillColor: location.color,
+                  fillOpacity: 0.35,
+                  zIndex: 10, // Ensure this is above e.g. location accuracy circle
+                }}
+                onClick={() => {
+                  if (mapRef) {
+                    onPolygonClick(location, mapRef)
+                    handleSelectParkingSpotForDisplay(location)
+                  }
+                }}
+              />
 
               {selectedParkingForDisplay?.name === location.name && (
                 <InfoWindow
