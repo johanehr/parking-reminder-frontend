@@ -68,7 +68,6 @@ export function ParkingMap() {
     getUserLocation()
     const icon = getUserLocationIcon();
     setUserLocationIcon(icon);
-  
   }, [getUserLocation])
 
 

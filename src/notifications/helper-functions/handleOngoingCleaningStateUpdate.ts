@@ -11,7 +11,6 @@ const handleOngoingCleaningStateUpdate = (
     setUserInput: React.Dispatch<React.SetStateAction<UserInput>>
 ) => {
     if (nextCleaningTime) {
-        console.log(nextCleaningTime, notificationBuffer)
         const notificationDate = calculateReminderDate(nextCleaningTime, notificationBuffer);
         const now = DateTime.now();
         setIsCleaningOngoing(notificationDate <= now);

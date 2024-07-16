@@ -10,7 +10,7 @@ import { handleChange, handleSelectionChange } from "@/notifications/helper-func
 import { z } from 'zod'
 import { formSchema } from "@/models/formSchema"
 import NicknameModal from "./NicknameModal"
-import { NotifUnsocialHours, UserInput } from "@/notifications/types/types"
+import { initialNotifUnsocHours, initialUserInput, NotifUnsocialHours, UserInput } from "@/notifications/types/types"
 import { handleOngoingCleaningStateUpdate } from "@/notifications/helper-functions/handleOngoingCleaningStateUpdate"
 import ReminderSummary from "./ReminderSummary"
 import OngoingCleaningAlert from "./OngoingCleaningAlert"
@@ -23,17 +23,12 @@ interface INotificationModalProps {
 
 export default function NotificationModal({ location }: INotificationModalProps) {
   const [notificationBuffer, setNotificationBuffer] = useState(1440)
-  const [notifUnsocHours, setNotifUnsocHours] = useState(new NotifUnsocialHours({
-    suggestUnsocialHours: false,
-    acceptedUnsocialHours: false,
-    dayBefore: undefined
-  }))
-  const [userInput, setUserInput] = useState(new UserInput({
+  const [notifUnsocHours, setNotifUnsocHours] = useState<NotifUnsocialHours>(initialNotifUnsocHours);
+  const [userInput, setUserInput] = useState<UserInput>({
     email: "",
-    carNickname: "My car",
-    notificationDate: location.nextCleaningTime
-  }
-  ))
+    carNickname: "",
+    notificationDate: null
+  });
   const [errors, setErrors] = useState<z.ZodIssue[]>([])
   const [isCleaningOngoing, setIsCleaningOngoing] = useState(false)
 
@@ -61,18 +56,8 @@ export default function NotificationModal({ location }: INotificationModalProps)
   }
 
   const resetNotificationSettings = () => {
-    setNotifUnsocHours(new NotifUnsocialHours({
-      suggestUnsocialHours: false,
-      acceptedUnsocialHours: false,
-      dayBefore: undefined
-    }))
-    setUserInput(new UserInput(
-      {
-        email: "",
-        carNickname: "",
-        notificationDate: location.nextCleaningTime
-      }
-    ))
+    setNotifUnsocHours(initialNotifUnsocHours);
+    setUserInput(initialUserInput(location.nextCleaningTime));
     setNotificationBuffer(1440)
     setErrors([])
     setIsCleaningOngoing(false)
