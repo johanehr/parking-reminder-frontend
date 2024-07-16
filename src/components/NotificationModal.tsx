@@ -14,6 +14,7 @@ import { NotifUnsocialHours, UserInput } from "@/notifications/types/types"
 import { handleOngoingCleaningStateUpdate } from "@/notifications/helper-functions/handleOngoingCleaningStateUpdate"
 import ReminderSummary from "./ReminderSummary"
 import OngoingCleaningAlert from "./OngoingCleaningAlert"
+import { calculateUnsociableHoursSuggestionDaybeforeOrSameday } from "@/notifications/helper-functions/calculateUnsocHoursSuggestionDaybeforeOrSameday"
 
 interface INotificationModalProps {
   location: AugmentedParkingLocationData
@@ -57,16 +58,6 @@ export default function NotificationModal({ location }: INotificationModalProps)
      console.log(res.data) */
   }
 
-  const calculateSameDayOrDayBefore = (notificationDate: DateTime<boolean> | null) => {
-    if (notificationDate) {
-      if (notificationDate.hour >= 0 && notificationDate.hour <= 6) {
-        setNotifUnsocHours((prev) => ({ ...prev, dayBefore: true }))
-      } else if (notificationDate.hour >= 22) {
-        setNotifUnsocHours((prev) => ({ ...prev, dayBefore: false }))
-      }
-    }
-  }
-
   const resetNotificationSettings = () => {
     setNotifUnsocHours(new NotifUnsocialHours({
       suggestUnsocialHours: false,
@@ -108,7 +99,7 @@ export default function NotificationModal({ location }: INotificationModalProps)
   }, [notifUnsocHours.acceptedUnsocialHours]);
 
   useEffect(() => {
-    calculateSameDayOrDayBefore(userInput.notificationDate);
+    calculateUnsociableHoursSuggestionDaybeforeOrSameday(userInput.notificationDate, setNotifUnsocHours);
   }, [notificationBuffer, userInput.notificationDate]);
 
 
@@ -161,7 +152,7 @@ export default function NotificationModal({ location }: INotificationModalProps)
                     <Label htmlFor="notification-time">Notification Time</Label>
                     <Select name="notification-time" defaultValue="1440" onValueChange={
                       (e) => {
-                        calculateSameDayOrDayBefore(userInput.notificationDate)
+                        calculateUnsociableHoursSuggestionDaybeforeOrSameday(userInput.notificationDate, setNotifUnsocHours)
                         handleSelectionChange(e, setNotificationBuffer)
                       }
                     }>
