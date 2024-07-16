@@ -82,7 +82,6 @@ export default function NotificationModal({ location }: INotificationModalProps)
     setErrors([])
     setIsCleaningOngoing(false)
   }
-
   const calculateNotifUnsocialHours = (
     notifUnsocHours: NotifUnsocialHours,
     notifDate: DateTime<boolean> | null,
@@ -97,16 +96,18 @@ export default function NotificationModal({ location }: INotificationModalProps)
         setUserInput((prev) => ({ ...prev, notificationDate: cleaningTimeSameDay }))
       }
     } else if (!notifUnsocHours.acceptedUnsocialHours) {
-      setUserInput((prev) => ({ ...prev, notificationDate: cleanDate }))
-      setNotificationBuffer(1440)
-    }
-  }
-
-  useEffect(() => { calculateNotifUnsocialHours(notifUnsocHours, userInput.notificationDate, location.nextCleaningTime) }, [notifUnsocHours, userInput.notificationDate, location.nextCleaningTime])
+      setUserInput((prev) => ({ ...prev, notificationDate: cleanDate }));
+      setNotificationBuffer(1440);
+   }
+  };
 
   useEffect(() => {
-    calculateSameDayOrDayBefore(userInput.notificationDate)
-  }, [notificationBuffer, userInput.notificationDate, location.nextCleaningTime])
+    calculateNotifUnsocialHours(notifUnsocHours, userInput.notificationDate, location.nextCleaningTime);
+  }, [notifUnsocHours.acceptedUnsocialHours]);
+
+  useEffect(() => {
+    calculateSameDayOrDayBefore(userInput.notificationDate);
+  }, [notificationBuffer, userInput.notificationDate]);
 
   useEffect(() => {
     if (location.nextCleaningTime) {
@@ -194,6 +195,9 @@ export default function NotificationModal({ location }: INotificationModalProps)
                         <SelectItem value="720">12 hours before</SelectItem>
                         <SelectItem value="1440">24 hours before</SelectItem>
                         <SelectItem value="2880">48 hours before</SelectItem>
+                        <SelectItem value="2000">day before test hours before</SelectItem>
+
+
                       </SelectContent>
                     </Select>
                   </>
