@@ -14,6 +14,7 @@ import { Alert, AlertDescription, AlertTitle } from "./ui/alert"
 import NicknameModal from "./NicknameModal"
 import { NotifUnsocialHours, UserInput } from "@/notifications/types/types"
 import { calculateUnsocialHours } from "@/notifications/helper-functions/unsocialHoursCalculationHelpers"
+import { handleOngoingCleaningStateUpdate } from "@/notifications/helper-functions/handleOngoingCleaningStateUpdate"
 
 interface INotificationModalProps {
   location: AugmentedParkingLocationData
@@ -111,22 +112,10 @@ export default function NotificationModal({ location }: INotificationModalProps)
     calculateSameDayOrDayBefore(userInput.notificationDate);
   }, [notificationBuffer, userInput.notificationDate]);
 
+
+  
   useEffect(() => {
-    if (location.nextCleaningTime) {
-      const notificationDate = calculateReminderDate(location.nextCleaningTime, notificationBuffer)
-      const now = DateTime.now()
-      setIsCleaningOngoing(notificationDate <= now);
-      calculateUnsocialHours(notificationDate, setNotifUnsocHours);
-
-      setUserInput(prev => ({
-        ...prev,
-        notificationDate: notificationDate
-      }))
-
-    }
-    else {
-      alert("we have no next cleaning time available for this parking spot")
-    }
+      handleOngoingCleaningStateUpdate(location.nextCleaningTime, notificationBuffer, setIsCleaningOngoing, setNotifUnsocHours, setUserInput)
   }, [notificationBuffer, location.nextCleaningTime])
 
   const getErrorMessage = (path: string) => {
