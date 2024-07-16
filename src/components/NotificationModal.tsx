@@ -6,14 +6,14 @@ import { Select, SelectTrigger, SelectValue, SelectContent, SelectItem } from "@
 import { AugmentedParkingLocationData } from "@/parking-locations/types"
 import { useEffect, useState } from "react"
 import { DateTime, DateTimeFormatOptions } from "luxon"
-import { calculateReminderDate } from "@/app/notifications/helper-functions/calculateReminderDate"
-import { handleChange, handleSelectionChange } from "@/app/notifications/helper-functions/formHelpers"
+import { calculateReminderDate } from "@/notifications/helper-functions/calculateReminderDate"
+import { handleChange, handleSelectionChange } from "@/notifications/helper-functions/formHelpers"
 import { z } from 'zod'
 import { formSchema } from "@/models/formSchema"
 import { Alert, AlertDescription, AlertTitle } from "./ui/alert"
 import NicknameModal from "./NicknameModal"
-import { NotifUnsocialHours, UserInput } from "@/app/notifications/types/types"
-import { calculateUnsocialHours } from "@/app/notifications/helper-functions/unsocialHoursCalculationHelpers"
+import { NotifUnsocialHours, UserInput } from "@/notifications/types/types"
+import { calculateUnsocialHours } from "@/notifications/helper-functions/unsocialHoursCalculationHelpers"
 
 interface INotificationModalProps {
   location: AugmentedParkingLocationData

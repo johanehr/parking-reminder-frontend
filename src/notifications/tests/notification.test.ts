@@ -1,4 +1,4 @@
-import { UNSOCIAL_HOUR_END, UNSOCIAL_HOUR_START } from "../../../app/constants";
+import { UNSOCIAL_HOUR_END, UNSOCIAL_HOUR_START } from "../../app/constants";
 import { isUnsocialHour } from "../helper-functions/unsocialHoursCalculationHelpers";
 
 

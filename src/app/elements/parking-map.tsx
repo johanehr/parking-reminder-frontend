@@ -7,7 +7,7 @@ import { AugmentedParkingLocationData } from '@/parking-locations/types'
 import { MapButton } from '@/components/MapButton'
 
 import { userLocationCircleOptions, getUserLocationIcon } from '@/components/MapIcons'
-import { filterLocationsByGeohash, geohashPrecision, getUserGeohashAndNeighbors, mapLocationsToDistances, sortByDistance } from '../notifications/helper-functions/geoHashHelpers'
+import { filterLocationsByGeohash, geohashPrecision, getUserGeohashAndNeighbors, mapLocationsToDistances, sortByDistance } from '../../notifications/helper-functions/geoHashHelpers'
 
 export function ParkingMap() {
   const [userLocation, setUserLocation] = useState<google.maps.LatLng | null>(null)
