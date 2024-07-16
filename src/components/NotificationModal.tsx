@@ -6,15 +6,14 @@ import { Select, SelectTrigger, SelectValue, SelectContent, SelectItem } from "@
 import { AugmentedParkingLocationData } from "@/parking-locations/types"
 import { useEffect, useState } from "react"
 import { DateTime, DateTimeFormatOptions } from "luxon"
-import { calculateReminderDate } from "@/notifications/helper-functions/calculateReminderDate"
 import { handleChange, handleSelectionChange } from "@/notifications/helper-functions/formHelpers"
 import { z } from 'zod'
 import { formSchema } from "@/models/formSchema"
-import { Alert, AlertDescription, AlertTitle } from "./ui/alert"
 import NicknameModal from "./NicknameModal"
 import { NotifUnsocialHours, UserInput } from "@/notifications/types/types"
-import { calculateUnsocialHours } from "@/notifications/helper-functions/unsocialHoursCalculationHelpers"
 import { handleOngoingCleaningStateUpdate } from "@/notifications/helper-functions/handleOngoingCleaningStateUpdate"
+import OngoingCleaningAlert from "./ongoingCleaningAlert"
+import ReminderSummary from "./ReminderSummary"
 
 interface INotificationModalProps {
   location: AugmentedParkingLocationData
@@ -113,9 +112,8 @@ export default function NotificationModal({ location }: INotificationModalProps)
   }, [notificationBuffer, userInput.notificationDate]);
 
 
-  
   useEffect(() => {
-      handleOngoingCleaningStateUpdate(location.nextCleaningTime, notificationBuffer, setIsCleaningOngoing, setNotifUnsocHours, setUserInput)
+    handleOngoingCleaningStateUpdate(location.nextCleaningTime, notificationBuffer, setIsCleaningOngoing, setNotifUnsocHours, setUserInput)
   }, [notificationBuffer, location.nextCleaningTime])
 
   const getErrorMessage = (path: string) => {
@@ -204,28 +202,17 @@ export default function NotificationModal({ location }: INotificationModalProps)
                 )}
               </div>
 
+
               {isCleaningOngoing ?
-                <Alert variant="destructive">
-                  <div className="h-4 w-4" />
-                  <AlertTitle>Cleaning in Progress</AlertTitle>
-                  <AlertDescription>
-                    Cleaning is currently ongoing at the chosen location. A notification cannot be set at this time.
-                  </AlertDescription>
-                </Alert> :
-                <div className="mx-2">
-                  You will recieve your notification on:<br />
-                  <div className="flex items-center justify-content">
-                    <span className="text">
-                      {userInput.notificationDate?.toLocaleString(timestampFormatOpts)}
-                    </span>
-                    {notifUnsocHours.acceptedUnsocialHours &&
-                      <Button onClick={resetNotificationSettings} variant={"outline"} className="text-red-600 ml-auto">
-                        Reset
-                      </Button>
-                    }
-                  </div>
-                </div>
+                <OngoingCleaningAlert /> :
+                <ReminderSummary
+                  notificationDate={userInput.notificationDate}
+                  notifUnsocHours={notifUnsocHours}
+                  resetNotificationSettings={resetNotificationSettings}
+                  timestampFormatOpts={timestampFormatOpts}
+                />
               }
+
             </div>
             <DialogFooter className="flex items-center justify-content ">
               <h4 className="text-xs mr-auto">By continuing you are accepting the <br /><a className="text-blue-500" href="/">terms and conditions</a></h4>

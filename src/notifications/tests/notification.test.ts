@@ -7,14 +7,23 @@ import { isUnsocialHour } from "../helper-functions/unsocialHoursCalculationHelp
 describe("Tests unsocialhours definition", () => {
   it("should return true for unsocial hours", () => {
     expect(isUnsocialHour(5)).toBe(true);
-    expect(isUnsocialHour(UNSOCIAL_HOUR_START)).toBe(true);
   });
 
-  it("should return false for social hours", () => {
-    expect(isUnsocialHour(7)).toBe(false);
-    expect(isUnsocialHour(UNSOCIAL_HOUR_END)).toBe(false);
+  it("should return true for unsocial hours", () => {
+    expect(isUnsocialHour(22)).toBe(true);
   });
-});
+
+  it("should return false for unsocial hours", () => {
+    expect(isUnsocialHour(7)).toBe(false);
+  });
+
+  it("should return false for UNSOCIAL_HOUR_END", () => {
+    expect(isUnsocialHour(UNSOCIAL_HOUR_END)).toBe(false); // 6am should be social
+  });
+  it("should return true for UNSOCIAL_HOUR_START", () => {
+    expect(isUnsocialHour(UNSOCIAL_HOUR_START)).toBe(true); // 10pm should be unsocial
+  });
+})
 
 
 
@@ -36,8 +45,8 @@ describe("Tests if cleaning is ongoing, or within next 24h, and updates state ac
 
     handleOngoingCleaningStateUpdate(cleaningTime, notificationBuffer, setIsCleaningOngoing, setNotifUnsocHours, setUserInput);
 
-   // Checks to see state updater is called correctly (true in this case)    
-   expect(setIsCleaningOngoing).toHaveBeenCalledWith(true);
+    // Checks to see state updater is called correctly (true in this case)    
+    expect(setIsCleaningOngoing).toHaveBeenCalledWith(true);
   });
 
   it("should set isCleaningOngoing to true when notification date is in the past", () => {
