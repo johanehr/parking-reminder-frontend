@@ -81,7 +81,13 @@ export default function NotificationModal({ location }: INotificationModalProps)
   }, [notifUnsocHours.acceptedUnsocialHours]);
 
   useEffect(() => {
-    calculateUnsociableHoursSuggestionDaybeforeOrSameday(userInput.notificationDate, setNotifUnsocHours);
+    if (userInput.notificationDate) {
+      const updatedNotifUnsocHours = calculateUnsociableHoursSuggestionDaybeforeOrSameday(
+        userInput.notificationDate,
+        notifUnsocHours
+      );
+      setNotifUnsocHours(updatedNotifUnsocHours);
+    }
   }, [notificationBuffer, userInput.notificationDate]);
 
 
@@ -134,8 +140,12 @@ export default function NotificationModal({ location }: INotificationModalProps)
                     <Label htmlFor="notification-time">Notification Time</Label>
                     <Select name="notification-time" defaultValue="1440" onValueChange={
                       (e) => {
-                        calculateUnsociableHoursSuggestionDaybeforeOrSameday(userInput.notificationDate, setNotifUnsocHours)
-                        handleSelectionChange(e, setNotificationBuffer)
+                        const updatedNotifUnsocHours = calculateUnsociableHoursSuggestionDaybeforeOrSameday(
+                          userInput.notificationDate,
+                          notifUnsocHours
+                        );
+                        setNotifUnsocHours(updatedNotifUnsocHours);
+                        handleSelectionChange(e, setNotificationBuffer);
                       }
                     }>
                       <SelectTrigger className="w-full">

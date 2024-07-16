@@ -35,40 +35,31 @@ describe("Tests whether the unsociable hours suggestion state is set to day befo
     setNotifUnsocHours = jest.fn();
   });
 
-  it("should set dayBefore to true, as intial notif time is early morning", () => {
-    const notificationDate = DateTime.now().plus({ days: 2 }).set({ hour: 3 }); // inital notif date is early morning unsociable hour
+  it("should set dayBefore to true, as initial notif time is early morning", () => {
+    const notificationDate = DateTime.now().plus({ days: 2 }).set({ hour: 3 }); // initial notif date is early morning unsociable hour
+    const currentState: NotifUnsocialHours = { suggestUnsocialHours: false, acceptedUnsocialHours: false, dayBefore: undefined };
 
-    calculateUnsociableHoursSuggestionDaybeforeOrSameday(notificationDate, setNotifUnsocHours);
-
-    expect(setNotifUnsocHours).toHaveBeenCalledWith(expect.any(Function));
-
-    const stateUpdater = setNotifUnsocHours.mock.calls[0][0];
-    const prevState: NotifUnsocialHours = { suggestUnsocialHours: false, acceptedUnsocialHours: false, dayBefore: undefined };
-    const newState = stateUpdater(prevState);
+    const newState = calculateUnsociableHoursSuggestionDaybeforeOrSameday(notificationDate, currentState);
 
     expect(newState).toEqual(expect.objectContaining({ dayBefore: true }));
   });
 
-  it("should set day before to false, as inital notif time is late evening", () => {
-    const notificationDate = DateTime.now().plus({ days: 2 }).set({ hour: 22 }); // inital notif time is late evening, unsociable hour
+  it("should set day before to false, as initial notif time is late evening", () => {
+    const notificationDate = DateTime.now().plus({ days: 2 }).set({ hour: 22 }); // initial notif time is late evening, unsociable hour
+    const currentState: NotifUnsocialHours = { suggestUnsocialHours: false, acceptedUnsocialHours: false, dayBefore: undefined };
 
-    calculateUnsociableHoursSuggestionDaybeforeOrSameday(notificationDate, setNotifUnsocHours);
-
-    expect(setNotifUnsocHours).toHaveBeenCalledWith(expect.any(Function));
-
-    const stateUpdater = setNotifUnsocHours.mock.calls[0][0];
-    const prevState: NotifUnsocialHours = { suggestUnsocialHours: false, acceptedUnsocialHours: false, dayBefore: undefined };
-    const newState = stateUpdater(prevState);
+    const newState = calculateUnsociableHoursSuggestionDaybeforeOrSameday(notificationDate, currentState);
 
     expect(newState).toEqual(expect.objectContaining({ dayBefore: false }));
   });
 
-  it("should not update dayBefore as inital notif time is sociable", () => {
+  it("should not update dayBefore as initial notif time is sociable", () => {
     const notificationDate = DateTime.now().plus({ days: 2 }).set({ hour: 12 }); // Sociable hour!
+    const currentState: NotifUnsocialHours = { suggestUnsocialHours: false, acceptedUnsocialHours: false, dayBefore: undefined };
 
-    calculateUnsociableHoursSuggestionDaybeforeOrSameday(notificationDate, setNotifUnsocHours);
+    const newState = calculateUnsociableHoursSuggestionDaybeforeOrSameday(notificationDate, currentState);
 
-    expect(setNotifUnsocHours).not.toHaveBeenCalled();
+    expect(newState).toEqual(currentState);
   });
 });
 

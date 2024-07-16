@@ -1,12 +1,23 @@
-import { DateTime } from "luxon"
-import { NotifUnsocialHours } from "../types/types"
+import { DateTime } from "luxon";
+import { NotifUnsocialHours } from "../types/types";
+import { UNSOCIAL_HOUR_END, UNSOCIAL_HOUR_START } from "../../app/constants";
 
-export const calculateUnsociableHoursSuggestionDaybeforeOrSameday = (notificationDate: DateTime<boolean> | null, setNotifUnsocHours: React.Dispatch<React.SetStateAction<NotifUnsocialHours>>) => {
-    if (notificationDate) {
-        if (notificationDate.hour >= 0 && notificationDate.hour <= 6) {
-            setNotifUnsocHours((prev) => ({ ...prev, dayBefore: true }))
-        } else if (notificationDate.hour >= 22) {
-            setNotifUnsocHours((prev) => ({ ...prev, dayBefore: false }))
-        }
-    }
-}
+
+export const calculateUnsociableHoursSuggestionDaybeforeOrSameday = (
+  notificationDate: DateTime | null,
+  currentState: NotifUnsocialHours
+): NotifUnsocialHours => {
+  if (!notificationDate) {
+    return currentState;
+  }
+  let dayBefore = currentState.dayBefore;
+  if (notificationDate.hour <= UNSOCIAL_HOUR_END) {
+    dayBefore = true;
+  } else if (notificationDate.hour >= UNSOCIAL_HOUR_START) {
+    dayBefore = false;
+  }
+  return {
+    ...currentState,
+    dayBefore
+  };
+};
