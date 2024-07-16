@@ -7,7 +7,7 @@ const OngoingCleaningAlert = () => {
             <div className="h-4 w-4" />
             <AlertTitle>Cleaning Alert</AlertTitle>
             <AlertDescription>
-                Cleaning is currently ongoing or scheduled within the next 24 hours. A notification cannot be set for this location.
+                Cleaning is currently ongoing. A notification cannot be set at this time.
             </AlertDescription>
         </Alert>
     )

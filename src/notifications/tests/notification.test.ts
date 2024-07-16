@@ -64,7 +64,7 @@ describe("Tests whether the unsociable hours suggestion state is set to day befo
 });
 
 
-describe("Tests if cleaning is ongoing, or within next 24h, and updates state accordingly", () => {
+describe("Tests if cleaning is ongoing and updates state accordingly", () => {
   //testing to see if the state updaters are being called with the correct value.
   let setIsCleaningOngoing: jest.Mock;
   let setNotifUnsocHours: jest.Mock;
@@ -136,15 +136,6 @@ describe("Tests if cleaning is ongoing, or within next 24h, and updates state ac
     });
   });
 
-
-
-  it("should set isCleaningOngoing to true when notification date is in the future, however within the next 24h", () => {
-    const cleaningTime = DateTime.now().plus({ days: 1 }); // Future cleaning time, however within the next 24h, therefore leaving the notif obsolete.
-    const notificationBuffer = 1440;
-
-    handleOngoingCleaningStateUpdate(cleaningTime, notificationBuffer, setIsCleaningOngoing, setNotifUnsocHours, setUserInput);
-    expect(setIsCleaningOngoing).toHaveBeenCalledWith(true);
-  });
 
   it("should set isCleaningOngoing to false when notification date is in the future", () => {
     const cleaningTime = DateTime.now().plus({ days: 2 }); // Future cleaning time, allow notification to be set.

@@ -109,6 +109,25 @@ export default function NotificationModal({ location }: INotificationModalProps)
     hourCycle: 'h23'
   }
 
+  const getFilteredOptions = () => {
+    const now = DateTime.now();
+    const options = [
+      { value: "60", label: "1 hour before" },
+      { value: "180", label: "3 hours before" },
+      { value: "720", label: "12 hours before" },
+      { value: "1440", label: "24 hours before" },
+      { value: "2880", label: "48 hours before" },
+    ];
+
+    return options.filter(option => {
+      if (location.nextCleaningTime) {
+        const notificationTime = location.nextCleaningTime.minus({ minutes: parseInt(option.value) });
+        return notificationTime > now && notificationTime < location.nextCleaningTime;
+      }
+    });
+
+  };
+
   return (
     <Dialog>
       <DialogTrigger asChild>
@@ -152,11 +171,11 @@ export default function NotificationModal({ location }: INotificationModalProps)
                         <SelectValue placeholder="Select time" />
                       </SelectTrigger>
                       <SelectContent>
-                        <SelectItem value="60">1 hour before</SelectItem>
-                        <SelectItem value="180">3 hours before</SelectItem>
-                        <SelectItem value="720">12 hours before</SelectItem>
-                        <SelectItem value="1440">24 hours before</SelectItem>
-                        <SelectItem value="2880">48 hours before</SelectItem>
+                        {getFilteredOptions().map(option => (
+                          <SelectItem key={option.value} value={option.value}>
+                            {option.label}
+                          </SelectItem>
+                        ))}
                       </SelectContent>
                     </Select>
                   </>

@@ -13,7 +13,8 @@ const handleOngoingCleaningStateUpdate = (
     if (nextCleaningTime) {
         const notificationDate = calculateReminderDate(nextCleaningTime, notificationBuffer);
         const now = DateTime.now();
-        setIsCleaningOngoing(notificationDate <= now);
+        const isCleaningOngoing = nextCleaningTime <= now
+        setIsCleaningOngoing(isCleaningOngoing);
         calculateUnsocialHours(notificationDate, setNotifUnsocHours);
 
         setUserInput(prev => ({
