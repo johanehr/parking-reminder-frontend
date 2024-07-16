@@ -6,7 +6,7 @@ export default function Header() {
         className="border-b lg:static border p-4"
         href="./"
       >
-        Residential parking in Bergshamra
+        Residential Parking in Bergshamra
       </a>
       <a
         className="sm:ml-auto lg:pointer-events-auto pointer-events-none"

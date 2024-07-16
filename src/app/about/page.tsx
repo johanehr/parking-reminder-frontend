@@ -39,17 +39,17 @@ export default function About() {
           We wanted to quickly find out where we could leave our car for as long as possible, as well as a convenient way to receive relevant reminders when it&apos;s time to move our car again.
         </p>
 
-        {/* notifikationer kommer bli klara när vi lanserad detta   <p className="mt-2">
-            Att bygga en sådan applikation tar en del tid, som ni säkert förstår - men vi tänkte börja
-            med att helt enkelt bygga en enkel karta som dynamiskt visar vart det är lämpligast att parkera just nu baserad på kommande städdagar och tider
-          </p> */}
-
         <h1 className="text-2xl mt-6">Notifications and Privacy</h1>
         <p className="mt-4 text-xl">How it works</p>
-        <p className="mt-2">Customised reminders:</p> Our system sends out reminders based on the times, locations and vehicle nickname you specify. This ensures you always receive relevant reminders and never miss a cleaning day. You can choose how far in advance you want to be reminded, and if you prefer to receive reminders via SMS or email
-        <p className="mt-2">Personal Data:</p> We only collect the information necessary to send effective reminders. This includes your email address/phone number and the location where your car is parked.
-        <p className="mt-2">Data Protection:</p> Your information is safe with us. We use leading security technologies to protect your data and never share it with third parties without your explicit consent.
-        <p className="mt-2">Privacy policy:</p>Read more about our data policy here:
+        <p className="mt-2 font-bold">Customised reminders</p>
+        Our system sends out e-mail reminders based on the selected parking spot and vehicle nickname you specify.
+        This ensures you always receive relevant reminders and never miss a cleaning day.
+        For your convenience, you can choose how far in advance you want to be reminded.
+        When you set a new reminder, any currently scheduled reminders will be canceled (using your email address and vehicle nickname combination as a unique identifier).
+        <p className="mt-2 font-bold">Personal Data</p> We only collect the information necessary to send effective reminders. This includes your email address (potentially later phone number for reminders sent via SMS) and the parking spot where your car is parked.
+        <p className="mt-2 font-bold">Data Protection</p>
+        Your information is safe with us. We use leading security technologies to protect your data and never share it with third parties without your explicit consent.
+        Read more about our data policy here:
         <PrivacyPolicyModal />
         <h1 className="text-2xl mt-6">
           Technology overview
@@ -64,7 +64,7 @@ export default function About() {
         </h1>
 
         <p className="mt-2">
-          Would you like to help enhance our service, either by contributing as a developer or by adding new locations, possibly even beyond Bergshamra? Please feel free to contact me at <a href="mailto:johanehrenfors@hotmail.com!">johanehrenfors@hotmail.com!</a>
+          Would you like to help enhance our service, either by contributing as a developer or by adding new locations, possibly even beyond Bergshamra? Please feel free to contact Johan at <a href="mailto:johanehrenfors@hotmail.com!">johanehrenfors@hotmail.com!</a>
         </p>
       </div>
     </main >
