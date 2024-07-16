@@ -5,8 +5,9 @@ import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import '../styles/button.css'
 import { AugmentedParkingLocationData } from '@/parking-locations/types'
 import { MapButton } from '@/components/MapButton'
-import { filterLocationsByGeohash, geohashPrecision, getUserGeohashAndNeighbors, mapLocationsToDistances, sortByDistance } from '@/parking-locations/helper-functions/geoHashHelpers'
+
 import { userLocationCircleOptions, getUserLocationIcon } from '@/components/MapIcons'
+import { filterLocationsByGeohash, geohashPrecision, getUserGeohashAndNeighbors, mapLocationsToDistances, sortByDistance } from '../notifications/helper-functions/geoHashHelpers'
 
 export function ParkingMap() {
   const [userLocation, setUserLocation] = useState<google.maps.LatLng | null>(null)

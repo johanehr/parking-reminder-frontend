@@ -5,8 +5,8 @@ import assert from "assert"
 import { getAppropriateDisplayColor } from "./helper-functions/getAppropriateDisplayColor"
 import { calculateMaximumTime } from "./helper-functions/calculateMaximumTime"
 import { compareLuxonDates } from "./helper-functions/compareLuxonDates"
-import { WEEKS_PER_YEAR } from "../app/constants"
 import { getRawParkingLocationData } from "./data/getRawParkingLocationData"
+import { WEEKS_PER_YEAR } from "../app/constants"
 
 export function augmentParkingLocationData(parkingLocation: ParkingLocationData, currentTime: DateTime): AugmentedParkingLocationData {
   const nextCleaningTime = calculateNextCleaningTime(parkingLocation.parkingRules, currentTime)

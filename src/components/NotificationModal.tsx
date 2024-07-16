@@ -3,15 +3,17 @@ import { Button } from "@/components/ui/button"
 import { Label } from "@/components/ui/label"
 import { Input } from "@/components/ui/input"
 import { Select, SelectTrigger, SelectValue, SelectContent, SelectItem } from "@/components/ui/select"
-import { AugmentedParkingLocationData, NotifUnsocialHours, UserInput } from "@/parking-locations/types"
+import { AugmentedParkingLocationData } from "@/parking-locations/types"
 import { useEffect, useState } from "react"
 import { DateTime, DateTimeFormatOptions } from "luxon"
-import { calculateReminderDate } from "@/parking-locations/helper-functions/calculateReminderDate"
-import { handleChange, handleSelectionChange } from "@/parking-locations/helper-functions/formHelpers"
+import { calculateReminderDate } from "@/app/notifications/helper-functions/calculateReminderDate"
+import { handleChange, handleSelectionChange } from "@/app/notifications/helper-functions/formHelpers"
 import { z } from 'zod'
 import { formSchema } from "@/models/formSchema"
 import { Alert, AlertDescription, AlertTitle } from "./ui/alert"
 import NicknameModal from "./NicknameModal"
+import { NotifUnsocialHours, UserInput } from "@/app/notifications/types/types"
+import { calculateUnsocialHours } from "@/app/notifications/helper-functions/unsocialHoursCalculationHelpers"
 
 interface INotificationModalProps {
   location: AugmentedParkingLocationData
@@ -98,7 +100,7 @@ export default function NotificationModal({ location }: INotificationModalProps)
     } else if (!notifUnsocHours.acceptedUnsocialHours) {
       setUserInput((prev) => ({ ...prev, notificationDate: cleanDate }));
       setNotificationBuffer(1440);
-   }
+    }
   };
 
   useEffect(() => {
@@ -113,19 +115,9 @@ export default function NotificationModal({ location }: INotificationModalProps)
     if (location.nextCleaningTime) {
       const notificationDate = calculateReminderDate(location.nextCleaningTime, notificationBuffer)
       const now = DateTime.now()
-      if (notificationDate <= now) {
-        setIsCleaningOngoing(true)
-      } else {
-        setIsCleaningOngoing(false)
-      }
+      setIsCleaningOngoing(notificationDate <= now);
+      calculateUnsocialHours(notificationDate, setNotifUnsocHours);
 
-
-      const reminderHour = notificationDate.hour
-      if (reminderHour < 6 || reminderHour >= 21) {
-        setNotifUnsocHours(prev => ({ ...prev, suggestUnsocialHours: true }))
-      } else {
-        setNotifUnsocHours(prev => ({ ...prev, suggestUnsocialHours: false }))
-      }
       setUserInput(prev => ({
         ...prev,
         notificationDate: notificationDate
@@ -195,9 +187,6 @@ export default function NotificationModal({ location }: INotificationModalProps)
                         <SelectItem value="720">12 hours before</SelectItem>
                         <SelectItem value="1440">24 hours before</SelectItem>
                         <SelectItem value="2880">48 hours before</SelectItem>
-                        <SelectItem value="2000">day before test hours before</SelectItem>
-
-
                       </SelectContent>
                     </Select>
                   </>
@@ -206,7 +195,7 @@ export default function NotificationModal({ location }: INotificationModalProps)
                   <div className={`flex space-x-2 items-center ${!notifUnsocHours.acceptedUnsocialHours ? 'bg-red-100 p-2 rounded-sm' : ''}`}>
                     {!notifUnsocHours.acceptedUnsocialHours &&
                       <>
-                        <div className="text-xs m-2">
+                        <div className="text-xs m-2 text-black">
                           Your requested notification time lands during unsociable hours, on <span className="font-bold">{
                             userInput.notificationDate?.toLocaleString(timestampFormatOpts)
                           }</span>. Shall we notify you at <span className="font-bold">20:00</span> instead on the {notifUnsocHours.dayBefore ? "day before" : "same day"}?
