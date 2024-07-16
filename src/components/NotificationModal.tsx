@@ -12,8 +12,8 @@ import { formSchema } from "@/models/formSchema"
 import NicknameModal from "./NicknameModal"
 import { NotifUnsocialHours, UserInput } from "@/notifications/types/types"
 import { handleOngoingCleaningStateUpdate } from "@/notifications/helper-functions/handleOngoingCleaningStateUpdate"
-import OngoingCleaningAlert from "./ongoingCleaningAlert"
 import ReminderSummary from "./ReminderSummary"
+import OngoingCleaningAlert from "./OngoingCleaningAlert"
 
 interface INotificationModalProps {
   location: AugmentedParkingLocationData

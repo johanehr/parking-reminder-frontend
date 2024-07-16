@@ -3,6 +3,7 @@ import { Fragment } from 'react'
 import React from 'react'
 import { AugmentedParkingLocationData, CleaningTime, DayOfWeek, ParkingRules } from './types'
 import NotificationModal from '@/components/NotificationModal'
+import { calculateLocationCenter } from './helper-functions/calculateLocationCenter'
 
 
 
@@ -54,16 +55,7 @@ export default function ParkingMapPolygons({ parkingLocations, onPolygonClick, h
     <>
       {
         parkingLocations.map((location) => {
-          const maxLat = Math.max(...location.path.map((point) => point.lat))
-          const minLat = Math.min(...location.path.map((point) => point.lat))
-          const midLat = (maxLat + minLat) / 2
-
-          const maxLng = Math.max(...location.path.map((point) => point.lng))
-          const minLng = Math.min(...location.path.map((point) => point.lng))
-          const midLng = (maxLng + minLng) / 2
-          const center = new google.maps.LatLng(midLat, midLng)
-
-
+          const center = calculateLocationCenter(location);
           return (
             <React.Fragment key={`${location.name}-fragment`}>
               <Polygon

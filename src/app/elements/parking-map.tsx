@@ -8,6 +8,7 @@ import { MapButton } from '@/components/MapButton'
 
 import { userLocationCircleOptions, getUserLocationIcon } from '@/components/MapIcons'
 import { filterLocationsByGeohash, geohashPrecision, getUserGeohashAndNeighbors, mapLocationsToDistances, sortByDistance } from '../../notifications/helper-functions/geoHashHelpers'
+import { calculateLocationCenter } from '@/parking-locations/helper-functions/calculateLocationCenter'
 
 export function ParkingMap() {
   const [userLocation, setUserLocation] = useState<google.maps.LatLng | null>(null)
@@ -132,15 +133,7 @@ export function ParkingMap() {
           parkingLocations={parkingLocations}
           onPolygonClick={(location, mapRef) => {
             if (mapRef) {
-              const maxLat = Math.max(...location.path.map(point => point.lat))
-              const minLat = Math.min(...location.path.map(point => point.lat))
-              const midLat = (maxLat + minLat) / 2
-
-              const maxLng = Math.max(...location.path.map(point => point.lng))
-              const minLng = Math.min(...location.path.map(point => point.lng))
-              const midLng = (maxLng + minLng) / 2
-
-              const center = new google.maps.LatLng({ lat: midLat, lng: midLng })
+              const center = calculateLocationCenter(location);
               setFocusedLocation(center)
               mapRef.panTo(center)
             }
