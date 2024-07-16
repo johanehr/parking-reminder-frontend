@@ -15,6 +15,7 @@ import { handleOngoingCleaningStateUpdate } from "@/notifications/helper-functio
 import ReminderSummary from "./ReminderSummary"
 import OngoingCleaningAlert from "./OngoingCleaningAlert"
 import { calculateUnsociableHoursSuggestionDaybeforeOrSameday } from "@/notifications/helper-functions/calculateUnsocHoursSuggestionDaybeforeOrSameday"
+import { calculateNotifUnsocialHours } from "@/notifications/helper-functions/calculateNotifTimeUnsocHours"
 
 interface INotificationModalProps {
   location: AugmentedParkingLocationData
@@ -44,6 +45,7 @@ export default function NotificationModal({ location }: INotificationModalProps)
       carNickname: userInput.carNickname,
       notificationDate: userInput.notificationDate?.toISO(),
     }
+    console.log(data, "this is hte data")
 
     const zodResult = formSchema.safeParse(data)
     if (!zodResult.success) {
@@ -75,27 +77,22 @@ export default function NotificationModal({ location }: INotificationModalProps)
     setErrors([])
     setIsCleaningOngoing(false)
   }
-  const calculateNotifUnsocialHours = (
-    notifUnsocHours: NotifUnsocialHours,
-    notifDate: DateTime<boolean> | null,
-    cleanDate: DateTime<boolean> | null
-  ) => {
-    if (notifUnsocHours.acceptedUnsocialHours && notifDate) {
-      if (notifUnsocHours.dayBefore) {
-        const cleaningTimeDayBefore = notifDate.minus({ days: 1 }).set({ hour: 20, minute: 0, second: 0, millisecond: 0 })
-        setUserInput((prev) => ({ ...prev, notificationDate: cleaningTimeDayBefore }))
-      } else if (!notifUnsocHours.dayBefore) {
-        const cleaningTimeSameDay = notifDate.set({ hour: 20, minute: 0, second: 0, millisecond: 0 })
-        setUserInput((prev) => ({ ...prev, notificationDate: cleaningTimeSameDay }))
-      }
-    } else if (!notifUnsocHours.acceptedUnsocialHours) {
-      setUserInput((prev) => ({ ...prev, notificationDate: cleanDate }));
+
+
+  const handleNotification = (notifDate: DateTime, cleanDate: DateTime) => {
+    const { newNotificationDate, resetBuffer } = calculateNotifUnsocialHours(notifUnsocHours, notifDate, cleanDate);
+
+    setUserInput(prev => ({ ...prev, notificationDate: newNotificationDate }));
+
+    if (resetBuffer) {
       setNotificationBuffer(1440);
     }
   };
 
   useEffect(() => {
-    calculateNotifUnsocialHours(notifUnsocHours, userInput.notificationDate, location.nextCleaningTime);
+    if (userInput.notificationDate && location.nextCleaningTime) {
+      handleNotification(userInput.notificationDate, location.nextCleaningTime);
+    }
   }, [notifUnsocHours.acceptedUnsocialHours]);
 
   useEffect(() => {
@@ -138,7 +135,7 @@ export default function NotificationModal({ location }: INotificationModalProps)
             <div className="grid gap-4">
               <div className="grid gap-2">
                 <Label htmlFor="email">Email</Label>
-                <Input onChange={(e) => handleChange(e, setUserInput, userInput)} name="email" id="email" placeholder="Enter email" />
+                <Input onChange={(e) => handleChange(e, setUserInput, userInput)} name="email" value={userInput.email} id="email" placeholder="Enter email" />
                 {errors.find(error => error.path.includes('email')) && <p className="text-xs text-red-500">{getErrorMessage('email')}</p>}
               </div>
               <div className="grid gap-2">

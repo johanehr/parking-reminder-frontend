@@ -4,6 +4,7 @@ import { handleOngoingCleaningStateUpdate } from "../helper-functions/handleOngo
 import { isUnsocialHour } from "../helper-functions/unsocialHoursCalculationHelpers";
 import { calculateUnsociableHoursSuggestionDaybeforeOrSameday } from "../helper-functions/calculateUnsocHoursSuggestionDaybeforeOrSameday";
 import { NotifUnsocialHours } from "../types/types";
+import { calculateNotifUnsocialHours } from "../helper-functions/calculateNotifTimeUnsocHours";
 
 
 describe("Tests unsocialhours definition", () => {
@@ -72,7 +73,6 @@ describe("Tests whether the unsociable hours suggestion state is set to day befo
 });
 
 
-
 describe("Tests if cleaning is ongoing, or within next 24h, and updates state accordingly", () => {
   //testing to see if the state updaters are being called with the correct value.
   let setIsCleaningOngoing: jest.Mock;
@@ -103,6 +103,47 @@ describe("Tests if cleaning is ongoing, or within next 24h, and updates state ac
     expect(setIsCleaningOngoing).toHaveBeenCalledWith(true);
   });
 
+
+
+
+  describe("calculateNotif time for unsocial hours", () => {
+    it("should return notification date set to 20:00 the day before if dayBefore is true and acceptedUnsocialHours is true", () => {
+      const notifUnsocHours: NotifUnsocialHours = { acceptedUnsocialHours: true, dayBefore: true, suggestUnsocialHours: true };
+      const notifDate = DateTime.now().plus({ days: 3 }).set({ hour: 23 }); // Unsociable hour for clarity although doesn't effect test
+      const cleanDate = DateTime.now().plus({ days: 4 }).set({ hour: 10 }); // Cleaning date the day after scheduled notif
+  
+      const { newNotificationDate, resetBuffer } = calculateNotifUnsocialHours(notifUnsocHours, notifDate, cleanDate);
+  
+      const expectedDate = notifDate.minus({ days: 1 }).set({ hour: 20, minute: 0, second: 0, millisecond: 0 });
+  
+      expect(newNotificationDate).toEqual(expectedDate);
+      expect(resetBuffer).toBe(false);
+    });
+  
+    it("should return notification date set to 20:00 the same day if dayBefore is false and acceptedUnsocialHours is true", () => {
+      const notifUnsocHours: NotifUnsocialHours = { acceptedUnsocialHours: true, dayBefore: false, suggestUnsocialHours: true };
+      const notifDate = DateTime.now().plus({ days: 3 }).set({ hour: 23 }); 
+      const cleanDate = DateTime.now().plus({ days: 4 }).set({ hour: 10 }); 
+  
+      const { newNotificationDate, resetBuffer } = calculateNotifUnsocialHours(notifUnsocHours, notifDate, cleanDate);
+  
+      const expectedDate = notifDate.set({ hour: 20, minute: 0, second: 0, millisecond: 0 });
+  
+      expect(newNotificationDate).toEqual(expectedDate);
+      expect(resetBuffer).toBe(false);
+    });
+  
+    it("should return cleanDate and resetBuffer as true if acceptedUnsocialHours is false", () => {
+      const notifUnsocHours: NotifUnsocialHours = { acceptedUnsocialHours: false, dayBefore: false, suggestUnsocialHours: false };
+      const notifDate = DateTime.now().plus({ days: 3 }).set({ hour: 23 }); 
+      const cleanDate = DateTime.now().plus({ days: 4 }).set({ hour: 10 }); 
+  
+      const { newNotificationDate, resetBuffer } = calculateNotifUnsocialHours(notifUnsocHours, notifDate, cleanDate);
+  
+      expect(newNotificationDate).toEqual(cleanDate);
+      expect(resetBuffer).toBe(true); //resets to 24h before the cleaning time, and therefore resets UI for notif setting.
+    });
+  });
 
 
 
