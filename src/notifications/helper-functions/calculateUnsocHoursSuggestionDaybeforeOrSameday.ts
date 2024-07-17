@@ -1,18 +1,17 @@
-import { DateTime } from "luxon"
 import { NotifUnsocialHours } from "../types/types"
 import { UNSOCIAL_HOUR_END, UNSOCIAL_HOUR_START } from "../../app/constants"
 import { calculateReminderDate } from "./calculateReminderDate"
 import { AugmentedParkingLocationData } from "@/parking-locations/types"
+import { DateTime } from "luxon"
 
 
 export const calculateUnsociableHoursSuggestionDaybeforeOrSameday = (
-  value: string,
+  notificationDate: DateTime,
   currentState: NotifUnsocialHours,
   location: AugmentedParkingLocationData
 ): NotifUnsocialHours => {
-  const newBuffer = parseInt(value)
   if (location.nextCleaningTime) {
-    const notificationDate = calculateReminderDate(location.nextCleaningTime, newBuffer)
+
     let dayBefore = currentState.dayBefore
 
     if (notificationDate.hour <= UNSOCIAL_HOUR_END) {
@@ -26,6 +25,6 @@ export const calculateUnsociableHoursSuggestionDaybeforeOrSameday = (
       dayBefore
     }
   } else {
-    return currentState;
+    return currentState
   }
 }

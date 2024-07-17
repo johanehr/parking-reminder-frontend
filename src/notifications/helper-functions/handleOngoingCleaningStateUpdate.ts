@@ -12,10 +12,10 @@ const handleOngoingCleaningStateUpdate = (
     const notificationDate = calculateReminderDate(nextCleaningTime, notificationBuffer)
     const now = DateTime.now()
 
-    let isCleaningOngoing = false;
-    let isWithinNext24Hours = false;    
+    let isCleaningOngoing = false
+    let isWithinNext24Hours = false    
     if(nextCleaningTime <= now){
-      isCleaningOngoing = true;
+      isCleaningOngoing = true
     } else if(nextCleaningTime <= now.plus({ hours: 24 })) {
       isWithinNext24Hours= true
     }

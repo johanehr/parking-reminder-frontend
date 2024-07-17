@@ -17,6 +17,7 @@ import OngoingCleaningAlert from "./OngoingCleaningAlert"
 import { calculateUnsociableHoursSuggestionDaybeforeOrSameday } from "@/notifications/helper-functions/calculateUnsocHoursSuggestionDaybeforeOrSameday"
 import { calculateNotifUnsocialHours } from "@/notifications/helper-functions/calculateNotifTimeUnsocHours"
 import FilteredOptionsAlert from "./FilteredOptionsAlert"
+import { calculateReminderDate } from "@/notifications/helper-functions/calculateReminderDate"
 
 interface INotificationModalProps {
   location: AugmentedParkingLocationData
@@ -67,7 +68,7 @@ export default function NotificationModal({ location }: INotificationModalProps)
 
   useEffect(() => {
     handleOngoingCleaningStateUpdate(location.nextCleaningTime, state.notificationBuffer, setState)
-  }, [location.nextCleaningTime, state.notificationBuffer, state.notificationBuffer])
+  }, [location.nextCleaningTime, state.notificationBuffer])
 
   const resetNotificationSettings = () => {
     setState((prevState) => ({
@@ -125,7 +126,7 @@ export default function NotificationModal({ location }: INotificationModalProps)
     return options.filter(option => {
       if (location.nextCleaningTime) {
         const notificationTime = location.nextCleaningTime.minus({ minutes: parseInt(option.value) })
-        return notificationTime > now && notificationTime < location.nextCleaningTime
+        return notificationTime > now
       }
     })
   }
@@ -164,16 +165,20 @@ export default function NotificationModal({ location }: INotificationModalProps)
 
                         <Select name="notification-time" defaultValue="1440" onValueChange={
                           (e) => {
-                            const updatedNotifUnsocHours = calculateUnsociableHoursSuggestionDaybeforeOrSameday(
-                              e,
-                              state.notifUnsocHours,
-                              location
-                            )
-                            setState(prev => ({
-                              ...prev,
-                              notifUnsocHours: updatedNotifUnsocHours
-                            }))
-                            handleSelectionChange(e, setState, location)
+                            if (location.nextCleaningTime) {
+                              let notificationDate = calculateReminderDate(location.nextCleaningTime, parseInt(e));
+
+                              const updatedNotifUnsocHours = calculateUnsociableHoursSuggestionDaybeforeOrSameday(
+                                notificationDate,
+                                state.notifUnsocHours,
+                                location
+                              )
+                              setState(prev => ({
+                                ...prev,
+                                notifUnsocHours: updatedNotifUnsocHours
+                              }))
+                              handleSelectionChange(e, setState, location)
+                            }
                           }
                         }>
                           <SelectTrigger className="w-full">
