@@ -1,6 +1,5 @@
 import { NotifUnsocialHours } from "../types/types"
 import { UNSOCIAL_HOUR_END, UNSOCIAL_HOUR_START } from "../../app/constants"
-import { calculateReminderDate } from "./calculateReminderDate"
 import { AugmentedParkingLocationData } from "@/parking-locations/types"
 import { DateTime } from "luxon"
 
