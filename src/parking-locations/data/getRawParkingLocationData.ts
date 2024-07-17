@@ -146,7 +146,7 @@ export function getRawParkingLocationData(): ParkingLocationData[] {
       name: "Pipers väg (östra)",
       parkingRules: {
         cleaningTimes: [
-          { day: DayOfWeek.THURSDAY, startHour: 17, endHour: 23, appliesToEvenWeeks: false, appliesToOddWeeks: true, noCleaningMonths: [MonthOfYear.AUGUST] },
+          { day: DayOfWeek.WEDNESDAY, startHour: 10, endHour: 14, appliesToEvenWeeks: false, appliesToOddWeeks: true, noCleaningMonths: [MonthOfYear.JULY] },
         ],
         maximum: { days: 14 }
       },
