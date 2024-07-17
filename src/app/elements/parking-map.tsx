@@ -14,7 +14,7 @@ export function ParkingMap() {
   const [userLocation, setUserLocation] = useState<google.maps.LatLng | null>(null)
   const [userLocationAccuracy, setUserLocationAccuracy] = useState<number | null>(null)
   const [focusedLocation, setFocusedLocation] = useState<google.maps.LatLng | null>(null)
-  const [userLocationIcon, setUserLocationIcon] = useState<google.maps.Symbol | null>(null);
+  const [userLocationIcon, setUserLocationIcon] = useState<google.maps.Symbol | null>(null)
   const mapRef = useRef<google.maps.Map | null>(null)
   const [selectedParkingForDisplay, setSelectedParkingForDisplay] = useState<AugmentedParkingLocationData | null>(null)
 
@@ -27,18 +27,18 @@ export function ParkingMap() {
 
 
   const selectClosestParkingSpot = useCallback((userLatLong: google.maps.LatLng) => {
-    const parkingLocations = getAugmentedParkingLocationData();
-    const userGeohashAndNeighbors = getUserGeohashAndNeighbors(userLatLong, geohashPrecision);
-    const filteredLocations = filterLocationsByGeohash(userGeohashAndNeighbors, parkingLocations, geohashPrecision);
-    const distances = mapLocationsToDistances(userLatLong, filteredLocations);
-    const sortedDistances = distances.sort(sortByDistance);
+    const parkingLocations = getAugmentedParkingLocationData()
+    const userGeohashAndNeighbors = getUserGeohashAndNeighbors(userLatLong, geohashPrecision)
+    const filteredLocations = filterLocationsByGeohash(userGeohashAndNeighbors, parkingLocations, geohashPrecision)
+    const distances = mapLocationsToDistances(userLatLong, filteredLocations)
+    const sortedDistances = distances.sort(sortByDistance)
 
-    const closestSpot = sortedDistances.length > 0 ? sortedDistances[0].location : null;
+    const closestSpot = sortedDistances.length > 0 ? sortedDistances[0].location : null
 
     if (closestSpot) {
-      setSelectedParkingForDisplay(closestSpot);
+      setSelectedParkingForDisplay(closestSpot)
     }
-  }, [isLoaded])
+  }, [])
 
   const getUserLocation = useCallback(() => {
     if (!isLoaded) return // Some runtime issue with loading google is causing issues
@@ -66,8 +66,8 @@ export function ParkingMap() {
 
   useEffect(() => { 
     getUserLocation()
-    const icon = getUserLocationIcon();
-    setUserLocationIcon(icon);
+    const icon = getUserLocationIcon()
+    setUserLocationIcon(icon)
   }, [getUserLocation])
 
 
@@ -109,22 +109,22 @@ export function ParkingMap() {
         }}
       >
         {userLocation && (
-             <>
-             {userLocationIcon && (
-               <Marker
-                 position={userLocation}
-                 title="Your location is here"
-                 icon={userLocationIcon}
-               />
-             )}
-             {userLocationAccuracy && (
-               <Circle
-                 center={userLocation}
-                 radius={userLocationAccuracy}
-                 options={userLocationCircleOptions}
-               />
-             )}
-           </>
+          <>
+            {userLocationIcon && (
+              <Marker
+                position={userLocation}
+                title="Your location is here"
+                icon={userLocationIcon}
+              />
+            )}
+            {userLocationAccuracy && (
+              <Circle
+                center={userLocation}
+                radius={userLocationAccuracy}
+                options={userLocationCircleOptions}
+              />
+            )}
+          </>
         )}
         <ParkingMapPolygons
           handleSelectParkingSpotForDisplay={handleSelectParkingSpotForDisplay}
@@ -132,7 +132,7 @@ export function ParkingMap() {
           parkingLocations={parkingLocations}
           onPolygonClick={(location, mapRef) => {
             if (mapRef) {
-              const center = calculateLocationCenter(location);
+              const center = calculateLocationCenter(location)
               setFocusedLocation(center)
               mapRef.panTo(center)
             }

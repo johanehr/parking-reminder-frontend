@@ -55,7 +55,7 @@ export default function ParkingMapPolygons({ parkingLocations, onPolygonClick, h
     <>
       {
         parkingLocations.map((location) => {
-          const center = calculateLocationCenter(location);
+          const center = calculateLocationCenter(location)
           return (
             <React.Fragment key={`${location.name}-fragment`}>
               <Polygon

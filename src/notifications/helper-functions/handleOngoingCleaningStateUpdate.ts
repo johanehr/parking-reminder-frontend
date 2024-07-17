@@ -1,29 +1,30 @@
-import { DateTime } from "luxon";
-import { calculateReminderDate } from "./calculateReminderDate";
-import { calculateUnsocialHours } from "./unsocialHoursCalculationHelpers";
-import { NotifUnsocialHours, UserInput } from "../types/types";
+import { DateTime } from "luxon"
+import { CombinedState } from "../types/types"
+import { calculateUnsocialHours } from "./unsocialHoursCalculationHelpers"
+import { calculateReminderDate } from "./calculateReminderDate"
 
 const handleOngoingCleaningStateUpdate = (
-    nextCleaningTime: DateTime | null,
-    notificationBuffer: number,
-    setIsCleaningOngoing: React.Dispatch<React.SetStateAction<boolean>>,
-    setNotifUnsocHours: React.Dispatch<React.SetStateAction<NotifUnsocialHours>>,
-    setUserInput: React.Dispatch<React.SetStateAction<UserInput>>
+  nextCleaningTime: DateTime | null,
+  notificationBuffer: number,
+  setState: React.Dispatch<React.SetStateAction<CombinedState>>,
 ) => {
-    if (nextCleaningTime) {
-        const notificationDate = calculateReminderDate(nextCleaningTime, notificationBuffer);
-        const now = DateTime.now();
-        const isCleaningOngoing = nextCleaningTime <= now
-        setIsCleaningOngoing(isCleaningOngoing);
-        calculateUnsocialHours(notificationDate, setNotifUnsocHours);
-
-        setUserInput(prev => ({
-            ...prev,
-            notificationDate: notificationDate
-        }));
-    } else {
-        alert("We have no next cleaning time available for this parking spot.");
-    }
-};
+  if (nextCleaningTime) {
+    const notificationDate = calculateReminderDate(nextCleaningTime, notificationBuffer)
+    const now = DateTime.now()
+    const isCleaningOngoing = nextCleaningTime <= now.plus({ minutes: notificationBuffer })
+    
+    setState((prevState) => {
+      const updatedNotifUnsocHours = calculateUnsocialHours(notificationDate, prevState.notifUnsocHours)
+      return {
+        ...prevState,
+        isCleaningOngoing,
+        notifUnsocHours: updatedNotifUnsocHours,
+        userInput: { ...prevState.userInput, notificationDate }
+      }
+    })
+  } else {
+    alert("We have no next cleaning time available for this parking spot.")
+  }
+}
 
 export { handleOngoingCleaningStateUpdate }
