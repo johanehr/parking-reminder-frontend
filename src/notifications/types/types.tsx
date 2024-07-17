@@ -15,5 +15,6 @@ export interface CombinedState {
   notificationBuffer: number;
   notifUnsocHours: NotifUnsocialHours;
   userInput: UserInput;
-  isCleaningOngoing: boolean;
+  notificationFiltered: boolean;
+  notificationNotPossible: boolean;
 }

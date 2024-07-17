@@ -11,13 +11,21 @@ const handleOngoingCleaningStateUpdate = (
   if (nextCleaningTime) {
     const notificationDate = calculateReminderDate(nextCleaningTime, notificationBuffer)
     const now = DateTime.now()
-    const isCleaningOngoing = nextCleaningTime <= now.plus({ minutes: notificationBuffer })
-    
+
+    let isCleaningOngoing = false;
+    let isWithinNext24Hours = false;    
+    if(nextCleaningTime <= now){
+      isCleaningOngoing = true;
+    } else if(nextCleaningTime <= now.plus({ hours: 24 })) {
+      isWithinNext24Hours= true
+    }
+
     setState((prevState) => {
       const updatedNotifUnsocHours = calculateUnsocialHours(notificationDate, prevState.notifUnsocHours)
       return {
         ...prevState,
-        isCleaningOngoing,
+        notificationFiltered: isWithinNext24Hours,
+        notificationNotPossible: isCleaningOngoing,
         notifUnsocHours: updatedNotifUnsocHours,
         userInput: { ...prevState.userInput, notificationDate }
       }

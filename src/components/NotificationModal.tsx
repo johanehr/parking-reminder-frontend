@@ -4,7 +4,7 @@ import { Label } from "@/components/ui/label"
 import { Input } from "@/components/ui/input"
 import { Select, SelectTrigger, SelectValue, SelectContent, SelectItem } from "@/components/ui/select"
 import { AugmentedParkingLocationData } from "@/parking-locations/types"
-import { useState } from "react"
+import { useEffect, useState } from "react"
 import { DateTime, DateTimeFormatOptions } from "luxon"
 import { handleChange, handleSelectionChange } from "@/notifications/helper-functions/formHelpers"
 import { z } from 'zod'
@@ -16,6 +16,7 @@ import ReminderSummary from "./ReminderSummary"
 import OngoingCleaningAlert from "./OngoingCleaningAlert"
 import { calculateUnsociableHoursSuggestionDaybeforeOrSameday } from "@/notifications/helper-functions/calculateUnsocHoursSuggestionDaybeforeOrSameday"
 import { calculateNotifUnsocialHours } from "@/notifications/helper-functions/calculateNotifTimeUnsocHours"
+import FilteredOptionsAlert from "./FilteredOptionsAlert"
 
 interface INotificationModalProps {
   location: AugmentedParkingLocationData
@@ -39,7 +40,8 @@ export default function NotificationModal({ location }: INotificationModalProps)
     notificationBuffer: 1440,
     notifUnsocHours: initialNotifUnsocHours,
     userInput: initialUserInput(location.nextCleaningTime),
-    isCleaningOngoing: false,
+    notificationFiltered: false,
+    notificationNotPossible: false,
   })
   const [errors, setErrors] = useState<z.ZodIssue[]>([])
 
@@ -51,20 +53,21 @@ export default function NotificationModal({ location }: INotificationModalProps)
       carNickname: state.userInput.carNickname,
       notificationDate: state.userInput.notificationDate?.toISO(),
     }
-    console.log(data, "this is hte data")
-
     const zodResult = formSchema.safeParse(data)
     if (!zodResult.success) {
       setErrors(zodResult.error.issues)
       console.log(errors)
       return
     }
-
     setErrors([])
     console.log(data, "here is the data for backend >>>>>>")
     /*  const res = await axios.post('https://your-gcp-backend-url/api/submitForm', { data });
      console.log(res.data) */
   }
+
+  useEffect(() => {
+    handleOngoingCleaningStateUpdate(location.nextCleaningTime, state.notificationBuffer, setState)
+  }, [location.nextCleaningTime, state.notificationBuffer, state.notificationBuffer])
 
   const resetNotificationSettings = () => {
     setState((prevState) => ({
@@ -83,7 +86,7 @@ export default function NotificationModal({ location }: INotificationModalProps)
       const notificationDate = prevState.userInput.notificationDate
       if (notificationDate && location.nextCleaningTime) {
         const { newNotificationDate, resetBuffer } = calculateNotifUnsocialHours(updatedNotifUnsocHours, notificationDate, location.nextCleaningTime)
-        
+
         return {
           ...prevState,
           notifUnsocHours: updatedNotifUnsocHours,
@@ -143,71 +146,81 @@ export default function NotificationModal({ location }: INotificationModalProps)
               </DialogHeader>
             </div>
             <div className="grid gap-4">
-              <div className="grid gap-2">
-                <Label htmlFor="email">Email</Label>
-                <Input onChange={(e) => handleChange(e, setState)} name="email" value={state.userInput.email} id="email" placeholder="Enter email" />
-                {errors.find(error => error.path.includes('email')) && <p className="text-xs text-red-500">{getErrorMessage('email')}</p>}
-              </div>
-              <div className="grid gap-2">
-                <Label htmlFor="car-nickname">Car Nickname (optional)<NicknameModal /></Label>
-                <Input onChange={(e) => handleChange(e, setState)} name="carNickname" id="car-nickname" value={state.userInput.carNickname} placeholder="Enter car nickname" />
-                {errors.find(error => error.path.includes('carNickname')) && <p className="text-xs text-red-500">{getErrorMessage('carNickname')}</p>}
-              </div>
-              <div className="grid gap-2">
-                {!state.notifUnsocHours.acceptedUnsocialHours &&
-                  <>
-                    <Label htmlFor="notification-time">Notification Time</Label>
-                    <Select name="notification-time" defaultValue="1440" onValueChange={
-                      (e) => {
-                        const updatedNotifUnsocHours = calculateUnsociableHoursSuggestionDaybeforeOrSameday(
-                          state.userInput.notificationDate,
-                          state.notifUnsocHours
-                        )
-                        setState(prev => ({
-                          ...prev,
-                          notifUnsocHours: updatedNotifUnsocHours
-                        }))
-                        handleSelectionChange(e, setState, location)
-                      }
-                    }>
-                      <SelectTrigger className="w-full">
-                        <SelectValue placeholder="Select time" />
-                      </SelectTrigger>
-                      <SelectContent>
-                        {getFilteredOptions().map(option => (
-                          <SelectItem key={option.value} value={option.value}>
-                            {option.label}
-                          </SelectItem>
-                        ))}
-                      </SelectContent>
-                    </Select>
-                  </>
-                }
-                {state.notifUnsocHours.suggestUnsocialHours && (
-                  <div className={`flex space-x-2 items-center ${!state.notifUnsocHours.acceptedUnsocialHours ? 'bg-red-100 p-2 rounded-sm' : ''}`}>
+              {!state.notificationNotPossible &&
+                <>
+                  <div className="grid gap-2">
+                    <Label htmlFor="email">Email</Label>
+                    <Input onChange={(e) => handleChange(e, setState)} name="email" value={state.userInput.email} id="email" placeholder="Enter email" />
+                    {errors.find(error => error.path.includes('email')) && <p className="text-xs text-red-500">{getErrorMessage('email')}</p>}
+                  </div>
+                  <div className="grid gap-2">
+                    <Label htmlFor="car-nickname">Car Nickname (optional)<NicknameModal /></Label>
+                    <Input onChange={(e) => handleChange(e, setState)} name="carNickname" id="car-nickname" value={state.userInput.carNickname} placeholder="Enter car nickname" />
+                    {errors.find(error => error.path.includes('carNickname')) && <p className="text-xs text-red-500">{getErrorMessage('carNickname')}</p>}
+                  </div>
+                  <div className="grid gap-2">
                     {!state.notifUnsocHours.acceptedUnsocialHours &&
                       <>
-                        <div className="text-xs m-2 text-black">
-                          Your requested notification time lands during unsociable hours, on <span className="font-bold">{
-                            state.userInput.notificationDate?.toLocaleString(timestampFormatOpts)
-                          }</span>. Shall we notify you at <span className="font-bold">20:00</span> instead on the {state.notifUnsocHours.dayBefore ? "day before" : "same day"}?
-                        </div>
+                        <Label htmlFor="notification-time">Notification Time</Label>
 
-                        <Button
-                          id="unsocialHours"
-                          onClick={handleAcceptUnsocHours}
-                        >
-                          Sure!
-                        </Button>
+                        <Select name="notification-time" defaultValue="1440" onValueChange={
+                          (e) => {
+                            const updatedNotifUnsocHours = calculateUnsociableHoursSuggestionDaybeforeOrSameday(
+                              state.userInput.notificationDate,
+                              state.notifUnsocHours
+                            )
+                            setState(prev => ({
+                              ...prev,
+                              notifUnsocHours: updatedNotifUnsocHours
+                            }))
+                            handleSelectionChange(e, setState, location)
+                          }
+                        }>
+                          <SelectTrigger className="w-full">
+                            <SelectValue placeholder="Select time" />
+                          </SelectTrigger>
+                          <SelectContent>
+                            {getFilteredOptions().map(option => (
+                              <SelectItem key={option.value} value={option.value}>
+                                {option.label}
+                              </SelectItem>
+                            ))}
+                          </SelectContent>
+                        </Select>
                       </>
                     }
+                    {state.notifUnsocHours.suggestUnsocialHours && !state.notificationFiltered && (
+                      <div className={`flex space-x-2 items-center ${!state.notifUnsocHours.acceptedUnsocialHours ? 'bg-red-100 p-2 rounded-sm' : ''}`}>
+                        {!state.notifUnsocHours.acceptedUnsocialHours &&
+                          <>
+                            <div className="text-xs m-2 text-black">
+                              Your requested notification time lands during unsociable hours, on <span className="font-bold">{
+                                state.userInput.notificationDate?.toLocaleString(timestampFormatOpts)
+                              }</span>. Shall we notify you at <span className="font-bold">20:00</span> instead on the {state.notifUnsocHours.dayBefore ? "day before" : "same day"}?
+                            </div>
+
+                            <Button
+                              id="unsocialHours"
+                              onClick={handleAcceptUnsocHours}
+                            >
+                              Sure!
+                            </Button>
+                          </>
+                        }
+                      </div>
+                    )}
                   </div>
-                )}
-              </div>
+                </>
+              }
 
+              {state.notificationNotPossible &&
+                <OngoingCleaningAlert />
+              }
+              {state.notificationFiltered &&
+                <FilteredOptionsAlert />
+              }
 
-              {state.isCleaningOngoing ?
-                <OngoingCleaningAlert /> :
+              {!state.notificationNotPossible &&
                 <ReminderSummary
                   notificationDate={state.userInput.notificationDate}
                   notifUnsocHours={state.notifUnsocHours}
@@ -219,7 +232,7 @@ export default function NotificationModal({ location }: INotificationModalProps)
             </div>
             <DialogFooter className="flex items-center justify-content ">
               <h4 className="text-xs mr-auto">By continuing you are accepting the <br /><a className="text-blue-500" href="/">terms and conditions</a></h4>
-              <Button className="mb-4" disabled={state.isCleaningOngoing} type="submit">Set Reminder</Button>
+              <Button className="mb-4" disabled={state.notificationNotPossible} type="submit">Set Reminder</Button>
             </DialogFooter>
           </div>
         </form>
