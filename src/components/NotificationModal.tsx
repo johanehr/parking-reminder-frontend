@@ -166,7 +166,7 @@ export default function NotificationModal({ location }: INotificationModalProps)
                         <Select name="notification-time" defaultValue="1440" onValueChange={
                           (e) => {
                             if (location.nextCleaningTime) {
-                              let notificationDate = calculateReminderDate(location.nextCleaningTime, parseInt(e));
+                              const notificationDate = calculateReminderDate(location.nextCleaningTime, parseInt(e))
 
                               const updatedNotifUnsocHours = calculateUnsociableHoursSuggestionDaybeforeOrSameday(
                                 notificationDate,
