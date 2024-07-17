@@ -128,7 +128,6 @@ export default function NotificationModal({ location }: INotificationModalProps)
         return notificationTime > now && notificationTime < location.nextCleaningTime
       }
     })
-
   }
 
   return (
@@ -166,8 +165,9 @@ export default function NotificationModal({ location }: INotificationModalProps)
                         <Select name="notification-time" defaultValue="1440" onValueChange={
                           (e) => {
                             const updatedNotifUnsocHours = calculateUnsociableHoursSuggestionDaybeforeOrSameday(
-                              state.userInput.notificationDate,
-                              state.notifUnsocHours
+                              e,
+                              state.notifUnsocHours,
+                              location
                             )
                             setState(prev => ({
                               ...prev,
