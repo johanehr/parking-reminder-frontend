@@ -1,0 +1,14 @@
+.custom-map-control-button {
+    background-color: #f8f9fa; 
+    color: #333;
+    border: 1px solid #ccc; 
+    padding: 8px 16px;
+    font-size: 16px;
+    cursor: pointer;
+    outline: none;
+    box-shadow: 0 2px 6px rgba(0,0,0,0.3);
+    border-radius: 4px;
+    position: absolute;
+    right: 10px;         
+    bottom: 10px; 
+}

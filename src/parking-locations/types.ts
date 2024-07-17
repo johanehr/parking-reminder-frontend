@@ -1,3 +1,5 @@
+import { DateTime } from "luxon"
+
 export enum DayOfWeek {
   MONDAY = 1,
   TUESDAY = 2,
@@ -34,7 +36,10 @@ export type ParkingRules = {
   maximum: { days: number }
 }
 
-export type AugmentedParkingLocationData = ParkingLocationData & { color: string }
+export type AugmentedParkingLocationData = ParkingLocationData & {
+  color: string;
+  nextCleaningTime: DateTime | null;
+}
 
 export type CleaningTime = {
   day: DayOfWeek
@@ -44,3 +49,4 @@ export type CleaningTime = {
   appliesToOddWeeks: boolean,
   noCleaningMonths: MonthOfYear[]
 }
+
