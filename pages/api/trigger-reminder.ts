@@ -2,6 +2,8 @@ import type { NextApiRequest, NextApiResponse } from 'next'
 import { CloudTasksClient, protos } from '@google-cloud/tasks'
 import { auth } from 'google-auth-library'
 
+import { generateUniqueTaskIdentifier, TriggerReminderInput } from '@/notifications/helper-functions/gcpTaskHelpers'
+
 const project = process.env.GCP_PROJECT as string
 const queue = process.env.GCP_TASK_QUEUE as string
 const location = process.env.GCP_PRIMARY_REGION as string
@@ -30,7 +32,7 @@ async function createHttpTask(nickname: string = 'DEFAULT') {
   const parent = client.queuePath(project, location, queue)
 
   // TODO: Modify this function to accept input for the following fields (as accepted by the current email template)
-  const hardCodedBody = {
+  const hardCodedBody: TriggerReminderInput = {
     to_email: 'luhcforgh@gmail.com',
     vehicle_nickname: nickname,
     location: {
@@ -41,10 +43,7 @@ async function createHttpTask(nickname: string = 'DEFAULT') {
     move_by_timestamp: '2024-05-02T16:10:18Z'
   }
 
-  const name = client.taskPath(project, location, queue, `EMAIL_luhcforghgmailcom_${Date.now()}`)
-  // TODO: Make sure this overwrites any existing tasks with the same name (use method, email, and nickname as input)
-  // Note that @ and . had to be stripped! "letters ([A-Za-z]), numbers ([0-9]), hyphens (-), or underscores (_). Task ID must between 1 and 500 characters."
-  // It might be easiest to ensure (supposed) uniqueness by hashing the full string, so that first.lastname and firstlastname doesn't become the same
+  const name = client.taskPath(project, location, queue, generateUniqueTaskIdentifier(hardCodedBody))
 
   const task: protos.google.cloud.tasks.v2.ITask = {
     name: name,
