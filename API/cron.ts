@@ -30,8 +30,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
         const { data: notifications, error } = await supabase
             .from('notifications')
             .select('*')
-            .eq('sent', false);
-
+            .eq('status', 'pending')
         if (error) {
             throw error;
         }
@@ -53,10 +52,14 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
                     await sgMail.send(msg);
                     await supabase
                         .from('notifications')
-                        .update({ sent: true })
+                        .update({ status: 'sent' })
                         .eq('id', notification.id);
                 } catch (emailError) {
                     console.error('Error sending email:', emailError);
+                    await supabase
+                        .from('notifications')
+                        .update({ status: 'failed' })
+                        .eq('id', notification.id);
                 }
             }
         }
