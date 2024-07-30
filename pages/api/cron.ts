@@ -3,12 +3,12 @@ import { createClient } from '@supabase/supabase-js'
 import sgMail from '@sendgrid/mail'
 import { DateTime } from 'luxon'
 
-const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL as string
-const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY as string
+const supabaseUrl = process.env.SUPABASE_URL as string
+const supabaseAnonKey = process.env.SUPABASE_ANON_KEY as string
 const sendgridApiKey = process.env.SENDGRID_API_KEY as string
 const senderEmail = process.env.SENDGRID_SENDER_EMAIL as string
 
-if (!sendgridApiKey) {
+/* if (!sendgridApiKey) {
   const error = new Error('SENDGRID_API_KEY was not provided as environment variable.') as Error & { code: number }
   error.code = 401
   throw error
@@ -19,10 +19,10 @@ if (!senderEmail) {
   error.code = 401
   throw error
 }
-
+ */
 const supabase = createClient(supabaseUrl, supabaseAnonKey)
-sgMail.setApiKey(sendgridApiKey)
-
+/* sgMail.setApiKey(sendgridApiKey)
+ */
 
 
 export default async function handler(req: VercelRequest, res: VercelResponse) {
@@ -38,17 +38,20 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     const now = DateTime.now()
 
     for (const notification of notifications) {
-      const { email, car_nickname, notification_date, location_name, location_path } = notification
+      const { email, car_nickname, notification_date, location_name, location_path} = notification
+      const date = DateTime.fromISO(notification_date);
+      const formattedDate = date.toFormat('yyyy-MM-dd HH:mm:ss');
+
+      console.log(notification, "here are the notifs")
       if (DateTime.fromISO(notification_date) <= now) {
         const msg = {
           to: email,
           from: senderEmail,
           subject: `Reminder: Time To Move ${car_nickname ?? 'Your Car'}`,
-          html: reminderHTML(car_nickname, notification_date, location_name, location_path),
+          html: reminderHTML(car_nickname, formattedDate, location_name, location_path),
         }
 
-        try {
-          //TODO add location from notificaton table.
+  /*       try {
           await sgMail.send(msg)
           await supabase
             .from('notifications')
@@ -60,7 +63,13 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
             .from('notifications')
             .update({ status: 'failed' })
             .eq('id', notification.id)
-        }
+        } */
+            try {
+                console.log('Simulating email send...');
+                console.log(msg);
+            } catch (emailError) {
+              console.error('Error sending email:', emailError);
+            }
       }
     }
     res.status(200).json({ message: 'Notifications processed' })
@@ -70,7 +79,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
   }
 }
 
-const reminderHTML = function (car_nickname: string, notification_date: DateTime, location_name: string, location_path) {
+const reminderHTML = function (car_nickname: string, formattedDate: string, location_name: string, location_path: { lat: number, lng: number }[]) {
   return `<html>
   <head>
     <link href="https://fonts.googleapis.com/css?family=Open+Sans:400,700" rel="stylesheet">
@@ -125,10 +134,10 @@ const reminderHTML = function (car_nickname: string, notification_date: DateTime
         <h1>Hello!</h1>
       </div>
       <div class="reminder-text">
-        <p>Just a friendly reminder that the scheduled cleaning time for your parked car at <a href="https://www.google.com/maps/search/?api=1&query=${location.lat},${location.lng}">${location_name}</a> is approaching:</p>
+        <p>Just a friendly reminder that the scheduled cleaning time for your parked car at <a href="https://www.google.com/maps/search/?api=1&query=${location_path[0].lat},${location_path[0].lng}">${location_name}</a> is approaching:</p>
         <ul>
-          <li><b>Last time to move:</b> ${move_by_timestamp}</li>
-          <li><b>Car nickname:</b> ${vehicle_nickname ?? 'Not specified'}</li>
+          <li><b>Last time to move:</b> ${formattedDate}</li>
+          <li><b>Car nickname:</b> ${car_nickname ?? 'Not specified'}</li>
         </ul>
 
         <p>Please ensure your car is moved before the scheduled cleaning starts to avoid any parking tickets.</p>
