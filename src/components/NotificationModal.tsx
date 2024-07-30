@@ -17,6 +17,8 @@ import { calculateUnsociableHoursSuggestionDaybeforeOrSameday } from "@/notifica
 import { calculateNotifUnsocialHours } from "@/notifications/helper-functions/calculateNotifTimeUnsocHours"
 import FilteredOptionsAlert from "./FilteredOptionsAlert"
 import { calculateReminderDate } from "@/notifications/helper-functions/calculateReminderDate"
+import axios from "axios"
+import { formSchema } from "@/models/formSchema"
 
 interface INotificationModalProps {
   location: AugmentedParkingLocationData
@@ -35,8 +37,8 @@ const initialNotifUnsocHours: NotifUnsocialHours = {
   dayBefore: undefined
 }
 
-/* const apiKey = process.env.NEXT_PUBLIC_API_KEY
- */
+ const apiKey = process.env.NEXT_PUBLIC_API_KEY
+ 
 export default function NotificationModal({ location }: INotificationModalProps) {
   const [state, setState] = useState<CombinedState>({
     notificationBuffer: 1440,
@@ -50,11 +52,12 @@ export default function NotificationModal({ location }: INotificationModalProps)
   const handleSubmit = async (event: React.FormEvent) => {
     event.preventDefault()
 
-    /*     const data = {
+         const data = {
       email: state.userInput.email,
       carNickname: state.userInput.carNickname,
       notificationDate: state.userInput.notificationDate?.toISO(),
-      parkedLocation: location.name
+      locationName: location.name,
+      locationPath: location.path
     }
     const zodResult = formSchema.safeParse(data)
     if (!zodResult.success) {
@@ -63,8 +66,9 @@ export default function NotificationModal({ location }: INotificationModalProps)
       return
     }
     setErrors([])
+    console.log(data, "this is the data for the db")
 
-    try {
+    /* try {
       const res = await axios.post('https://your-gcp-backend-url/api/submitForm', data, {
         headers: {
           'x-api-key': apiKey,
@@ -76,7 +80,7 @@ export default function NotificationModal({ location }: INotificationModalProps)
       }
     } catch (error) {
       console.error('Error registering notification:', error);
-    } */
+    }  */
   }
 
   useEffect(() => {

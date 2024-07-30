@@ -16,13 +16,13 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
   }
 
 
-  const { email, carNickname, notificationDate, parkedLocation} = req.body
+  const { email, carNickname, notificationDate, locationName, locationPath} = req.body
 
   try {
     const { data, error } = await supabase
       .from('notifications')
       .insert([
-        { email, car_nickname: carNickname || null, notification_date: notificationDate,  parked_location: parkedLocation},
+        { email, car_nickname: carNickname || null, notification_date: notificationDate,  location_name: locationName, location_path: locationPath},
       ])
     if (error) {
       console.error('Supabase insert error:', error)
