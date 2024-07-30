@@ -8,7 +8,6 @@ import { useEffect, useState } from "react"
 import { DateTime, DateTimeFormatOptions } from "luxon"
 import { handleChange, handleSelectionChange } from "@/notifications/helper-functions/formHelpers"
 import { z } from 'zod'
-import { formSchema } from "@/models/formSchema"
 import NicknameModal from "./NicknameModal"
 import { CombinedState, NotifUnsocialHours, UserInput } from "@/notifications/types/types"
 import { handleOngoingCleaningStateUpdate } from "@/notifications/helper-functions/handleOngoingCleaningStateUpdate"
@@ -18,7 +17,6 @@ import { calculateUnsociableHoursSuggestionDaybeforeOrSameday } from "@/notifica
 import { calculateNotifUnsocialHours } from "@/notifications/helper-functions/calculateNotifTimeUnsocHours"
 import FilteredOptionsAlert from "./FilteredOptionsAlert"
 import { calculateReminderDate } from "@/notifications/helper-functions/calculateReminderDate"
-import axios from "axios"
 
 interface INotificationModalProps {
   location: AugmentedParkingLocationData
@@ -37,8 +35,8 @@ const initialNotifUnsocHours: NotifUnsocialHours = {
   dayBefore: undefined
 }
 
-const apiKey = process.env.NEXT_PUBLIC_API_KEY;
-
+/* const apiKey = process.env.NEXT_PUBLIC_API_KEY
+ */
 export default function NotificationModal({ location }: INotificationModalProps) {
   const [state, setState] = useState<CombinedState>({
     notificationBuffer: 1440,
@@ -52,7 +50,7 @@ export default function NotificationModal({ location }: INotificationModalProps)
   const handleSubmit = async (event: React.FormEvent) => {
     event.preventDefault()
 
-/*     const data = {
+    /*     const data = {
       email: state.userInput.email,
       carNickname: state.userInput.carNickname,
       notificationDate: state.userInput.notificationDate?.toISO(),

@@ -1,73 +1,73 @@
-import { VercelRequest, VercelResponse } from '@vercel/node';
-import { createClient } from '@supabase/supabase-js';
-import sgMail from '@sendgrid/mail';
-import { DateTime } from 'luxon';
+import { VercelRequest, VercelResponse } from '@vercel/node'
+import { createClient } from '@supabase/supabase-js'
+import sgMail from '@sendgrid/mail'
+import { DateTime } from 'luxon'
 
-const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL as string;
-const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY as string;
-const sendgridApiKey = process.env.SENDGRID_API_KEY as string;
-const senderEmail = process.env.SENDGRID_SENDER_EMAIL as string;
+const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL as string
+const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY as string
+const sendgridApiKey = process.env.SENDGRID_API_KEY as string
+const senderEmail = process.env.SENDGRID_SENDER_EMAIL as string
 
 if (!sendgridApiKey) {
-    const error = new Error('SENDGRID_API_KEY was not provided as environment variable.') as Error & { code: number };
-    error.code = 401;
-    throw error;
+  const error = new Error('SENDGRID_API_KEY was not provided as environment variable.') as Error & { code: number }
+  error.code = 401
+  throw error
 }
 
 if (!senderEmail) {
-    const error = new Error('SENDGRID_SENDER_EMAIL was not provided as environment variable.') as Error & { code: number };
-    error.code = 401;
-    throw error;
+  const error = new Error('SENDGRID_SENDER_EMAIL was not provided as environment variable.') as Error & { code: number }
+  error.code = 401
+  throw error
 }
 
-const supabase = createClient(supabaseUrl, supabaseAnonKey);
-sgMail.setApiKey(sendgridApiKey);
+const supabase = createClient(supabaseUrl, supabaseAnonKey)
+sgMail.setApiKey(sendgridApiKey)
 
 
 
 export default async function handler(req: VercelRequest, res: VercelResponse) {
-    try {
-        const { data: notifications, error } = await supabase
-            .from('notifications')
-            .select('*')
-            .eq('status', 'pending')
-        if (error) {
-            throw error;
-        }
-
-        const now = DateTime.now();
-
-        for (const notification of notifications) {
-            const { email, car_nickname, notification_date } = notification;
-            if (DateTime.fromISO(notification_date) <= now) {
-                const msg = {
-                    to: email,
-                    from: senderEmail,
-                    subject: `Reminder: Time To Move ${car_nickname ?? 'Your Car'}`,
-                    html: reminderHTML(car_nickname, notification_date),
-                };
-
-                try {
-                    //TODO double check with J that having a "sent" flag is logical in our case.
-                    await sgMail.send(msg);
-                    await supabase
-                        .from('notifications')
-                        .update({ status: 'sent' })
-                        .eq('id', notification.id);
-                } catch (emailError) {
-                    console.error('Error sending email:', emailError);
-                    await supabase
-                        .from('notifications')
-                        .update({ status: 'failed' })
-                        .eq('id', notification.id);
-                }
-            }
-        }
-        res.status(200).json({ message: 'Notifications processed' });
-    } catch (error) {
-        console.error('Error processing notifications:', error);
-        res.status(500).json({ error: (error as Error).message });
+  try {
+    const { data: notifications, error } = await supabase
+      .from('notifications')
+      .select('*')
+      .eq('status', 'pending')
+    if (error) {
+      throw error
     }
+
+    const now = DateTime.now()
+
+    for (const notification of notifications) {
+      const { email, car_nickname, notification_date } = notification
+      if (DateTime.fromISO(notification_date) <= now) {
+        const msg = {
+          to: email,
+          from: senderEmail,
+          subject: `Reminder: Time To Move ${car_nickname ?? 'Your Car'}`,
+          html: reminderHTML(car_nickname, notification_date),
+        }
+
+        try {
+          //TODO add location from notificaton table.
+          await sgMail.send(msg)
+          await supabase
+            .from('notifications')
+            .update({ status: 'sent' })
+            .eq('id', notification.id)
+        } catch (emailError) {
+          console.error('Error sending email:', emailError)
+          await supabase
+            .from('notifications')
+            .update({ status: 'failed' })
+            .eq('id', notification.id)
+        }
+      }
+    }
+    res.status(200).json({ message: 'Notifications processed' })
+  } catch (error) {
+    console.error('Error processing notifications:', error)
+    res.status(500).json({ error: (error as Error).message })
+  }
 }
 
 const reminderHTML = (car_nickname: string | null, notification_date: string) => `
@@ -141,4 +141,4 @@ const reminderHTML = (car_nickname: string | null, notification_date: string) =>
       </div>
     </div>
   </body>
-</html>`;
+</html>`

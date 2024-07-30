@@ -1,4 +1,4 @@
-import { getAugmentedParkingLocationData } from '@/parking-locations/location-helpers'
+import { fetchAndAugmentParkingLocationData } from '@/parking-locations/location-helpers'
 import ParkingMapPolygons from '@/parking-locations/map-visualization'
 import { Circle, GoogleMap, Marker, useLoadScript } from '@react-google-maps/api'
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
@@ -11,6 +11,7 @@ import { filterLocationsByGeohash, geohashPrecision, getUserGeohashAndNeighbors,
 import { calculateLocationCenter } from '@/parking-locations/helper-functions/calculateLocationCenter'
 
 export function ParkingMap() {
+  const [parkingLocations, setParkingLocations] = useState<AugmentedParkingLocationData[]>([])
   const [userLocation, setUserLocation] = useState<google.maps.LatLng | null>(null)
   const [userLocationAccuracy, setUserLocationAccuracy] = useState<number | null>(null)
   const [focusedLocation, setFocusedLocation] = useState<google.maps.LatLng | null>(null)
@@ -24,21 +25,36 @@ export function ParkingMap() {
     googleMapsApiKey: process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY as string,
     libraries: libraries as any, // eslint-disable-line @typescript-eslint/no-explicit-any
   })
-
-
-  const selectClosestParkingSpot = useCallback((userLatLong: google.maps.LatLng) => {
-    const parkingLocations = getAugmentedParkingLocationData()
-    const userGeohashAndNeighbors = getUserGeohashAndNeighbors(userLatLong, geohashPrecision)
-    const filteredLocations = filterLocationsByGeohash(userGeohashAndNeighbors, parkingLocations, geohashPrecision)
-    const distances = mapLocationsToDistances(userLatLong, filteredLocations)
-    const sortedDistances = distances.sort(sortByDistance)
-
-    const closestSpot = sortedDistances.length > 0 ? sortedDistances[0].location : null
-
-    if (closestSpot) {
-      setSelectedParkingForDisplay(closestSpot)
+  
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        const data = await fetchAndAugmentParkingLocationData()
+        setParkingLocations(data)
+      } catch (error) {
+        console.error('Error fetching parking locations:', error)
+      }
     }
+
+    fetchData()
   }, [])
+
+  const selectClosestParkingSpot = useCallback(async (userLatLong: google.maps.LatLng) => {
+    try {
+      const userGeohashAndNeighbors = getUserGeohashAndNeighbors(userLatLong, geohashPrecision)
+      const filteredLocations = filterLocationsByGeohash(userGeohashAndNeighbors, parkingLocations, geohashPrecision)
+      const distances = mapLocationsToDistances(userLatLong, filteredLocations)
+      const sortedDistances = distances.sort(sortByDistance)
+
+      const closestSpot = sortedDistances.length > 0 ? sortedDistances[0].location : null
+
+      if (closestSpot) {
+        setSelectedParkingForDisplay(closestSpot)
+      }
+    } catch (error) {
+      console.log(error, "error selecting parking spot")
+    }
+  }, [parkingLocations])
 
   const getUserLocation = useCallback(() => {
     if (!isLoaded) return // Some runtime issue with loading google is causing issues
@@ -64,7 +80,7 @@ export function ParkingMap() {
     setSelectedParkingForDisplay(location)
   }
 
-  useEffect(() => { 
+  useEffect(() => {
     getUserLocation()
     const icon = getUserLocationIcon()
     setUserLocationIcon(icon)
@@ -92,8 +108,7 @@ export function ParkingMap() {
     mapId: process.env.NEXT_PUBLIC_GOOGLE_MAPS_MAP_ID as string
   }
 
-  const parkingLocations = getAugmentedParkingLocationData()
-
+  
   return (
     <div style={{ position: 'relative', width: '100%', height: '75vh' }}>
       <GoogleMap
