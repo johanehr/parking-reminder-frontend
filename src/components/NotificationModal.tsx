@@ -18,6 +18,7 @@ import { calculateUnsociableHoursSuggestionDaybeforeOrSameday } from "@/notifica
 import { calculateNotifUnsocialHours } from "@/notifications/helper-functions/calculateNotifTimeUnsocHours"
 import FilteredOptionsAlert from "./FilteredOptionsAlert"
 import { calculateReminderDate } from "@/notifications/helper-functions/calculateReminderDate"
+import axios from "axios"
 
 interface INotificationModalProps {
   location: AugmentedParkingLocationData
@@ -36,6 +37,8 @@ const initialNotifUnsocHours: NotifUnsocialHours = {
   dayBefore: undefined
 }
 
+const apiKey = process.env.NEXT_PUBLIC_API_KEY;
+
 export default function NotificationModal({ location }: INotificationModalProps) {
   const [state, setState] = useState<CombinedState>({
     notificationBuffer: 1440,
@@ -49,10 +52,11 @@ export default function NotificationModal({ location }: INotificationModalProps)
   const handleSubmit = async (event: React.FormEvent) => {
     event.preventDefault()
 
-    const data = {
+/*     const data = {
       email: state.userInput.email,
       carNickname: state.userInput.carNickname,
       notificationDate: state.userInput.notificationDate?.toISO(),
+      parkedLocation: location.name
     }
     const zodResult = formSchema.safeParse(data)
     if (!zodResult.success) {
@@ -61,9 +65,20 @@ export default function NotificationModal({ location }: INotificationModalProps)
       return
     }
     setErrors([])
-    console.log(data, "here is the data for backend >>>>>>")
-    /*  const res = await axios.post('https://your-gcp-backend-url/api/submitForm', { data });
-     console.log(res.data) */
+
+    try {
+      const res = await axios.post('https://your-gcp-backend-url/api/submitForm', data, {
+        headers: {
+          'x-api-key': apiKey,
+          'Content-Type': 'application/json'
+        }
+      });
+      if(res.status === 200) {
+        //TODO success message here
+      }
+    } catch (error) {
+      console.error('Error registering notification:', error);
+    } */
   }
 
   useEffect(() => {
