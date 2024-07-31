@@ -6,9 +6,15 @@ import { DateTime } from 'luxon'
 const supabaseUrl = process.env.SUPABASE_URL as string
 const supabaseAnonKey = process.env.SUPABASE_ANON_KEY as string
 const sendgridApiKey = process.env.SENDGRID_API_KEY as string
-const senderEmail = process.env.SENDGRID_SENDER_EMAIL as string
+const senderEmail = process.env.SENDGRID_SENDER_EMAIL as string //TODO ask Johan to verify my email as sender.  
 
-/* if (!sendgridApiKey) {
+enum NotificationStatus {
+  Pending = 'pending',
+  Sent = 'sent',
+  Failed = 'failed',
+}
+
+if (!sendgridApiKey) {
   const error = new Error('SENDGRID_API_KEY was not provided as environment variable.') as Error & { code: number }
   error.code = 401
   throw error
@@ -19,10 +25,10 @@ if (!senderEmail) {
   error.code = 401
   throw error
 }
- */
+
 const supabase = createClient(supabaseUrl, supabaseAnonKey)
-/* sgMail.setApiKey(sendgridApiKey)
- */
+sgMail.setApiKey(sendgridApiKey)
+
 
 
 export default async function handler(req: VercelRequest, res: VercelResponse) {
@@ -38,11 +44,10 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     const now = DateTime.now()
 
     for (const notification of notifications) {
-      const { email, car_nickname, notification_date, location_name, location_path} = notification
+      const { email, car_nickname, notification_date, location_name, location_path, id } = notification
+      const notification_id = id
       const date = DateTime.fromISO(notification_date);
       const formattedDate = date.toFormat('yyyy-MM-dd HH:mm:ss');
-
-      console.log(notification, "here are the notifs")
       if (DateTime.fromISO(notification_date) <= now) {
         const msg = {
           to: email,
@@ -51,31 +56,30 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
           html: reminderHTML(car_nickname, formattedDate, location_name, location_path),
         }
 
-  /*       try {
+        try {
           await sgMail.send(msg)
-          await supabase
-            .from('notifications')
-            .update({ status: 'sent' })
-            .eq('id', notification.id)
+          await updateSupabaseStatus(NotificationStatus.Sent, notification_id)
         } catch (emailError) {
           console.error('Error sending email:', emailError)
-          await supabase
-            .from('notifications')
-            .update({ status: 'failed' })
-            .eq('id', notification.id)
-        } */
-            try {
-                console.log('Simulating email send...');
-                console.log(msg);
-            } catch (emailError) {
-              console.error('Error sending email:', emailError);
-            }
+          await updateSupabaseStatus(NotificationStatus.Failed, notification_id)
+        }
       }
     }
     res.status(200).json({ message: 'Notifications processed' })
   } catch (error) {
     console.error('Error processing notifications:', error)
     res.status(500).json({ error: (error as Error).message })
+  }
+}
+
+const updateSupabaseStatus = async (status: string, notificationId: string) => {
+  try {
+    await supabase
+      .from('notifications')
+      .update({ status: status })
+      .eq('id', notificationId)
+  } catch (error) {
+    console.error("error updating supabase notiication status to sent")
   }
 }
 
