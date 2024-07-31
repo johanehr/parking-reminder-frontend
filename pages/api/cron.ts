@@ -55,8 +55,8 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     for (const notification of notifications) {
       const { email, car_nickname, notification_date, location_name, location_path, id } = notification
       const notification_id = id
-      const date = DateTime.fromISO(notification_date);
-      const formattedDate = date.toFormat('yyyy-MM-dd HH:mm:ss');
+      const date = DateTime.fromISO(notification_date)
+      const formattedDate = date.toFormat('yyyy-MM-dd HH:mm:ss')
       if (DateTime.fromISO(notification_date) <= now) {
         const msg = {
           to: email,
@@ -174,5 +174,5 @@ const reminderHTML = function (car_nickname: string, formattedDate: string, loca
       </div>
       </div>
   </body>
-</html>`;
-};
+</html>`
+}
