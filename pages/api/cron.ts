@@ -7,6 +7,7 @@ const supabaseUrl = process.env.SUPABASE_URL as string
 const supabaseAnonKey = process.env.SUPABASE_ANON_KEY as string
 const sendgridApiKey = process.env.SENDGRID_API_KEY as string
 const senderEmail = process.env.SENDGRID_SENDER_EMAIL as string //TODO ask Johan to verify my email as sender.  
+const scheduleSecretToken = process.env.SCHEDULE_SECRET_TOKEN as string
 
 enum NotificationStatus {
   Pending = 'pending',
@@ -32,6 +33,14 @@ sgMail.setApiKey(sendgridApiKey)
 
 
 export default async function handler(req: VercelRequest, res: VercelResponse) {
+  const google_schedule_token = req.headers['x-secret-token']
+  //only allowing cron endpoint to be hit by google task scheduler. 
+  if (google_schedule_token !== scheduleSecretToken) {
+    return res.status(401).json({ error: 'Unauthorized' })
+  }
+
+  console.log(`Cron job triggered at ${new Date().toISOString()}`)
+
   try {
     const { data: notifications, error } = await supabase
       .from('notifications')
