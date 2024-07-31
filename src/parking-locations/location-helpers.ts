@@ -5,8 +5,8 @@ import assert from "assert"
 import { getAppropriateDisplayColor } from "./helper-functions/getAppropriateDisplayColor"
 import { calculateMaximumTime } from "./helper-functions/calculateMaximumTime"
 import { compareLuxonDates } from "./helper-functions/compareLuxonDates"
-import { getRawParkingLocationData } from "./data/getRawParkingLocationData"
 import { WEEKS_PER_YEAR } from "../app/constants"
+import { fetchLocationData } from "./data/fetchLocationData"
 
 export function augmentParkingLocationData(parkingLocation: ParkingLocationData, currentTime: DateTime): AugmentedParkingLocationData {
   const nextCleaningTime = calculateNextCleaningTime(parkingLocation.parkingRules, currentTime)
@@ -18,18 +18,28 @@ export function augmentParkingLocationData(parkingLocation: ParkingLocationData,
   }
   lastTimeToMove = possibleTimes.sort(compareLuxonDates)[0]
   const hoursUntilMove = lastTimeToMove.diff(currentTime, 'hours').hours
-  return { ...parkingLocation, color: getAppropriateDisplayColor(hoursUntilMove), nextCleaningTime: nextCleaningTime}
+  return { ...parkingLocation, color: getAppropriateDisplayColor(hoursUntilMove), nextCleaningTime: nextCleaningTime }
 }
 
 
 
-export const getAugmentedParkingLocationData = (
-  parkingLocationData: ParkingLocationData[] = getRawParkingLocationData(),
+export const augmentParkingLocatonData = (
+  parkingLocationData: ParkingLocationData[],
   currentTime: DateTime = DateTime.local()
 ): AugmentedParkingLocationData[] => {
   return parkingLocationData.map((parkingLocation: ParkingLocationData) => augmentParkingLocationData(parkingLocation, currentTime))
 }
 
+export const fetchAndAugmentParkingLocationData = async (): Promise<AugmentedParkingLocationData[]> => {
+  try {
+    const parkingLocationData = await fetchLocationData()
+    const augmentedData = augmentParkingLocatonData(parkingLocationData)
+    return augmentedData
+  } catch (error) {
+    console.error('Error fetching and augmenting data:', error)
+    return []
+  }
+}
 
 
 export function calculateNextCleaningTime(parkingRules: ParkingRules, currentTime: DateTime): DateTime | null {
@@ -43,6 +53,7 @@ export function calculateNextCleaningTime(parkingRules: ParkingRules, currentTim
 
   const allMoveDays = cleaningTimes.map((cleaningTime) => {
 
+    console.log(cleaningTime, "this is the cleaning time day")
 
     assert(cleaningTime.startHour >= 0 && cleaningTime.startHour <= 23, 'Start hour out of range')
     assert(cleaningTime.endHour >= 0 && cleaningTime.endHour <= 23, 'End hour out of range')

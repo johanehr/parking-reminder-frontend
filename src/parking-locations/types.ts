@@ -24,6 +24,10 @@ export enum MonthOfYear {
   NOVEMBER = 11,
   DECEMBER = 12
 }
+export type AugmentedParkingLocationData = ParkingLocationData & {
+  color: string;
+  nextCleaningTime: DateTime | null;
+}
 
 export type ParkingLocationData = {
   name: string;
@@ -36,10 +40,6 @@ export type ParkingRules = {
   maximum: { days: number }
 }
 
-export type AugmentedParkingLocationData = ParkingLocationData & {
-  color: string;
-  nextCleaningTime: DateTime | null;
-}
 
 export type CleaningTime = {
   day: DayOfWeek
@@ -49,4 +49,26 @@ export type CleaningTime = {
   appliesToOddWeeks: boolean,
   noCleaningMonths: MonthOfYear[]
 }
+
+
+export type RecievedParkingLocationData = {
+  name: string;
+  parkingRules: RecievedParkingRules
+  path: { lat: number, lng: number }[];
+}
+
+export type RecievedParkingRules = {
+  cleaningTimes: RecievedCleaningTime[],
+  maximum: { days: number }
+}
+
+export type RecievedCleaningTime = {
+  day: string,
+  startHour: number,
+  endHour: number,
+  appliesToEvenWeeks: boolean,
+  appliesToOddWeeks: boolean,
+  noCleaningMonths: string[]
+}
+
 
