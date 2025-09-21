@@ -2,12 +2,13 @@ import type { NextApiRequest, NextApiResponse } from 'next'
 import { CloudTasksClient, protos } from '@google-cloud/tasks'
 import { auth } from 'google-auth-library'
 
+import { generateUniqueTaskPrefix, TriggerSmsReminderInput } from '@/notifications/helper-functions/gcpTaskHelpers'
+
 const project = process.env.GCP_PROJECT as string
 const queue = process.env.GCP_TASK_QUEUE as string
-const location = process.env.GCP_PRIMARY_REGION as string
+const region = process.env.GCP_PRIMARY_REGION as string
 const cloudFunctionUrl = process.env.GCP_CLOUD_FUNCTION_URL_SEND_REMINDER as string
 const cloudFunctionEmail = process.env.GCP_CLOUD_FUNCTION_SERVICE_ACCOUNT_EMAIL as string
-const inSeconds = 0
 
 /**
  * Normally, one might read credentials from a JSON file, or simply use Google Cloud functionality for auth.
@@ -26,26 +27,22 @@ const client = new CloudTasksClient({
 })
 
 // Based on https://cloud.google.com/tasks/docs/creating-http-target-tasks#advanced_task_creation_createtask_method
-async function createHttpTask(nickname: string = 'DEFAULT') {
-  const parent = client.queuePath(project, location, queue)
+async function createHttpTask(nickname: string, phone: string, location: string, notificationDate: string, moveByDate: string) {
+  const parent = client.queuePath(project, region, queue)
 
-  // TODO: Modify this function to accept input for the following fields (as accepted by the current email template)
-  const hardCodedBody = {
-    to_email: 'luhcforgh@gmail.com',
+  const hardCodedBody: TriggerSmsReminderInput = {
+    phone_number: phone,
     vehicle_nickname: nickname,
-    location: {
-      name: 'Storgatan 12',
-      lat: 59.330741,
-      lng: 18.032743
-    },
-    move_by_timestamp: '2024-05-02T16:10:18Z'
+    location: location,
+    timestamp: moveByDate
   }
 
-  const name = client.taskPath(project, location, queue, `EMAIL_luhcforghgmailcom_${Date.now()}`)
-  // TODO: Make sure this overwrites any existing tasks with the same name (use method, email, and nickname as input)
-  // Note that @ and . had to be stripped! "letters ([A-Za-z]), numbers ([0-9]), hyphens (-), or underscores (_). Task ID must between 1 and 500 characters."
-  // It might be easiest to ensure (supposed) uniqueness by hashing the full string, so that first.lastname and firstlastname doesn't become the same
+  const taskPrefix = generateUniqueTaskPrefix(hardCodedBody)
 
+  const name = client.taskPath(project, region, queue, taskPrefix+'_'+Date.now())
+
+
+  const scheduledNotificationTime = new Date(notificationDate) // From ISO string
   const task: protos.google.cloud.tasks.v2.ITask = {
     name: name,
     httpRequest: {
@@ -60,11 +57,48 @@ async function createHttpTask(nickname: string = 'DEFAULT') {
       },
     },
     scheduleTime: {
-      seconds: inSeconds + Date.now() / 1000,
+      seconds: Math.floor(scheduledNotificationTime.getTime()/1000)
     }
   }
 
-  // Send create task request.
+  // Cancel an existing task if one exists, and then send the latest/new one
+
+  // 1. List all active tasks and figure out if any will be replaced
+  const listTasksRequest: protos.google.cloud.tasks.v2.IListTasksRequest = {
+    parent: client.queuePath(project, region, queue),
+    responseView: "BASIC"
+  }
+
+  const existingTasks = []
+  for await (const task of client.listTasksAsync(listTasksRequest)) {
+    existingTasks.push(task)
+  }
+
+  // Extract task ID (the last path segment of task.name)
+  const tasksToCancel = existingTasks.filter((task) => {
+    const taskId = task.name?.split("/").pop() ?? ""
+    return taskId.startsWith(taskPrefix)
+  })
+
+  if (tasksToCancel.length > 0) {
+    console.log(`Found ${tasksToCancel.length} tasks to cancel`)
+  } else {
+    console.log(`No tasks to cancel`)
+  }
+  
+
+  // 2. Delete said tasks (if it still exists)
+  for (const task of tasksToCancel) {
+    if (task.name) {
+      const deleteTaskRequest: protos.google.cloud.tasks.v2.IDeleteTaskRequest = {
+        name: task.name
+      }
+      await client.deleteTask(deleteTaskRequest)
+      console.log(`Successfully deleted ${task.name}`)
+    }
+  }
+  
+  // 3. Send create task request.
   const request: protos.google.cloud.tasks.v2.ICreateTaskRequest = { parent: parent, task: task }
   const [response] = await client.createTask(request)
   console.log(`Created task ${response.name}`)
@@ -72,7 +106,7 @@ async function createHttpTask(nickname: string = 'DEFAULT') {
 
 export default async function handler(req: NextApiRequest, res: NextApiResponse) {
   if (req.method === 'POST') {
-    await createHttpTask(req.body.nickname)
+    await createHttpTask(req.body.nickname, req.body.phone, req.body.location, req.body.notificationDate, req.body.moveByDate)
     return res.status(200).json({ message: 'API is working', nickname: req.body.nickname })
   } else {
     // If the request method is not POST, return a 405 Method Not Allowed status

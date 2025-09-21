@@ -3,7 +3,7 @@ import { Button } from "@/components/ui/button"
 
 export default function NicknameModal() {
   return (
-    <Dialog defaultOpen>
+    <Dialog defaultOpen={false}>
       <DialogTrigger asChild>
         <Button variant="ghost" size="icon" className="text-muted-foreground">
           <MessageCircleQuestionIcon className="w-4 h-4 text-blue-400" />
@@ -14,7 +14,7 @@ export default function NicknameModal() {
           <DialogTitle>Car nicknames</DialogTitle>
         </DialogHeader>
         <DialogDescription>
-          A car nickname can help you identify which car your notification is referencing. Making cancellations nice and easy!
+          A car nickname can help you identify which car your notification is referencing. This allows you to set up reminders for multiple vehicles with the same phone number!
         </DialogDescription>
       </DialogContent>
     </Dialog>

@@ -99,7 +99,7 @@ describe("Tests if cleaning is ongoing and updates the two different accordingly
     const prevState: CombinedState = {
       notificationBuffer: 1440,
       notifUnsocHours: { suggestUnsocialHours: false, acceptedUnsocialHours: false, dayBefore: undefined },
-      userInput: { email: "", carNickname: "", notificationDate: DateTime.now() },
+      userInput: { phone: "", carNickname: "", notificationDate: DateTime.now(), acceptTerms: true },
       notificationFiltered: false,
       notificationNotPossible: false,
     }
@@ -119,7 +119,7 @@ describe("Tests if cleaning is ongoing and updates the two different accordingly
     const prevState: CombinedState = {
       notificationBuffer: 1440,
       notifUnsocHours: { suggestUnsocialHours: false, acceptedUnsocialHours: false, dayBefore: undefined },
-      userInput: { email: "", carNickname: "", notificationDate: DateTime.now() },
+      userInput: { phone: "", carNickname: "", notificationDate: DateTime.now(), acceptTerms: true },
       notificationFiltered: false,
       notificationNotPossible: false,
     }
@@ -139,7 +139,7 @@ describe("Tests if cleaning is ongoing and updates the two different accordingly
     const prevState: CombinedState = {
       notificationBuffer: 1440,
       notifUnsocHours: { suggestUnsocialHours: false, acceptedUnsocialHours: false, dayBefore: undefined },
-      userInput: { email: "", carNickname: "", notificationDate: DateTime.now() },
+      userInput: { phone: "", carNickname: "", notificationDate: DateTime.now(), acceptTerms: true },
       notificationFiltered: false,
       notificationNotPossible: false,
     }
