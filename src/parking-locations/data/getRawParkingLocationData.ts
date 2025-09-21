@@ -377,5 +377,20 @@ export function getRawParkingLocationData(): ParkingLocationData[] {
         { "lat": 59.381011, "lng": 18.026243 },
       ]
     },
+    {
+      name: "ICA Bergshamra",
+      parkingRules: {
+        cleaningTimes: [
+          { day: DayOfWeek.MONDAY, startHour: 10, endHour: 14, appliesToEvenWeeks: false, appliesToOddWeeks: true, noCleaningMonths: [MonthOfYear.JULY] },
+        ],
+        maximum: { days: 14 }
+      },
+      path: [
+        { "lat": 59.378975, "lng": 18.037327 },
+        { "lat": 59.379057, "lng": 18.037628 },
+        { "lat": 59.378994, "lng": 18.037682 },
+        { "lat": 59.378934, "lng": 18.037398 },
+      ]
+    },
   ]
 }
