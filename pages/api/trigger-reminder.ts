@@ -63,10 +63,41 @@ async function createHttpTask(nickname: string = 'DEFAULT') {
     }
   }
 
-  // Send create task request.
+  // Cancel an existing task if one exists, and then send the last one
+
+  // 1. Get task by unique id
+  const getTaskRequest: protos.google.cloud.tasks.v2.IGetTaskRequest = {
+    name,
+    responseView: "BASIC", // "FULL" (reqires additional permissions)
+  }
+  const existingTask = await client.getTask()
+
+  // 2. Delete said task (if it still exists)
+  // TODO: Does this work if it has failed too? Can I update it instead?
+  /**
+   * Explicitly specifying a task ID enables task de-duplication.
+   * If a task's ID is identical to that of an existing task or a task that was
+   * deleted or executed recently then the call will fail with protos.google.rpc.Code.ALREADY_EXISTS ALREADY_EXISTS.
+   * If the task's queue was created using Cloud Tasks, then another task with 
+   * the same name can't be created for ~1hour after the original task was deleted or executed. 
+   */
+  if (existingTask) {
+    const deleteTaskRequest: protos.google.cloud.tasks.v2.IDeleteTaskRequest = {
+      name
+    }
+    await client.deleteTask(deleteTaskRequest)
+  }
+
+  //await client.updateTask() THIS DOES NOT SEEM TO EXIST. I COULD ADD TO THE SUFFIX, AND SEE IF MARKED AS DELETED???
+  // Perhaps it is possible to list ALL existing tasks, perform a regex matching to find the latest (max one non-finished?), and delete that.
+  // The name for a new task also has to know which "version" to append.
+  
+  // 3. Send create task request.
   const request: protos.google.cloud.tasks.v2.ICreateTaskRequest = { parent: parent, task: task }
   const [response] = await client.createTask(request)
   console.log(`Created task ${response.name}`)
+
+  // 4. Return 
 }
 
 export default async function handler(req: NextApiRequest, res: NextApiResponse) {
