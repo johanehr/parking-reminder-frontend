@@ -2,14 +2,13 @@ import type { NextApiRequest, NextApiResponse } from 'next'
 import { CloudTasksClient, protos } from '@google-cloud/tasks'
 import { auth } from 'google-auth-library'
 
-import { generateUniqueTaskIdentifier, TriggerReminderInput } from '@/notifications/helper-functions/gcpTaskHelpers'
+import { generateUniqueTaskPrefix, TriggerSmsReminderInput } from '@/notifications/helper-functions/gcpTaskHelpers'
 
 const project = process.env.GCP_PROJECT as string
 const queue = process.env.GCP_TASK_QUEUE as string
-const location = process.env.GCP_PRIMARY_REGION as string
+const region = process.env.GCP_PRIMARY_REGION as string
 const cloudFunctionUrl = process.env.GCP_CLOUD_FUNCTION_URL_SEND_REMINDER as string
 const cloudFunctionEmail = process.env.GCP_CLOUD_FUNCTION_SERVICE_ACCOUNT_EMAIL as string
-const inSeconds = 0
 
 /**
  * Normally, one might read credentials from a JSON file, or simply use Google Cloud functionality for auth.
@@ -28,23 +27,22 @@ const client = new CloudTasksClient({
 })
 
 // Based on https://cloud.google.com/tasks/docs/creating-http-target-tasks#advanced_task_creation_createtask_method
-async function createHttpTask(nickname: string = 'DEFAULT') {
-  const parent = client.queuePath(project, location, queue)
+async function createHttpTask(nickname: string, phone: string, location: string, notificationDate: string, moveByDate: string) {
+  const parent = client.queuePath(project, region, queue)
 
-  // TODO: Modify this function to accept input for the following fields (as accepted by the current email template)
-  const hardCodedBody: TriggerReminderInput = {
-    to_email: 'luhcforgh@gmail.com',
+  const hardCodedBody: TriggerSmsReminderInput = {
+    phone_number: phone,
     vehicle_nickname: nickname,
-    location: {
-      name: 'Storgatan 12',
-      lat: 59.330741,
-      lng: 18.032743
-    },
-    move_by_timestamp: '2024-05-02T16:10:18Z'
+    location: location,
+    timestamp: moveByDate
   }
 
-  const name = client.taskPath(project, location, queue, generateUniqueTaskIdentifier(hardCodedBody))
+  const taskPrefix = generateUniqueTaskPrefix(hardCodedBody)
 
+  const name = client.taskPath(project, region, queue, taskPrefix+'_'+Date.now())
+
+
+  const scheduledNotificationTime = new Date(notificationDate) // From ISO string
   const task: protos.google.cloud.tasks.v2.ITask = {
     name: name,
     httpRequest: {
@@ -59,50 +57,56 @@ async function createHttpTask(nickname: string = 'DEFAULT') {
       },
     },
     scheduleTime: {
-      seconds: inSeconds + Date.now() / 1000,
+      seconds: Math.floor(scheduledNotificationTime.getTime()/1000)
     }
   }
 
-  // Cancel an existing task if one exists, and then send the last one
+  // Cancel an existing task if one exists, and then send the latest/new one
 
-  // 1. Get task by unique id
-  const getTaskRequest: protos.google.cloud.tasks.v2.IGetTaskRequest = {
-    name,
-    responseView: "BASIC", // "FULL" (reqires additional permissions)
+  // 1. List all active tasks and figure out if any will be replaced
+  const listTasksRequest: protos.google.cloud.tasks.v2.IListTasksRequest = {
+    parent: client.queuePath(project, region, queue),
+    responseView: "BASIC"
   }
-  const existingTask = await client.getTask()
 
-  // 2. Delete said task (if it still exists)
-  // TODO: Does this work if it has failed too? Can I update it instead?
-  /**
-   * Explicitly specifying a task ID enables task de-duplication.
-   * If a task's ID is identical to that of an existing task or a task that was
-   * deleted or executed recently then the call will fail with protos.google.rpc.Code.ALREADY_EXISTS ALREADY_EXISTS.
-   * If the task's queue was created using Cloud Tasks, then another task with 
-   * the same name can't be created for ~1hour after the original task was deleted or executed. 
-   */
-  if (existingTask) {
-    const deleteTaskRequest: protos.google.cloud.tasks.v2.IDeleteTaskRequest = {
-      name
+  const existingTasks = []
+  for await (const task of client.listTasksAsync(listTasksRequest)) {
+    existingTasks.push(task)
+  }
+
+  // Extract task ID (the last path segment of task.name)
+  const tasksToCancel = existingTasks.filter((task) => {
+    const taskId = task.name?.split("/").pop() ?? ""
+    return taskId.startsWith(taskPrefix)
+  })
+
+  if (tasksToCancel.length > 0) {
+    console.log(`Found ${tasksToCancel.length} tasks to cancel`)
+  } else {
+    console.log(`No tasks to cancel`)
+  }
+  
+
+  // 2. Delete said tasks (if it still exists)
+  for (const task of tasksToCancel) {
+    if (task.name) {
+      const deleteTaskRequest: protos.google.cloud.tasks.v2.IDeleteTaskRequest = {
+        name: task.name
+      }
+      await client.deleteTask(deleteTaskRequest)
+      console.log(`Successfully deleted ${task.name}`)
     }
-    await client.deleteTask(deleteTaskRequest)
   }
-
-  //await client.updateTask() THIS DOES NOT SEEM TO EXIST. I COULD ADD TO THE SUFFIX, AND SEE IF MARKED AS DELETED???
-  // Perhaps it is possible to list ALL existing tasks, perform a regex matching to find the latest (max one non-finished?), and delete that.
-  // The name for a new task also has to know which "version" to append.
   
   // 3. Send create task request.
   const request: protos.google.cloud.tasks.v2.ICreateTaskRequest = { parent: parent, task: task }
   const [response] = await client.createTask(request)
   console.log(`Created task ${response.name}`)
-
-  // 4. Return 
 }
 
 export default async function handler(req: NextApiRequest, res: NextApiResponse) {
   if (req.method === 'POST') {
-    await createHttpTask(req.body.nickname)
+    await createHttpTask(req.body.nickname, req.body.phone, req.body.location, req.body.notificationDate, req.body.moveByDate)
     return res.status(200).json({ message: 'API is working', nickname: req.body.nickname })
   } else {
     // If the request method is not POST, return a 405 Method Not Allowed status

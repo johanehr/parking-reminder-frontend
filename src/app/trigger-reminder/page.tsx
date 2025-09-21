@@ -20,7 +20,7 @@ export default function TriggerReminder() {
       setStatusCode(response.status)
 
       const data = await response.json()
-      console.log(`Triggered an email with car nickname: ${data.nickname}`)
+      console.log(`Triggered an SMS reminder for car with nickname: ${data.nickname}`)
     } catch (error) {
       console.error('Error calling API:', error)
     }

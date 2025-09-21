@@ -24,9 +24,10 @@ interface INotificationModalProps {
 }
 
 const initialUserInput = (nextCleaningTime: DateTime | null): UserInput => ({
-  email: "",
+  phone: "",
   carNickname: "",
-  notificationDate: nextCleaningTime
+  notificationDate: nextCleaningTime,
+  acceptTerms: true
 })
 
 
@@ -46,13 +47,16 @@ export default function NotificationModal({ location }: INotificationModalProps)
   })
   const [errors, setErrors] = useState<z.ZodIssue[]>([])
 
+  const [apiStatus, setApiStatus] = useState<number | null>(null)
+
   const handleSubmit = async (event: React.FormEvent) => {
     event.preventDefault()
 
     const data = {
-      email: state.userInput.email,
+      phone: state.userInput.phone,
       carNickname: state.userInput.carNickname,
       notificationDate: state.userInput.notificationDate?.toISO(),
+      acceptTerms: state.userInput.acceptTerms,
     }
     const zodResult = formSchema.safeParse(data)
     if (!zodResult.success) {
@@ -60,10 +64,32 @@ export default function NotificationModal({ location }: INotificationModalProps)
       console.log(errors)
       return
     }
+
     setErrors([])
-    console.log(data, "here is the data for backend >>>>>>")
-    /*  const res = await axios.post('https://your-gcp-backend-url/api/submitForm', { data });
-     console.log(res.data) */
+
+    try {
+      const response = await fetch('/api/trigger-reminder', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          nickname: data.carNickname,
+          phone: data.phone,
+          notificationDate: data.notificationDate,
+          moveByDate: location.nextCleaningTime?.toISO(),
+          location: location.name,
+        })
+      })
+      setApiStatus(response.status)
+
+      const responseJson = await response.json()
+      console.log(`Triggered an SMS with car nickname: ${responseJson.nickname}`)
+    } catch (error) {
+      console.error('Error calling API:', error)
+    }
+
+    
   }
 
   useEffect(() => {
@@ -149,20 +175,19 @@ export default function NotificationModal({ location }: INotificationModalProps)
               {!state.notificationNotPossible &&
                 <>
                   <div className="grid gap-2">
-                    <Label htmlFor="email">Email</Label>
-                    <Input onChange={(e) => handleChange(e, setState)} name="email" value={state.userInput.email} id="email" placeholder="Enter email" />
-                    {errors.find(error => error.path.includes('email')) && <p className="text-xs text-red-500">{getErrorMessage('email')}</p>}
+                    <Label htmlFor="phone">Phone number</Label>
+                    <Input onChange={(e) => handleChange(e, setState)} name="phone" value={state.userInput.phone} id="phone" placeholder="Enter phone number, e.g. +46737600282." />
+                    {errors.find(error => error.path.includes('email')) && <p className="text-xs text-red-500">{getErrorMessage('phone')}</p>}
                   </div>
                   <div className="grid gap-2">
-                    <Label htmlFor="car-nickname">Car Nickname (optional)<NicknameModal /></Label>
+                    <Label htmlFor="car-nickname">Car nickname<NicknameModal /></Label>
                     <Input onChange={(e) => handleChange(e, setState)} name="carNickname" id="car-nickname" value={state.userInput.carNickname} placeholder="Enter car nickname" />
                     {errors.find(error => error.path.includes('carNickname')) && <p className="text-xs text-red-500">{getErrorMessage('carNickname')}</p>}
                   </div>
                   <div className="grid gap-2">
                     {!state.notifUnsocHours.acceptedUnsocialHours &&
                       <>
-                        <Label htmlFor="notification-time">Notification Time</Label>
-
+                        <Label htmlFor="notification-time">Notification time</Label>
                         <Select name="notification-time" defaultValue="1440" onValueChange={
                           (e) => {
                             if (location.nextCleaningTime) {
@@ -241,6 +266,13 @@ export default function NotificationModal({ location }: INotificationModalProps)
             </DialogFooter>
           </div>
         </form>
+
+        <p className={apiStatus === 200 ? "text-green-600" : "text-red-600"}>
+          {apiStatus && (apiStatus === 200 
+            ? "Successfully created reminder!" 
+            : "Failed to create reminder")}
+        </p>
+        
       </DialogContent>
     </Dialog >
   )

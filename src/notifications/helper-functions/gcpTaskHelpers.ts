@@ -16,6 +16,14 @@ export const generateUniqueTaskIdentifier = (body: TriggerReminderInput) => {
   return hashed_unique_id
 }
 
+export const generateUniqueTaskPrefix = (body: TriggerSmsReminderInput) => {
+  const method = 'SMS'
+  const unique_id = `${method}_${body.phone_number}_${body.vehicle_nickname}`
+  const hashed_unique_id = crypto.createHash('sha1').update(unique_id).digest('hex')
+  
+  return hashed_unique_id
+}
+
 export interface TriggerReminderInput {
   to_email: string
   vehicle_nickname: string
@@ -25,4 +33,11 @@ export interface TriggerReminderInput {
     lng: number
   },
   move_by_timestamp: string // e.g. '2024-05-02T16:10:18Z'
+}
+
+export interface TriggerSmsReminderInput {
+  phone_number: string
+  vehicle_nickname: string
+  location: string,
+  timestamp: string
 }

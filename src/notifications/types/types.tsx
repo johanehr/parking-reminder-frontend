@@ -2,9 +2,10 @@ import { DateTime } from "luxon"
 
 
 export interface UserInput {
-  email: string;
+  phone: string;
   carNickname: string;
   notificationDate: DateTime | null;
+  acceptTerms: boolean;
 }
 export interface NotifUnsocialHours {
   suggestUnsocialHours: boolean;

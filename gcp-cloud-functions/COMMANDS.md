@@ -31,11 +31,16 @@ curl --location 'http://localhost:8080/' \
 ### Deployment
 
 Deploying overwrites the existing deployment, so if versioned functions are necessary, you will have to rename the function accordingly. This is generally not an issue for minor tweaks without changing the input data, but keep in mind that scheduled tasks may take several days before they are run, and will target whichever function was scheduled at the time of creation.
-
+Email: 
 ```
-gcloud functions deploy sendgridEmailScheduledReminder --gen2 --runtime nodejs20 --trigger-http  --no-allow-unauthenticated --set-env-vars SENDGRID_API_KEY=<secret-redacted>,SENDGRID_SENDER_EMAIL=johanehrenfors@hotmail.com --region=europe-west1
+gcloud functions deploy sendgridEmailScheduledReminder --gen2 --runtime nodejs20 --trigger-http  --no-allow-unauthenticated [--set-env-vars SENDGRID_API_KEY=<secret-redacted>,SENDGRID_SENDER_EMAIL=johanehrenfors@hotmail.com] --region=europe-west1
 ```
 NOTE: The first time I deployed, I had to enable run.googleapis.com for the project (parking-reminder-407014) when prompted.
+
+SMS:
+```
+gcloud functions deploy elksSmsScheduledReminder --gen2 --runtime nodejs20 --trigger-http  --no-allow-unauthenticated --region=europe-west1
+```
 
 You can find the function here afterwards: https://console.cloud.google.com/functions/details/europe-west1/sendgridEmailScheduledReminder?env=gen2&project=parking-reminder-407014
 
@@ -51,9 +56,14 @@ https://console.cloud.google.com/iam-admin/serviceaccounts?project=parking-remin
 ### Invoking cloud function using CLI
 To invoke the cloud function, you will need to be authenticated through GCP with a bearer token.
 
+Email (not currently supported, need to pay):
 ```
-curl -m 70 -X POST https://europe-west1-parking-reminder-407014.cloudfunctions.net/sendgridEmailScheduledReminder -H "Authorization: bearer $(gcloud auth print-identity-token)" -H "Content-Type: application/json" -d '{ "to_email": "example@gmail.com", "vehi
-cle_nickname": "Volvo", "location": { "name": "Street 123", "lat": 12.3, "lng": 4.56 }, "move_by_timestamp": "2024-06-29T13:52:13Z" }'
+curl -m 70 -X POST https://europe-west1-parking-reminder-407014.cloudfunctions.net/sendgridEmailScheduledReminder -H "Authorization: bearer $(gcloud auth print-identity-token)" -H "Content-Type: application/json" -d '{ "to_email": "example@gmail.com", "vehicle_nickname": "Volvo", "location": { "name": "Street 123", "lat": 12.3, "lng": 4.56 }, "move_by_timestamp": "2024-06-29T13:52:13Z" }'
+```
+
+SMS:
+```
+curl -m 70 -X POST https://europe-west1-parking-reminder-407014.cloudfunctions.net/elksSmsScheduledReminder -H "Authorization: bearer $(gcloud auth print-identity-token)" -H "Content-Type: application/json" -d '{ "phone_number": "+46737600282", "vehicle_nickname": "Volvo", "location": "ICA parkeringen", "timestamp": "2024-06-29T13:52:13Z" }'
 ```
 
 ## Creating Tasks

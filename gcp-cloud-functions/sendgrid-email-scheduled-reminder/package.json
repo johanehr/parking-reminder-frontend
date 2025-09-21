@@ -1,13 +1,13 @@
 {
   "name": "sendgrid-email-scheduled-reminder",
-  "description": "Cloud Function sends an email when triggered by Cloud Task",
+  "description": "Cloud Function sends an email/SMS when triggered by Cloud Task",
   "main": "index.js",
   "private": true,
   "engines": {
     "node": ">=20.0.0"
   },
   "scripts": {
-    "start": "npx functions-framework --target=sendgridEmailScheduledReminder --signature-type=http"
+    "start": "npx functions-framework --target=elksSmsScheduledReminder --signature-type=http"
   },
   "dependencies": {
     "@sendgrid/mail": "^8.1.3"

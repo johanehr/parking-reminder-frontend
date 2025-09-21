@@ -1,7 +1,83 @@
-'use strict';
+'use strict'
+
+
+/**
+ * Responds to an HTTP request from Cloud Tasks and sends an email using data
+ * from the request body.
+ *
+ * @param {object} req Cloud Function request context.
+ * @param {object} req.body The request payload.
+ * @param {string} req.body.phone_number Phone number of the recipient.
+ * @param {string} req.body.vehicle_nickname Optional nickname/identifier for the vehicle
+ * @param {string} req.body.location Description of parking location
+ * @param {string} req.body.timestamp Timestamp of when to move the vehicle
+ * @param {object} res Cloud Function response context.
+ */
+exports.elksSmsScheduledReminder = async (req, res) => {
+  const auth = Buffer.from(
+    process.env['46ELKS_AUTH']
+  ).toString("base64")
+
+  const formatSMSMessage = (body) => {
+    return `Time to move ${body.vehicle_nickname} from ${body.location} by ${body.timestamp}!`
+  }
+
+  // Super basic validation of request body fields
+  if (!req.body.phone_number) {
+    res.status(400).send('Phone number not provided.')
+    return
+  }
+
+  if (!req.body.vehicle_nickname) {
+    res.status(400).send('Vehicle nickname not provided.')
+    return
+  }
+  
+  if (!req.body.location) {
+    res.status(400).send('Location not provided.')
+    return
+  }
+
+  if (!req.body.timestamp) {
+    res.status(400).send('Timestamp for moving not provided.')
+    return
+  }
+  
+  let data = {
+    from:    "PARKING",
+    to:      req.body.phone_number,
+    message: formatSMSMessage(req.body)
+  }
+  
+  data = new URLSearchParams(data)
+  data = data.toString()
+  
+  const elksRes = await fetch("https://api.46elks.com/a1/sms", {
+    method: "post",
+    body: data,
+    headers: {"Authorization": "Basic "  + auth}
+  })
+
+  console.log(elksRes)
+
+  try {
+    const responseText = await elksRes.text()
+    console.log("Raw response from 46elks:", responseText)
+
+    if (elksRes.ok) {
+      res.status(200).send("Successfully sent SMS")
+    } else {
+      res.status(500).send("Failed to send SMS")
+    }
+  } catch (error) {
+    console.log(error)
+    res.status(500).send('Error parsing JSON from Elks response.')
+  }
+}
+
 
 // [START cloud_tasks_func]
-const sendgrid = require('@sendgrid/mail');
+const sendgrid = require('@sendgrid/mail')
 
 /**
  * Responds to an HTTP request from Cloud Tasks and sends an email using data
@@ -18,40 +94,40 @@ const sendgrid = require('@sendgrid/mail');
  */
 exports.sendgridEmailScheduledReminder = async (req, res) => {
   // Get the SendGrid API key from the environment variable.
-  const key = process.env.SENDGRID_API_KEY;
+  const key = process.env.SENDGRID_API_KEY
   if (!key) {
     const error = new Error(
       'SENDGRID_API_KEY was not provided as environment variable.'
-    );
-    error.code = 401;
-    throw error;
+    )
+    error.code = 401
+    throw error
   }
-  sendgrid.setApiKey(key);
+  sendgrid.setApiKey(key)
 
   const sender_email = process.env.SENDGRID_SENDER_EMAIL // This should match the SendGrid verified senders, if set up that way
   if (!sender_email) {
     const error = new Error(
       'SENDGRID_SENDER_EMAIL was not provided as environment variable.'
-    );
-    error.code = 401;
-    throw error;
+    )
+    error.code = 401
+    throw error
   }
 
   // Get the body from the Cloud Task request.
-  const {to_email, vehicle_nickname, location, move_by_timestamp } = req.body;
+  const {to_email, vehicle_nickname, location, move_by_timestamp } = req.body
 
   if (!to_email) {
-    const error = new Error('Email address not provided.');
-    error.code = 400;
-    throw error;
+    const error = new Error('Email address not provided.')
+    error.code = 400
+    throw error
   } else if (!location || !location.name || !location.lat || !location.lng) {
-    const error = new Error('Location data not provided.');
-    error.code = 400;
-    throw error;
+    const error = new Error('Location data not provided.')
+    error.code = 400
+    throw error
   } else if (!move_by_timestamp) {
-    const error = new Error('Timestamp not provided.');
-    error.code = 400;
-    throw error;
+    const error = new Error('Timestamp not provided.')
+    error.code = 400
+    throw error
   }
 
   // Construct the email request. 
@@ -60,20 +136,20 @@ exports.sendgridEmailScheduledReminder = async (req, res) => {
     from: sender_email, 
     subject: `Reminder: Time To Move ${vehicle_nickname ?? 'Your Car'}`,
     html: reminderHTML(vehicle_nickname, location, move_by_timestamp),
-  };
-  console.log("Message to send via SendGrid:");
-  console.log(msg);
+  }
+  console.log("Message to send via SendGrid:")
+  console.log(msg)
 
   try {
-    await sendgrid.send(msg);
+    await sendgrid.send(msg)
     // Send OK to Cloud Task queue to delete task.
-    res.status(200).send('Reminder successfully sent!');
+    res.status(200).send('Reminder successfully sent!')
   } catch (error) {
-    console.log(error);
+    console.log(error)
     // Any status code other than 2xx or 503 will trigger the task to retry.
-    res.status(error.code).send(error.message);
+    res.status(error.code).send(error.message)
   }
-};
+}
 // [END cloud_tasks_func]
 
 // Function creates an HTML postcard with message.
@@ -159,5 +235,5 @@ const reminderHTML = function (vehicle_nickname, location, move_by_timestamp) {
       </div>
       </div>
   </body>
-</html>`;
-};
+</html>`
+}
