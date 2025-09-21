@@ -1,6 +1,6 @@
 import type { NextApiRequest, NextApiResponse } from 'next'
 import { CloudTasksClient, protos } from '@google-cloud/tasks'
-import { auth } from 'google-auth-library'
+//import { auth } from 'google-auth-library'
 
 import { generateUniqueTaskPrefix, TriggerSmsReminderInput } from '@/notifications/helper-functions/gcpTaskHelpers'
 
@@ -21,9 +21,10 @@ const gcpCredentialBase64 = process.env.GCP_SERVICE_ACCOUNT_CREDENTIALS_BASE64 a
 const credential = JSON.parse(
   Buffer.from(gcpCredentialBase64, 'base64').toString().replace(/\n/g,"")
 )
-auth.fromJSON(credential)
+//auth.fromJSON(credential)
 const client = new CloudTasksClient({
-  auth: auth
+  // WORKED LOCALLY: auth: auth
+  credentials: credential
 })
 
 // Based on https://cloud.google.com/tasks/docs/creating-http-target-tasks#advanced_task_creation_createtask_method
