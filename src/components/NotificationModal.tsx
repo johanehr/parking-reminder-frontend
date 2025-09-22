@@ -49,8 +49,28 @@ export default function NotificationModal({ location }: INotificationModalProps)
 
   const [apiStatus, setApiStatus] = useState<number | null>(null)
 
+  // Load saved value on mount
+  useEffect(() => {
+    const saved_phone = localStorage.getItem("phone") ?? state.userInput.phone
+    const saved_nick = localStorage.getItem("nickname") ?? state.userInput.carNickname
+
+    if (saved_phone) {
+      setState({
+        ...state,
+        userInput: {
+          ...state.userInput,
+          phone: saved_phone,
+          carNickname: saved_nick
+        },
+      })
+    }
+  }, []) // eslint-disable-line react-hooks/exhaustive-deps
+
   const handleSubmit = async (event: React.FormEvent) => {
     event.preventDefault()
+
+    localStorage.setItem("phone", state.userInput.phone)
+    localStorage.setItem("nickname", state.userInput.carNickname)
 
     const data = {
       phone: state.userInput.phone,
