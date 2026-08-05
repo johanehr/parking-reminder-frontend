@@ -1,30 +1,38 @@
 import { getAugmentedParkingLocationData } from '@/parking-locations/location-helpers'
 import ParkingMapPolygons from '@/parking-locations/map-visualization'
-import { Circle, GoogleMap, Marker, useLoadScript } from '@react-google-maps/api'
-import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
+import { AdvancedMarker, APIProvider, Circle, Map, useApiIsLoaded, useMap } from '@vis.gl/react-google-maps'
+import { useCallback, useEffect, useState } from 'react'
 import '../styles/button.css'
 import { AugmentedParkingLocationData } from '@/parking-locations/types'
 import { MapButton } from '@/components/MapButton'
 
-import { userLocationCircleOptions, getUserLocationIcon } from '@/components/MapIcons'
+import { userLocationCircleOptions, userLocationDotStyle } from '@/components/MapIcons'
 import { filterLocationsByGeohash, geohashPrecision, getUserGeohashAndNeighbors, mapLocationsToDistances, sortByDistance } from '../../notifications/helper-functions/geoHashHelpers'
 import { calculateLocationCenter } from '@/parking-locations/helper-functions/calculateLocationCenter'
 
+const defaultCenter = { lat: 59.380065, lng: 18.035959 } // Hardcoded to Bergshamra
+
 export function ParkingMap() {
+  return (
+    // 'geometry' backs the distance calculation used to find the nearest spot. The 'marker'
+    // library needed for advanced markers is requested by AdvancedMarker itself.
+    <APIProvider
+      apiKey={process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY as string}
+      libraries={['geometry']}
+    >
+      <ParkingMapContent />
+    </APIProvider>
+  )
+}
+
+function ParkingMapContent() {
   const [userLocation, setUserLocation] = useState<google.maps.LatLng | null>(null)
   const [userLocationAccuracy, setUserLocationAccuracy] = useState<number | null>(null)
   const [focusedLocation, setFocusedLocation] = useState<google.maps.LatLng | null>(null)
-  const [userLocationIcon, setUserLocationIcon] = useState<google.maps.Symbol | null>(null)
-  const mapRef = useRef<google.maps.Map | null>(null)
   const [selectedParkingForDisplay, setSelectedParkingForDisplay] = useState<AugmentedParkingLocationData | null>(null)
 
-  const libraries = useMemo(() => ['places'], [])
-
-  const { isLoaded } = useLoadScript({
-    googleMapsApiKey: process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY as string,
-    libraries: libraries as any, // eslint-disable-line @typescript-eslint/no-explicit-any
-  })
-
+  const isLoaded = useApiIsLoaded()
+  const map = useMap()
 
   const selectClosestParkingSpot = useCallback((userLatLong: google.maps.LatLng) => {
     const parkingLocations = getAugmentedParkingLocationData()
@@ -66,10 +74,14 @@ export function ParkingMap() {
 
   useEffect(() => { 
     getUserLocation()
-    const icon = getUserLocationIcon()
-    setUserLocationIcon(icon)
   }, [getUserLocation])
 
+  // The map starts at the hardcoded default, so recentre once the user has been located
+  useEffect(() => {
+    if (map && userLocation) {
+      map.panTo(userLocation)
+    }
+  }, [map, userLocation])
 
   useEffect(() => {
     if (userLocation && focusedLocation === null) {
@@ -82,46 +94,34 @@ export function ParkingMap() {
     return <p>Loading map...</p>
   }
 
-  const defaultCenter = { lat: 59.380065, lng: 18.035959 } // Hardcoded to Bergshamra
-  const mapCenter = userLocation || focusedLocation || defaultCenter
-
-  const mapOptions: google.maps.MapOptions = {
-    disableDefaultUI: true,
-    clickableIcons: false,
-    scrollwheel: true,
-    mapId: process.env.NEXT_PUBLIC_GOOGLE_MAPS_MAP_ID as string
-  }
-
   const parkingLocations = getAugmentedParkingLocationData()
 
   return (
     <div style={{ position: 'relative', width: '100%', height: '75vh' }}>
-      <GoogleMap
-        options={mapOptions}
-        zoom={15}
-        center={mapCenter}
-        mapContainerStyle={{ width: '100%', height: '75vh' }}
-        onLoad={map => {
-          mapRef.current = map
-          if (userLocation) {
-            selectClosestParkingSpot(userLocation)
-          }
-        }}
+      <Map
+        mapId={process.env.NEXT_PUBLIC_GOOGLE_MAPS_MAP_ID as string}
+        defaultCenter={defaultCenter}
+        defaultZoom={15}
+        disableDefaultUI={true}
+        clickableIcons={false}
+        scrollwheel={true}
+        style={{ width: '100%', height: '75vh' }}
       >
         {userLocation && (
           <>
-            {userLocationIcon && (
-              <Marker
-                position={userLocation}
-                title="Your location is here"
-                icon={userLocationIcon}
-              />
-            )}
+            <AdvancedMarker
+              position={userLocation}
+              title="Your location is here"
+              anchorLeft="-50%"
+              anchorTop="-50%"
+            >
+              <div style={userLocationDotStyle} />
+            </AdvancedMarker>
             {userLocationAccuracy && (
               <Circle
                 center={userLocation}
                 radius={userLocationAccuracy}
-                options={userLocationCircleOptions}
+                {...userLocationCircleOptions}
               />
             )}
           </>
@@ -138,7 +138,7 @@ export function ParkingMap() {
             }
           }}
         />
-      </GoogleMap>
+      </Map>
       <div style={{ position: 'absolute', bottom: '10px', left: '10px' }}>
         {userLocation && <MapButton onClick={() => selectClosestParkingSpot(userLocation)} text={"Open nearest spot"} />}
       </div>
