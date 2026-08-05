@@ -18,6 +18,7 @@ import { calculateUnsociableHoursSuggestionDaybeforeOrSameday } from "@/notifica
 import { calculateNotifUnsocialHours } from "@/notifications/helper-functions/calculateNotifTimeUnsocHours"
 import FilteredOptionsAlert from "./FilteredOptionsAlert"
 import { calculateReminderDate } from "@/notifications/helper-functions/calculateReminderDate"
+import { AlertCircle, Check, Loader2 } from "lucide-react"
 
 interface INotificationModalProps {
   location: AugmentedParkingLocationData
@@ -47,7 +48,8 @@ export default function NotificationModal({ location }: INotificationModalProps)
   })
   const [errors, setErrors] = useState<z.ZodIssue[]>([])
 
-  const [apiStatus, setApiStatus] = useState<number | null>(null)
+  const [submitResult, setSubmitResult] = useState<'success' | 'error' | null>(null)
+  const [isSubmitting, setIsSubmitting] = useState(false)
 
   // Load saved value on mount
   useEffect(() => {
@@ -86,6 +88,8 @@ export default function NotificationModal({ location }: INotificationModalProps)
     }
 
     setErrors([])
+    setSubmitResult(null)
+    setIsSubmitting(true)
 
     try {
       const response = await fetch('/api/trigger-reminder', {
@@ -101,15 +105,20 @@ export default function NotificationModal({ location }: INotificationModalProps)
           location: location.name,
         })
       })
-      setApiStatus(response.status)
+      setSubmitResult(response.ok ? 'success' : 'error')
 
       const responseJson = await response.json()
-      console.log(`Triggered an SMS with car nickname: ${responseJson.nickname}`)
+      if (response.ok) {
+        console.log(`Triggered an SMS with car nickname: ${responseJson.nickname}`)
+      } else {
+        console.error('Failed to create reminder:', responseJson.message)
+      }
     } catch (error) {
+      setSubmitResult('error')
       console.error('Error calling API:', error)
+    } finally {
+      setIsSubmitting(false)
     }
-
-    
   }
 
   useEffect(() => {
@@ -145,6 +154,19 @@ export default function NotificationModal({ location }: INotificationModalProps)
     })
   }
 
+  const submitButtonContent = () => {
+    if (isSubmitting) {
+      return <><Loader2 className="mr-2 h-4 w-4 animate-spin" />Setting reminder...</>
+    }
+    if (submitResult === 'success') {
+      return <><Check className="mr-2 h-4 w-4" />Reminder set!</>
+    }
+    if (submitResult === 'error') {
+      return <><AlertCircle className="mr-2 h-4 w-4" />Failed, try again</>
+    }
+    return "Set Reminder"
+  }
+
   const getErrorMessage = (path: string) => {
     const error = errors.find(error => error.path.includes(path))
     return error ? error.message : null
@@ -178,7 +200,9 @@ export default function NotificationModal({ location }: INotificationModalProps)
   }
 
   return (
-    <Dialog>
+    // This component outlives the dialog, so the previous outcome is cleared on dismissal
+    // rather than lingering on the button the next time the dialog is opened
+    <Dialog onOpenChange={(open) => { if (!open) { setSubmitResult(null) } }}>
       <DialogTrigger asChild>
         <Button className="m-2" variant="outline">Set reminder</Button>
       </DialogTrigger>
@@ -282,17 +306,17 @@ export default function NotificationModal({ location }: INotificationModalProps)
             </div>
             <DialogFooter className="flex items-center justify-content ">
               <h4 className="text-xs mr-auto">By continuing you are accepting the <br /><a className="text-blue-500" href="/">terms and conditions</a></h4>
-              <Button className="mb-4" disabled={state.notificationNotPossible} type="submit">Set Reminder</Button>
+              <Button
+                className={`mb-4 ${submitResult === 'success' && !isSubmitting ? 'bg-green-600 hover:bg-green-600/90 text-white' : ''}`}
+                variant={submitResult === 'error' && !isSubmitting ? 'destructive' : 'default'}
+                disabled={state.notificationNotPossible || isSubmitting}
+                type="submit"
+              >
+                {submitButtonContent()}
+              </Button>
             </DialogFooter>
           </div>
         </form>
-
-        <p className={apiStatus === 200 ? "text-green-600" : "text-red-600"}>
-          {apiStatus && (apiStatus === 200 
-            ? "Successfully created reminder!" 
-            : "Failed to create reminder")}
-        </p>
-        
       </DialogContent>
     </Dialog >
   )
