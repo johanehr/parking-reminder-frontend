@@ -1,4 +1,4 @@
-import { InfoWindow, Polygon, useGoogleMap } from '@react-google-maps/api'
+import { InfoWindow, Polygon, useMap } from '@vis.gl/react-google-maps'
 import { Fragment } from 'react'
 import React from 'react'
 import { AugmentedParkingLocationData, CleaningTime, DayOfWeek, ParkingRules } from './types'
@@ -49,7 +49,7 @@ const generateDescriptionText = (rules: ParkingRules) => {
 }
 
 export default function ParkingMapPolygons({ parkingLocations, onPolygonClick, handleSelectParkingSpotForDisplay, selectedParkingForDisplay }: ParkingMapPolygonsProps) {
-  const mapRef = useGoogleMap()
+  const mapRef = useMap()
 
   return (
     <>
@@ -60,15 +60,13 @@ export default function ParkingMapPolygons({ parkingLocations, onPolygonClick, h
             <React.Fragment key={`${location.name}-fragment`}>
               <Polygon
                 key={`${location.name}-polygon`}
-                path={location.path}
-                options={{
-                  strokeColor: location.color,
-                  strokeOpacity: 0.8,
-                  strokeWeight: 1,
-                  fillColor: location.color,
-                  fillOpacity: 0.35,
-                  zIndex: 10, // Ensure this is above e.g. location accuracy circle
-                }}
+                paths={location.path}
+                strokeColor={location.color}
+                strokeOpacity={0.8}
+                strokeWeight={1}
+                fillColor={location.color}
+                fillOpacity={0.35}
+                zIndex={10} // Ensure this is above e.g. location accuracy circle
                 onClick={() => {
                   if (mapRef) {
                     onPolygonClick(location, mapRef)
